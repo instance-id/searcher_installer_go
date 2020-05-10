@@ -1,0 +1,1 @@
+# searcher_installer_go
