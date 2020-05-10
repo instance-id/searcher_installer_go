@@ -1,0 +1,1 @@
+﻿enum AnimProps { opacity, translateX, height, width, color, scale, offset }

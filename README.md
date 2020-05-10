@@ -1,1 +1,2 @@
-# searcher_installer_go
+# searcher_installer
+Installer and updater for Searcher - Houdini addon 
