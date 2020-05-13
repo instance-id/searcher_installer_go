@@ -5,9 +5,9 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:searcher_installer/helpers/charts/chart_source/bezier/bezier_chart_config.dart';
-import 'package:searcher_installer/helpers/charts/chart_source/bezier/bezier_line.dart';
-import 'package:searcher_installer/helpers/charts/chart_source/bezier/my_single_child_scroll_view.dart';
+import 'package:searcher_installer_go/helpers/charts/chart_source/bezier/bezier_chart_config.dart';
+import 'package:searcher_installer_go/helpers/charts/chart_source/bezier/bezier_line.dart';
+import 'package:searcher_installer_go/helpers/charts/chart_source/bezier/my_single_child_scroll_view.dart';
 import 'package:intl/intl.dart' as intl;
 
 typedef FooterValueBuilder = String Function(double value);

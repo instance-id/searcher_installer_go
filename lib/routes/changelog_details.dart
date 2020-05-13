@@ -1,14 +1,14 @@
 import 'package:fluid_layout/fluid_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer/data/models/changelog_data.dart';
-import 'package:searcher_installer/data/provider/changelog_provider.dart';
-import 'package:searcher_installer/helpers/custom_card.dart';
-import 'package:transparent_image/transparent_image.dart';
-import 'package:global_configuration/global_configuration.dart';
+import 'package:searcher_installer_go/data/models/changelog_data.dart';
+import 'package:searcher_installer_go/data/provider/changelog_provider.dart';
+import 'package:searcher_installer_go/helpers/custom_card.dart';
 import 'package:supercharged/supercharged.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ChangeLogDetails extends StatefulWidget {
   final String id;
@@ -134,7 +134,7 @@ class _ChangeLogDetailsState extends State<ChangeLogDetails> with TickerProvider
                       color: Colors.transparent,
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
-                      margin: EdgeInsets.fromLTRB(0, 22, 0, 30) ,
+                      margin: EdgeInsets.fromLTRB(0, 22, 0, 30),
                       child: FluidLayout(
                           horizontalPadding: FluidValue((_) => 0),
                           child: Fluid(
@@ -142,7 +142,7 @@ class _ChangeLogDetailsState extends State<ChangeLogDetails> with TickerProvider
                               Center(
                                 child: Container(
                                     alignment: Alignment.center,
-                                    width: MediaQuery.of(context).size.width ,
+                                    width: MediaQuery.of(context).size.width,
                                     height: MediaQuery.of(context).size.height - 122,
                                     child: CustomCard(
                                       elevation: 2,

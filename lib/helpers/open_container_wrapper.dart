@@ -1,10 +1,10 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/data/models/changelog_data.dart';
+import 'package:searcher_installer_go/data/models/changelog_data.dart';
 import 'package:supercharged/supercharged.dart';
 
 class OpenContainerWrapper extends StatelessWidget {
-  const OpenContainerWrapper( {
+  const OpenContainerWrapper({
     this.changeLog,
     this.detailsPage,
     this.closedBuilder,
@@ -23,22 +23,21 @@ class OpenContainerWrapper extends StatelessWidget {
     return OpenContainer(
       openShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(borderRadius[0]),
-            topRight: Radius.circular(borderRadius[1]),
-            bottomRight: Radius.circular(borderRadius[2]),
-            bottomLeft: Radius.circular(borderRadius[3]),
-          )),
+        topLeft: Radius.circular(borderRadius[0]),
+        topRight: Radius.circular(borderRadius[1]),
+        bottomRight: Radius.circular(borderRadius[2]),
+        bottomLeft: Radius.circular(borderRadius[3]),
+      )),
       transitionDuration: 700.milliseconds,
       closedColor: Colors.transparent,
       openColor: Colors.transparent,
       transitionType: transitionType,
       // ignore: missing_return
       openBuilder: (BuildContext context, VoidCallback _) {
-
 //        return Navigator.of(context).push(PageRouteBuilder(
 //            opaque: false,
 //            pageBuilder: (BuildContext context, _, __) => detailsPage));
-            return detailsPage;
+        return detailsPage;
       },
       tappable: false,
       closedBuilder: closedBuilder,

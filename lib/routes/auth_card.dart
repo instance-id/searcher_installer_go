@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:searcher_installer/data/models/login_data.dart';
-import 'package:searcher_installer/data/provider/auth_state.dart';
-import 'package:searcher_installer/data/provider/login_messages.dart';
-import 'package:searcher_installer/widgets/widgets/fade_in.dart';
+import 'package:searcher_installer_go/data/models/login_data.dart';
+import 'package:searcher_installer_go/data/provider/auth_state.dart';
+import 'package:searcher_installer_go/data/provider/login_messages.dart';
+import 'package:searcher_installer_go/widgets/widgets/fade_in.dart';
 import 'package:transformer_page_view/transformer_page_view.dart';
 import '../widgets/login/src/constants.dart';
 import '../widgets/login/src/widgets/animated_button.dart';
@@ -97,7 +97,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
       parent: _routeTransitionController,
       curve: Interval(0, .27272727 /* ~300ms */, curve: Curves.easeInOutCirc),
     ));
-    // replace 0 with minPositive to pass the test
+    // replace 0 with minPositive to pass the test1
     // https://github.com/flutter/flutter/issues/42527#issuecomment-575131275
     _cardOverlayHeightFactorAnimation = Tween<double>(begin: double.minPositive, end: 1.0).animate(CurvedAnimation(
       parent: _routeTransitionController,

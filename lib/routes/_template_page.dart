@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/animations/animate_provider.dart';
+import 'package:searcher_installer_go/animations/animate_provider.dart';
 
 class template_page extends StatefulWidget {
   @override

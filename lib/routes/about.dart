@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:searcher_installer/data/app_data.dart';
+import 'package:searcher_installer_go/data/app_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutRoute extends StatefulWidget {
@@ -15,20 +15,8 @@ class _AboutRouteState extends State<AboutRoute> {
 
   get title => 'About';
 
-  _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url, forceWebView: true);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
   Future<void> _makeCall(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
+    await launch(url).catchError((e) => log.e("Cannot get news data: $e"));
   }
 
   List<Widget> aboutListTiles(BuildContext context) {
@@ -67,7 +55,15 @@ class _AboutRouteState extends State<AboutRoute> {
       trailing: IconButton(
         icon: Icon(Icons.info),
         onPressed: () {
-          showAboutDialog(context: context, applicationName: APP_NAME, applicationVersion: APP_VERSION, applicationIcon: AppIcon, children: <Widget>[Text(APP_DESCRIPTION)]);
+          showAboutDialog(
+            context: context,
+            applicationName: APP_NAME,
+            applicationVersion: APP_VERSION,
+            applicationIcon: AppIcon,
+            children: <Widget>[
+              Text(APP_DESCRIPTION),
+            ],
+          );
         },
       ),
     );

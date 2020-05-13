@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/animations/charts/animate_chart.dart';
+import 'package:searcher_installer_go/animations/charts/animate_chart.dart';
 
 class LineChartSample2 extends StatefulWidget {
   const LineChartSample2(AnimateCharts animation, {Key key})

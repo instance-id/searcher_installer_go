@@ -7,12 +7,20 @@ class NewsData {
   final String description;
   final String dateposted;
   final String project;
+  final String icon;
   final String image;
   final String image_small;
+  String _dynamicString = "false";
+
+  bool getBool(String value) {
+    return (_dynamicString != null) ? _dynamicString.toLowerCase() == 'true' : false;
+  }
+
+  bool get isDynamic => getBool(_dynamicString);
 
   String address = GlobalConfiguration().getString("address");
 
-  NewsData({this.description, this.details, this.title, this.id, this.dateposted, this.project, this.image, this.image_small});
+  NewsData({this.description, this.details, this.title, this.id, this.dateposted, this.project, this.image, this.image_small, this.icon});
 
   NewsData.fromJson(Map<String, dynamic> parsedJson)
       : id = parsedJson['id'].toString(),
@@ -22,5 +30,7 @@ class NewsData {
         dateposted = parsedJson['dateposted'],
         project = parsedJson['project'],
         image = parsedJson['image'],
-        image_small = parsedJson['image_small'];
+        image_small = parsedJson['image_small'],
+        icon = parsedJson['icon'],
+        _dynamicString = parsedJson['isdynamic'];
 }

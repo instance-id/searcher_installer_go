@@ -1,18 +1,14 @@
+import 'dart:convert' as convert;
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'dart:convert' as convert;
-
-import 'package:searcher_installer/data/models/changelog_data.dart';
+import 'package:searcher_installer_go/data/models/changelog_data.dart';
 
 class ChangeLogDataProvider with ChangeNotifier {
   var log = Logger();
   List<ChangeLogData> changeLog;
   bool _fetchComplete = false;
-
-  ChangeLogDataProvider() {
-    init();
-  }
 
   init() {
     getChanges();

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/helpers/flutter_reorderable_list.dart';
+import 'package:searcher_installer_go/helpers/flutter_reorderable_list.dart';
 
 void main() => runApp(MyApp());
 

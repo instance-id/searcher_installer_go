@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
-import 'package:searcher_installer/helpers/animate_route.dart';
-import 'package:searcher_installer/helpers/custom_color.dart';
-import 'package:searcher_installer/routes/about.dart';
-import 'package:searcher_installer/routes/tab_menu.dart';
+import 'package:searcher_installer_go/helpers/animate_route.dart';
+import 'package:searcher_installer_go/helpers/custom_color.dart';
+import 'package:searcher_installer_go/routes/about.dart';
+import 'package:searcher_installer_go/routes/tab_menu.dart';
 
 import 'dashboard_screen.dart';
 

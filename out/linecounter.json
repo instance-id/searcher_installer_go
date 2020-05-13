@@ -1,0 +1,794 @@
+{
+    "extension": "linecounter",
+    "version": "0.2.7",
+    "workspace": "e:\\_programming\\go\\src\\github.com\\instance-id\\searcher_installer_go",
+    "linecount": [
+        {
+            "version": "0.2.7",
+            "counttime": "2020-05-12 23:33:53",
+            "filesum": 124,
+            "codesum": 11547,
+            "commentsum": 1090,
+            "blanksum": 1362,
+            "statistics": {
+                ".dart": {
+                    "code": 10853,
+                    "comment": 1074,
+                    "blank": 1330
+                },
+                "": {
+                    "code": 496,
+                    "comment": 0,
+                    "blank": 0
+                },
+                ".sum": {
+                    "code": 90,
+                    "comment": 1,
+                    "blank": 0
+                },
+                ".mod": {
+                    "code": 11,
+                    "comment": 0,
+                    "blank": 2
+                },
+                ".yaml": {
+                    "code": 10,
+                    "comment": 3,
+                    "blank": 0
+                },
+                ".go": {
+                    "code": 87,
+                    "comment": 12,
+                    "blank": 30
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 0,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "go\\.gitignore"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "go\\.last_go-flutter_check"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "go\\.last_goflutter_check"
+                },
+                {
+                    "filename": "go\\assets\\icon.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 3,
+                    "code": 8,
+                    "comment": 2,
+                    "filename": "go\\cmd\\import-file_picker-plugin.go"
+                },
+                {
+                    "blank": 3,
+                    "code": 8,
+                    "comment": 2,
+                    "filename": "go\\cmd\\import-image_picker-plugin.go"
+                },
+                {
+                    "blank": 3,
+                    "code": 11,
+                    "comment": 2,
+                    "filename": "go\\cmd\\import-path_provider-plugin.go"
+                },
+                {
+                    "blank": 3,
+                    "code": 11,
+                    "comment": 2,
+                    "filename": "go\\cmd\\import-shared_preferences-plugin.go"
+                },
+                {
+                    "blank": 3,
+                    "code": 8,
+                    "comment": 2,
+                    "filename": "go\\cmd\\import-url_launcher-plugin.go"
+                },
+                {
+                    "blank": 12,
+                    "code": 35,
+                    "comment": 2,
+                    "filename": "go\\cmd\\main.go"
+                },
+                {
+                    "blank": 3,
+                    "code": 6,
+                    "comment": 0,
+                    "filename": "go\\cmd\\options.go"
+                },
+                {
+                    "blank": 2,
+                    "code": 11,
+                    "comment": 0,
+                    "filename": "go\\go.mod"
+                },
+                {
+                    "blank": 0,
+                    "code": 90,
+                    "comment": 1,
+                    "filename": "go\\go.sum"
+                },
+                {
+                    "blank": 0,
+                    "code": 10,
+                    "comment": 3,
+                    "filename": "go\\hover.yaml"
+                },
+                {
+                    "blank": 0,
+                    "code": 9,
+                    "comment": 0,
+                    "filename": "lib\\.secret\\secret.config.dart"
+                },
+                {
+                    "blank": 5,
+                    "code": 31,
+                    "comment": 1,
+                    "filename": "lib\\animations\\anim_FadeInHZ.dart"
+                },
+                {
+                    "blank": 5,
+                    "code": 31,
+                    "comment": 1,
+                    "filename": "lib\\animations\\anim_FadeInVT.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "lib\\animations\\anim_properties.dart"
+                },
+                {
+                    "blank": 2,
+                    "code": 115,
+                    "comment": 0,
+                    "filename": "lib\\animations\\animate_details.dart"
+                },
+                {
+                    "blank": 4,
+                    "code": 161,
+                    "comment": 2,
+                    "filename": "lib\\animations\\animate_provider.dart"
+                },
+                {
+                    "blank": 3,
+                    "code": 51,
+                    "comment": 0,
+                    "filename": "lib\\animations\\charts\\animate_chart.dart"
+                },
+                {
+                    "blank": 9,
+                    "code": 66,
+                    "comment": 0,
+                    "filename": "lib\\animations\\easing.dart"
+                },
+                {
+                    "blank": 10,
+                    "code": 42,
+                    "comment": 0,
+                    "filename": "lib\\animations\\slide_in.dart"
+                },
+                {
+                    "blank": 10,
+                    "code": 84,
+                    "comment": 1,
+                    "filename": "lib\\animations\\transition\\expand_transition.dart"
+                },
+                {
+                    "blank": 10,
+                    "code": 98,
+                    "comment": 0,
+                    "filename": "lib\\animations\\transition\\fab_fill_transition.dart"
+                },
+                {
+                    "blank": 7,
+                    "code": 46,
+                    "comment": 0,
+                    "filename": "lib\\animations\\transition\\scale_out_transition.dart"
+                },
+                {
+                    "blank": 11,
+                    "code": 84,
+                    "comment": 0,
+                    "filename": "lib\\app_home.dart"
+                },
+                {
+                    "blank": 1,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": "lib\\data\\app_data.dart"
+                },
+                {
+                    "blank": 5,
+                    "code": 26,
+                    "comment": 0,
+                    "filename": "lib\\data\\models\\changelog_data.dart"
+                },
+                {
+                    "blank": 1,
+                    "code": 20,
+                    "comment": 0,
+                    "filename": "lib\\data\\models\\fbapp.dart"
+                },
+                {
+                    "blank": 5,
+                    "code": 21,
+                    "comment": 0,
+                    "filename": "lib\\data\\models\\login_data.dart"
+                },
+                {
+                    "blank": 6,
+                    "code": 30,
+                    "comment": 0,
+                    "filename": "lib\\data\\models\\news_data.dart"
+                },
+                {
+                    "blank": 9,
+                    "code": 42,
+                    "comment": 44,
+                    "filename": "lib\\data\\models\\pointer_status.dart"
+                },
+                {
+                    "blank": 7,
+                    "code": 22,
+                    "comment": 0,
+                    "filename": "lib\\data\\models\\settings_data.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0,
+                    "filename": "lib\\data\\provider\\app_providers.dart"
+                },
+                {
+                    "blank": 9,
+                    "code": 45,
+                    "comment": 2,
+                    "filename": "lib\\data\\provider\\auth_provider.dart"
+                },
+                {
+                    "blank": 15,
+                    "code": 64,
+                    "comment": 2,
+                    "filename": "lib\\data\\provider\\auth_state.dart"
+                },
+                {
+                    "blank": 8,
+                    "code": 32,
+                    "comment": 0,
+                    "filename": "lib\\data\\provider\\changelog_provider.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0,
+                    "filename": "lib\\data\\provider\\index.dart"
+                },
+                {
+                    "blank": 14,
+                    "code": 42,
+                    "comment": 14,
+                    "filename": "lib\\data\\provider\\login_messages.dart"
+                },
+                {
+                    "blank": 23,
+                    "code": 53,
+                    "comment": 32,
+                    "filename": "lib\\data\\provider\\login_theme.dart"
+                },
+                {
+                    "blank": 4,
+                    "code": 21,
+                    "comment": 0,
+                    "filename": "lib\\data\\provider\\navigation_provider.dart"
+                },
+                {
+                    "blank": 7,
+                    "code": 32,
+                    "comment": 0,
+                    "filename": "lib\\data\\provider\\news_provider.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0,
+                    "filename": "lib\\data\\provider\\news_state.dart"
+                },
+                {
+                    "blank": 7,
+                    "code": 36,
+                    "comment": 0,
+                    "filename": "lib\\data\\provider\\settings_provider.dart"
+                },
+                {
+                    "blank": 1,
+                    "code": 503,
+                    "comment": 24,
+                    "filename": "lib\\data\\provider\\theme_data.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0,
+                    "filename": "lib\\data\\provider\\update_state.dart"
+                },
+                {
+                    "blank": 4,
+                    "code": 11,
+                    "comment": 2,
+                    "filename": "lib\\data\\settings.dart"
+                },
+                {
+                    "blank": 21,
+                    "code": 87,
+                    "comment": 14,
+                    "filename": "lib\\generated\\i18n.dart"
+                },
+                {
+                    "blank": 4,
+                    "code": 27,
+                    "comment": 0,
+                    "filename": "lib\\helpers\\animate_route.dart"
+                },
+                {
+                    "blank": 11,
+                    "code": 63,
+                    "comment": 3,
+                    "filename": "lib\\helpers\\background.dart"
+                },
+                {
+                    "blank": 3,
+                    "code": 51,
+                    "comment": 0,
+                    "filename": "lib\\helpers\\custom_card.dart"
+                },
+                {
+                    "blank": 2,
+                    "code": 18,
+                    "comment": 4,
+                    "filename": "lib\\helpers\\custom_color.dart"
+                },
+                {
+                    "blank": 6,
+                    "code": 19,
+                    "comment": 0,
+                    "filename": "lib\\helpers\\example_icons.dart"
+                },
+                {
+                    "blank": 7,
+                    "code": 172,
+                    "comment": 0,
+                    "filename": "lib\\helpers\\file_selector.dart"
+                },
+                {
+                    "blank": 126,
+                    "code": 608,
+                    "comment": 30,
+                    "filename": "lib\\helpers\\flutter_reorderable_list.dart"
+                },
+                {
+                    "blank": 13,
+                    "code": 34,
+                    "comment": 3,
+                    "filename": "lib\\helpers\\navigation-bus.dart"
+                },
+                {
+                    "blank": 65,
+                    "code": 575,
+                    "comment": 185,
+                    "filename": "lib\\helpers\\open_container.dart"
+                },
+                {
+                    "blank": 4,
+                    "code": 38,
+                    "comment": 4,
+                    "filename": "lib\\helpers\\open_container_wrapper.dart"
+                },
+                {
+                    "blank": 7,
+                    "code": 56,
+                    "comment": 1,
+                    "filename": "lib\\helpers\\params.dart"
+                },
+                {
+                    "blank": 27,
+                    "code": 200,
+                    "comment": 21,
+                    "filename": "lib\\helpers\\reorder_list.dart"
+                },
+                {
+                    "blank": 32,
+                    "code": 170,
+                    "comment": 16,
+                    "filename": "lib\\helpers\\reorderable_list_simple.dart"
+                },
+                {
+                    "blank": 12,
+                    "code": 76,
+                    "comment": 8,
+                    "filename": "lib\\helpers\\styling.dart"
+                },
+                {
+                    "blank": 51,
+                    "code": 292,
+                    "comment": 22,
+                    "filename": "lib\\helpers\\syntax_highlighter.dart"
+                },
+                {
+                    "blank": 9,
+                    "code": 95,
+                    "comment": 0,
+                    "filename": "lib\\helpers\\tab_item.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 171,
+                    "filename": "lib\\helpers\\web_view.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 139,
+                    "comment": 0,
+                    "filename": "lib\\host_config"
+                },
+                {
+                    "blank": 8,
+                    "code": 73,
+                    "comment": 1,
+                    "filename": "lib\\main.dart"
+                },
+                {
+                    "blank": 2,
+                    "code": 8,
+                    "comment": 0,
+                    "filename": "lib\\main_desktop.dart"
+                },
+                {
+                    "blank": 125,
+                    "code": 622,
+                    "comment": 100,
+                    "filename": "lib\\packages\\expandable_news\\expandable.dart"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "lib\\packages\\lib\\expansion_card.dart"
+                },
+                {
+                    "blank": 26,
+                    "code": 173,
+                    "comment": 42,
+                    "filename": "lib\\packages\\lib\\src\\card.dart"
+                },
+                {
+                    "blank": 11,
+                    "code": 84,
+                    "comment": 4,
+                    "filename": "lib\\routes\\_template_page.dart"
+                },
+                {
+                    "blank": 7,
+                    "code": 69,
+                    "comment": 1,
+                    "filename": "lib\\routes\\about.dart"
+                },
+                {
+                    "blank": 9,
+                    "code": 69,
+                    "comment": 1,
+                    "filename": "lib\\routes\\app_bar.dart"
+                },
+                {
+                    "blank": 93,
+                    "code": 738,
+                    "comment": 15,
+                    "filename": "lib\\routes\\auth_card.dart"
+                },
+                {
+                    "blank": 10,
+                    "code": 158,
+                    "comment": 3,
+                    "filename": "lib\\routes\\changelog_details.dart"
+                },
+                {
+                    "blank": 5,
+                    "code": 108,
+                    "comment": 0,
+                    "filename": "lib\\routes\\changelog_item.dart"
+                },
+                {
+                    "blank": 2,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "lib\\routes\\choose_location.dart"
+                },
+                {
+                    "blank": 43,
+                    "code": 575,
+                    "comment": 7,
+                    "filename": "lib\\routes\\dashboard_screen.dart"
+                },
+                {
+                    "blank": 56,
+                    "code": 511,
+                    "comment": 29,
+                    "filename": "lib\\routes\\flutter_login.dart"
+                },
+                {
+                    "blank": 10,
+                    "code": 58,
+                    "comment": 0,
+                    "filename": "lib\\routes\\home.dart"
+                },
+                {
+                    "blank": 12,
+                    "code": 217,
+                    "comment": 6,
+                    "filename": "lib\\routes\\login_screen.dart"
+                },
+                {
+                    "blank": 13,
+                    "code": 201,
+                    "comment": 109,
+                    "filename": "lib\\routes\\news.dart"
+                },
+                {
+                    "blank": 7,
+                    "code": 182,
+                    "comment": 4,
+                    "filename": "lib\\routes\\news_details.dart"
+                },
+                {
+                    "blank": 4,
+                    "code": 32,
+                    "comment": 0,
+                    "filename": "lib\\routes\\news_item.dart"
+                },
+                {
+                    "blank": 34,
+                    "code": 332,
+                    "comment": 10,
+                    "filename": "lib\\routes\\tab_menu.dart"
+                },
+                {
+                    "blank": 6,
+                    "code": 106,
+                    "comment": 0,
+                    "filename": "lib\\routes\\test.dart"
+                },
+                {
+                    "blank": 9,
+                    "code": 127,
+                    "comment": 0,
+                    "filename": "lib\\routes\\widgets\\change_log_list.dart"
+                },
+                {
+                    "blank": 7,
+                    "code": 183,
+                    "comment": 0,
+                    "filename": "lib\\routes\\widgets\\news_main_home.dart"
+                },
+                {
+                    "blank": 9,
+                    "code": 80,
+                    "comment": 0,
+                    "filename": "lib\\services\\auth_storage.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 117,
+                    "comment": 0,
+                    "filename": "lib\\test1"
+                },
+                {
+                    "blank": 0,
+                    "code": 117,
+                    "comment": 0,
+                    "filename": "lib\\test2"
+                },
+                {
+                    "blank": 0,
+                    "code": 117,
+                    "comment": 0,
+                    "filename": "lib\\test3"
+                },
+                {
+                    "blank": 5,
+                    "code": 33,
+                    "comment": 1,
+                    "filename": "lib\\update_home.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 5,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\constants.dart"
+                },
+                {
+                    "blank": 4,
+                    "code": 26,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\custom_route.dart"
+                },
+                {
+                    "blank": 14,
+                    "code": 80,
+                    "comment": 6,
+                    "filename": "lib\\widgets\\login\\src\\color_helper.dart"
+                },
+                {
+                    "blank": 2,
+                    "code": 8,
+                    "comment": 1,
+                    "filename": "lib\\widgets\\login\\src\\constants.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 3,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\login\\src\\dart_helper.dart"
+                },
+                {
+                    "blank": 2,
+                    "code": 7,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\login\\src\\math_helper.dart"
+                },
+                {
+                    "blank": 1,
+                    "code": 5,
+                    "comment": 8,
+                    "filename": "lib\\widgets\\login\\src\\matrix.dart"
+                },
+                {
+                    "blank": 2,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\login\\src\\paddings.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 3,
+                    "comment": 1,
+                    "filename": "lib\\widgets\\login\\src\\regex.dart"
+                },
+                {
+                    "blank": 3,
+                    "code": 39,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\login\\src\\widget_helper.dart"
+                },
+                {
+                    "blank": 31,
+                    "code": 216,
+                    "comment": 6,
+                    "filename": "lib\\widgets\\login\\src\\widgets\\animated_button.dart"
+                },
+                {
+                    "blank": 24,
+                    "code": 151,
+                    "comment": 6,
+                    "filename": "lib\\widgets\\login\\src\\widgets\\animated_text.dart"
+                },
+                {
+                    "blank": 33,
+                    "code": 311,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\login\\src\\widgets\\animated_text_form_field.dart"
+                },
+                {
+                    "blank": 4,
+                    "code": 26,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\login\\src\\widgets\\custom_page_transformer.dart"
+                },
+                {
+                    "blank": 9,
+                    "code": 94,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\login\\src\\widgets\\expandable_container.dart"
+                },
+                {
+                    "blank": 3,
+                    "code": 25,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\login\\src\\widgets\\gradient_box.dart"
+                },
+                {
+                    "blank": 25,
+                    "code": 217,
+                    "comment": 8,
+                    "filename": "lib\\widgets\\login\\src\\widgets\\hero_text.dart"
+                },
+                {
+                    "blank": 1,
+                    "code": 5,
+                    "comment": 1,
+                    "filename": "lib\\widgets\\login\\src\\widgets\\null_widget.dart"
+                },
+                {
+                    "blank": 3,
+                    "code": 30,
+                    "comment": 1,
+                    "filename": "lib\\widgets\\login\\src\\widgets\\ring.dart"
+                },
+                {
+                    "blank": 4,
+                    "code": 56,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\login\\src\\widgets\\shadow_button.dart"
+                },
+                {
+                    "blank": 1,
+                    "code": 4,
+                    "comment": 1,
+                    "filename": "lib\\widgets\\login\\theme.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\login\\widgets.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 60,
+                    "filename": "lib\\widgets\\main.dart"
+                },
+                {
+                    "blank": 4,
+                    "code": 29,
+                    "comment": 9,
+                    "filename": "lib\\widgets\\overlay_widget.dart"
+                },
+                {
+                    "blank": 14,
+                    "code": 63,
+                    "comment": 22,
+                    "filename": "lib\\widgets\\transition_route_observer.dart"
+                },
+                {
+                    "blank": 0,
+                    "code": 6,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\users.dart"
+                },
+                {
+                    "blank": 3,
+                    "code": 39,
+                    "comment": 0,
+                    "filename": "lib\\widgets\\widgets\\animated_numeric_text.dart"
+                },
+                {
+                    "blank": 16,
+                    "code": 113,
+                    "comment": 3,
+                    "filename": "lib\\widgets\\widgets\\fade_in.dart"
+                },
+                {
+                    "blank": 11,
+                    "code": 106,
+                    "comment": 1,
+                    "filename": "lib\\widgets\\widgets\\round_button.dart"
+                }
+            ]
+        }
+    ]
+}

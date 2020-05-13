@@ -2,14 +2,13 @@ import 'package:fluid_layout/fluid_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer/animations/slide_in.dart';
-import 'package:searcher_installer/data/models/changelog_data.dart';
-import 'package:searcher_installer/data/provider/changelog_provider.dart';
-import 'package:searcher_installer/helpers/custom_card.dart';
-import 'package:searcher_installer/helpers/icons_helper.dart';
-import 'package:searcher_installer/helpers/open_container.dart';
+import 'package:searcher_installer_go/animations/anim_FadeInVT.dart';
+import 'package:searcher_installer_go/data/models/changelog_data.dart';
+import 'package:searcher_installer_go/data/provider/changelog_provider.dart';
+import 'package:searcher_installer_go/helpers/custom_card.dart';
+import 'package:searcher_installer_go/helpers/icons_helper.dart';
+import 'package:searcher_installer_go/helpers/open_container.dart';
 import 'package:sized_context/sized_context.dart';
-import 'package:supercharged/supercharged.dart';
 
 import '../changelog_details.dart';
 import '../changelog_item.dart';
@@ -22,25 +21,16 @@ class ChangeLogList extends StatefulWidget {
 }
 
 class _ChangeLogListState extends State<ChangeLogList> with SingleTickerProviderStateMixin {
-  AnimationController _controller;
   final Logger log = new Logger();
   List<ChangeLogData> changeLog;
 
   @override
   void initState() {
-    _controller = new AnimationController(
-      duration: 1000.milliseconds,
-      vsync: this,
-    )..addListener(() {
-        setState(() {});
-      });
-
     super.initState();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
@@ -81,9 +71,7 @@ class _ChangeLogListState extends State<ChangeLogList> with SingleTickerProvider
                     textAlign: TextAlign.center,
                   )),
             ),
-            SizedBox(
-              height: 4,
-            ),
+            SizedBox(height: 8),
             FluidLayout(
               horizontalPadding: FluidValue((_) => 0),
               child: Fluid(
@@ -99,12 +87,10 @@ class _ChangeLogListState extends State<ChangeLogList> with SingleTickerProvider
                                 padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                                 scrollDirection: Axis.vertical,
                                 separatorBuilder: (context, __) => SizedBox(height: 5),
-                                itemBuilder: (context, index) => SlideFadeIn(
-                                  key: Key(index.toString()),
-                                  begin: 130.0,
-                                  end: 0,
-                                  direction: "translateX",
-                                  delay: (index.toDouble() * 0.2) + 0.3,
+                                itemBuilder: (context, index) => FadeInVertical(
+                                  delay: (index.toDouble() * 0.3) + 0.3,
+                                  distance: -75,
+                                  duratin: 500,
                                   child: OpenContainer(
                                     transitionType: ContainerTransitionType.fadeThrough,
                                     closedShape: RoundedRectangleBorder(

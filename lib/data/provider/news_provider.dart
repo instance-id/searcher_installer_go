@@ -1,17 +1,14 @@
+import 'dart:convert' as convert;
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'dart:convert' as convert;
-import 'package:searcher_installer/data/models/news_data.dart';
+import 'package:searcher_installer_go/data/models/news_data.dart';
 
 class NewsDataProvider with ChangeNotifier {
   var log = Logger();
   List<NewsData> newsData;
   bool _fetchComplete = false;
-
-  NewsDataProvider() {
-    init();
-  }
 
   init() {
     getNews();

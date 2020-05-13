@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/helpers/file_selector.dart';
+import 'package:searcher_installer_go/helpers/file_selector.dart';
 
 class ChooseLocation extends StatefulWidget {
   @override

@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:list_tile_more_customizable/list_tile_more_customizable.dart';
+import 'package:supercharged/supercharged.dart';
 
-const Duration _kExpand = Duration(milliseconds: 200);
+Duration _kExpand = 400.milliseconds;
 
 /// A single-line [ListTile] with a trailing button that expands or collapses
 /// the tile to reveal or hide the [children].
@@ -36,11 +38,17 @@ class ExpansionCard extends StatefulWidget {
     this.children = const <Widget>[],
     this.trailing,
     this.initiallyExpanded = false,
+    this.horizontalTitleGap = 0.0,
+    this.minVerticalPadding = 0.0,
+    this.minLeadingWidth = 40.0,
   })  : assert(initiallyExpanded != null),
         super(key: key);
 
   /// Custom added
   final double dropdownWidth;
+  final double horizontalTitleGap;
+  final double minVerticalPadding;
+  final double minLeadingWidth;
 
   /// Adds margin to content of the card.
   final EdgeInsets margin;
@@ -87,14 +95,10 @@ class ExpansionCard extends StatefulWidget {
   _ExpansionTileState createState() => _ExpansionTileState();
 }
 
-class _ExpansionTileState extends State<ExpansionCard>
-    with SingleTickerProviderStateMixin {
-  static final Animatable<double> _easeOutTween =
-      CurveTween(curve: Curves.easeOut);
-  static final Animatable<double> _easeInTween =
-      CurveTween(curve: Curves.easeIn);
-  static final Animatable<double> _halfTween =
-      Tween<double>(begin: 0.0, end: 0.5);
+class _ExpansionTileState extends State<ExpansionCard> with SingleTickerProviderStateMixin {
+  static final Animatable<double> _easeOutTween = CurveTween(curve: Curves.easeOut);
+  static final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);
+  static final Animatable<double> _halfTween = Tween<double>(begin: 0.0, end: 0.5);
 
   final ColorTween _borderColorTween = ColorTween();
   final ColorTween _headerColorTween = ColorTween();
@@ -118,11 +122,9 @@ class _ExpansionTileState extends State<ExpansionCard>
     _iconTurns = _controller.drive(_halfTween.chain(_easeInTween));
     _headerColor = _controller.drive(_headerColorTween.chain(_easeInTween));
     _iconColor = _controller.drive(_iconColorTween.chain(_easeInTween));
-    _backgroundColor =
-        _controller.drive(_backgroundColorTween.chain(_easeOutTween));
+    _backgroundColor = _controller.drive(_backgroundColorTween.chain(_easeOutTween));
 
-    _isExpanded =
-        PageStorage.of(context)?.readState(context) ?? widget.initiallyExpanded;
+    _isExpanded = PageStorage.of(context)?.readState(context) ?? widget.initiallyExpanded;
     if (_isExpanded) _controller.value = 1.0;
   }
 
@@ -147,8 +149,7 @@ class _ExpansionTileState extends State<ExpansionCard>
       }
       PageStorage.of(context)?.writeState(context, _isExpanded);
     });
-    if (widget.onExpansionChanged != null)
-      widget.onExpansionChanged(_isExpanded);
+    if (widget.onExpansionChanged != null) widget.onExpansionChanged(_isExpanded);
   }
 
   Widget _buildChildren(BuildContext context, Widget child) {
@@ -161,8 +162,7 @@ class _ExpansionTileState extends State<ExpansionCard>
             : ClipRRect(
                 borderRadius: BorderRadius.circular(widget.borderRadius),
                 child: Align(
-                  heightFactor:
-                      _heightFactor.value < 0.5 ? 0.5 : _heightFactor.value,
+                  heightFactor: _heightFactor.value < 0.5 ? 0.5 : _heightFactor.value,
                   child: widget.background,
                 ),
               ),
@@ -182,11 +182,17 @@ class _ExpansionTileState extends State<ExpansionCard>
                   textColor: _headerColor.value,
                   child: Container(
                     margin: widget.margin,
-                    child: ListTile(
-                      onTap: _handleTap,
+                    child: ListTileMoreCustomizable(
+                      horizontalTitleGap: widget.horizontalTitleGap,
+                      minVerticalPadding: widget.minVerticalPadding,
+                      minLeadingWidth: widget.minLeadingWidth,
+                      onTap: (details) {
+                        _handleTap();
+                      },
                       leading: widget.leading,
                       title: widget.title,
                       trailing: Container(
+                        width: widget.dropdownWidth,
                         child: widget.trailing ??
                             RotationTransition(
                               turns: _iconTurns,

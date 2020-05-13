@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/helpers/custom_card.dart';
+import 'package:searcher_installer_go/data/models/news_data.dart';
+import 'package:searcher_installer_go/helpers/custom_card.dart';
 
 import 'news_details.dart';
 
 class NewsItem extends StatelessWidget {
+  final NewsData news;
+
+  NewsItem(this.news);
+
   @override
   Widget build(BuildContext context) {
     return CustomCard(
@@ -11,21 +16,19 @@ class NewsItem extends StatelessWidget {
       shadowColor: Colors.black,
       color: Color.fromRGBO(35, 47, 52, 0.9),
       child: ListTile(
-        focusColor: Colors.redAccent,
-        hoverColor: Colors.red.withOpacity(0.5),
-        subtitle: Text(news[index].description),
+        subtitle: Text(news.description),
         title: Text(
-          news[index].title,
+          news.title,
           style: TextStyle(color: Colors.white),
         ),
         onTap: () {
           Navigator.of(context).push(PageRouteBuilder(
               opaque: false,
               pageBuilder: (BuildContext context, _, __) => NewsDetails(
-                id: news[index].id,
-                title: news[index].title,
-                project: news[index].project,
-              )));
+                    id: news.id,
+                    title: news.title,
+                    project: news.project,
+                  )));
         },
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/routes/home.dart';
-import 'package:searcher_installer/routes/choose_location.dart';
+import 'package:searcher_installer_go/routes/home.dart';
+import 'package:searcher_installer_go/routes/choose_location.dart';
 
 enum NavPages { ScheduledJobs, Home, JobStatus, ProviderList }
 

@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:searcher_installer/routes/widgets/change_log_list.dart';
-import 'package:searcher_installer/routes/widgets/news_main_home.dart';
+import 'package:searcher_installer_go/routes/widgets/change_log_list.dart';
+import 'package:searcher_installer_go/routes/widgets/news_main_home.dart';
 import 'package:fluid_layout/fluid_layout.dart';
 
 

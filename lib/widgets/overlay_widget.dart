@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/data/models/changelog_data.dart';
-import 'package:searcher_installer/routes/changelog_details.dart';
+import 'package:searcher_installer_go/data/models/changelog_data.dart';
 
 class OverlayWidget {
   static OverlayEntry overlayEntry;
 
   static void show(
-    BuildContext context, ChangeLogData cLog, {
+    BuildContext context,
+    ChangeLogData cLog, {
     double width = 250,
     double height = 250,
     bool autoDismiss = true,
@@ -22,7 +22,7 @@ class OverlayWidget {
     overlayEntry.remove();
   }
 
-  static buildOverlay(ChangeLogData cLog, {double width, double height} ) {
+  static buildOverlay(ChangeLogData cLog, {double width, double height}) {
     return OverlayEntry(
         builder: (context) => Center(
               child: Material(

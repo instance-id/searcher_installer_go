@@ -2,15 +2,18 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer/services/auth_storage.dart';
-import 'app_home.dart';
-import 'data/models/fbapp.dart';
-import 'data/provider/auth_provider.dart';
-import 'data/provider/changelog_provider.dart';
-import 'data/provider/news_provider.dart';
-import 'data/provider/navigation_provider.dart';
-import 'data/provider/theme_data.dart';
+import 'package:searcher_installer_go/app_home.dart';
+import 'package:searcher_installer_go/data/models/fbapp.dart';
+import 'package:searcher_installer_go/data/models/settings_data.dart';
+import 'package:searcher_installer_go/data/provider/auth_provider.dart';
+import 'package:searcher_installer_go/data/provider/changelog_provider.dart';
+import 'package:searcher_installer_go/data/provider/navigation_provider.dart';
+import 'package:searcher_installer_go/data/provider/news_provider.dart';
+import 'package:searcher_installer_go/data/provider/settings_provider.dart';
+import 'package:searcher_installer_go/data/provider/theme_data.dart';
+import 'package:searcher_installer_go/services/auth_storage.dart';
 
 import '.secret/secret.config.dart';
 
@@ -28,11 +31,17 @@ FbApp getFbApp() {
 }
 
 Future<void> main() async {
+  Logger log = Logger();
   WidgetsFlutterBinding.ensureInitialized();
+  SettingsDataProvider settingProvider = SettingsDataProvider();
+  List<SettingsData> settings;
+  String bgImage;
+
+  settings = await settingProvider.getChanges();
 
   GlobalConfiguration().loadFromMap({
-    "title":"Searcher : Installer",
-    "address":"https://instance.id",
+    "title": "Searcher : Installer",
+    "address": "https://instance.id",
     "collection": "access-data-demo-user",
     "database": "(default)",
     "updateData": true,
@@ -56,6 +65,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<SettingsDataProvider>(create: (_) => SettingsDataProvider()..init()),
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider(app)..init()),
         ChangeNotifierProvider<NavigationProvider>(create: (_) => NavigationProvider()),
         ChangeNotifierProvider<NewsDataProvider>(create: (_) => NewsDataProvider()..init()),

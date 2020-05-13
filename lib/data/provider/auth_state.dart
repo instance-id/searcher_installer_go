@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cross_local_storage/cross_local_storage.dart';
-import 'package:searcher_installer/data/models/login_data.dart';
+import 'package:searcher_installer_go/data/models/login_data.dart';
 
 enum AuthMode { Signup, Login }
 

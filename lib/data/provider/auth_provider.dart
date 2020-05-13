@@ -5,7 +5,7 @@ import 'package:global_configuration/global_configuration.dart';
 
 import 'package:logger/logger.dart';
 import 'package:cross_local_storage/cross_local_storage.dart';
-import 'package:searcher_installer/data/models/fbapp.dart';
+import 'package:searcher_installer_go/data/models/fbapp.dart';
 
 class AuthProvider with ChangeNotifier {
   FbApp fbApp;

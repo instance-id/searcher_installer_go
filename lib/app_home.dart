@@ -1,14 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
-import 'package:flutter/material.dart';
-import 'package:searcher_installer/routes/home.dart';
-import 'package:searcher_installer/routes/news.dart';
-import 'package:searcher_installer/update_home.dart';
-import 'package:searcher_installer/routes/about.dart';
-import 'package:searcher_installer/routes/app_bar.dart';
-import 'package:searcher_installer/routes/tab_menu.dart';
+import 'package:searcher_installer_go/helpers/background.dart';
+import 'package:searcher_installer_go/routes/about.dart';
+import 'package:searcher_installer_go/routes/app_bar.dart';
+import 'package:searcher_installer_go/routes/home.dart';
+import 'package:searcher_installer_go/routes/news.dart';
+import 'package:searcher_installer_go/routes/tab_menu.dart';
 
-import 'helpers/background.dart';
+import 'update_home.dart';
 
 class AppHome extends StatefulWidget {
   @override

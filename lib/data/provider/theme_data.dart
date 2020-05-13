@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/helpers/custom_color.dart';
+import 'package:searcher_installer_go/helpers/custom_color.dart';
 
 final themeData = ThemeData(
   bottomSheetTheme: BottomSheetThemeData(

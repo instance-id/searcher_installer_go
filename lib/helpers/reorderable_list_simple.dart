@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'flutter_reorderable_list.dart';
-//import 'helpers/flutter_reorderable_list.dart';
+//import 'package:searcher_installer_go/helpers/flutter_reorderable_list.dart';
 
 enum ReorderableListSimpleSide { Right, Left }
 

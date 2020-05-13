@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/animations/charts/animate_chart.dart';
-import 'package:searcher_installer/helpers/charts/chart_source/bezier/bezier_chart_config.dart';
-import 'package:searcher_installer/helpers/charts/chart_source/bezier/bezier_chart_widget.dart';
-import 'package:searcher_installer/helpers/charts/chart_source/bezier/bezier_line.dart';
+import 'package:searcher_installer_go/animations/charts/animate_chart.dart';
+import 'package:searcher_installer_go/helpers/charts/chart_source/bezier/bezier_chart_config.dart';
+import 'package:searcher_installer_go/helpers/charts/chart_source/bezier/bezier_chart_widget.dart';
+import 'package:searcher_installer_go/helpers/charts/chart_source/bezier/bezier_line.dart';
 
 class StatsLineChart extends StatefulWidget {
   StatsLineChart(AnimateCharts animation) : _chartController = animation;

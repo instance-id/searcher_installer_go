@@ -1,7 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
-import 'package:searcher_installer/helpers/custom_color.dart';
+import 'package:searcher_installer_go/helpers/custom_color.dart';
 import 'package:sized_context/sized_context.dart';
 
 class RoundButton extends StatefulWidget {

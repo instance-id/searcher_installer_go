@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer/data/models/changelog_data.dart';
-import 'package:searcher_installer/data/provider/changelog_provider.dart';
-import 'package:searcher_installer/helpers/custom_card.dart';
+import 'package:searcher_installer_go/data/models/changelog_data.dart';
+import 'package:searcher_installer_go/data/provider/changelog_provider.dart';
+import 'package:searcher_installer_go/helpers/custom_card.dart';
 
 class ChangeLogItem extends StatelessWidget {
   final String id;

@@ -1,17 +1,52 @@
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
-import 'package:expansion_card/expansion_card.dart';
+import 'package:dynamic_widget/dynamic_widget.dart';
+import 'package:dynamic_widget/dynamic_widget/icons_helper.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer/data/models/news_data.dart';
-import 'package:searcher_installer/data/provider/news_provider.dart';
-import 'package:searcher_installer/helpers/custom_card.dart';
-import 'package:supercharged/supercharged.dart';
+import 'package:searcher_installer_go/animations/anim_FadeInVT.dart';
+import 'package:searcher_installer_go/data/models/news_data.dart';
+import 'package:searcher_installer_go/data/provider/news_provider.dart';
+import 'package:searcher_installer_go/helpers/custom_card.dart';
+import 'package:searcher_installer_go/routes/widgets/expansion_news.dart';
+import 'package:sized_context/sized_context.dart';
 
+var jsonString = '''
+{
+  "type": "ListView",
+  "padding": "10, 10, 10, 0",
+  "pageSize": 1,
+  "children":[
+    {
+      "type": "ListTile",
+      "leading": {
+        "type":"Text",
+        "data":"Leading text"
+      },
+      "title":{
+        "type":"Text",
+        "data":"Sup?"
+      },
+      "subtitle":{
+        "type":"Text",
+        "data":"More Sup?"
+      }
+    }
+  ]
+}
 
-import 'news_details.dart';
+''';
 
 bool startCompleted = false;
+
+class DefaultClickListener implements ClickListener {
+  @override
+  void onClicked(String event) {
+    print("Receive click event: " + event);
+  }
+}
 
 class News extends StatefulWidget {
   static const routeName = '/information';
@@ -22,6 +57,8 @@ class News extends StatefulWidget {
 
 class _NewsState extends State<News> with TickerProviderStateMixin {
   ScrollController _scrollController = ScrollController();
+  GlobalConfiguration config = GlobalConfiguration();
+
   final _itemExtent = 100.0;
   final Logger log = new Logger();
   List<NewsData> news;
@@ -30,6 +67,42 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
   void initState() {
     super.initState();
   }
+
+  _scrollToBottom() {
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+  }
+
+  Future<Widget> _buildWidget(BuildContext context, String json) async {
+    return DynamicWidgetBuilder.build(json, context, new DefaultClickListener());
+  }
+
+  Future<Widget> _dynamicContent(BuildContext context, String json) async {
+    return FutureBuilder<Widget>(
+      future: _buildWidget(context, json),
+      builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+        if (snapshot.hasError) {
+          print(snapshot.error);
+        }
+        return snapshot.hasData
+            ? SizedBox(
+                height: 100,
+                width: 300,
+                child: snapshot.data,
+              )
+            : Text("Loading...");
+      },
+    );
+  }
+
+  var iconList = [
+    getIconGuessFavorFA(name: "bug"),
+    getIconGuessFavorFA(name: "whatshot"),
+    getIconGuessFavorFA(name: "hourglass"),
+    Icons.hourglass_empty,
+    Icons.threed_rotation,
+    Icons.image_aspect_ratio,
+    Icons.threesixty,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -45,114 +118,62 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
         width: MediaQuery.of(context).size.width * 0.9,
         child: Column(
           children: [
+            CustomCard(
+              borderRadius: [10, 10, 0, 0],
+              elevation: 3,
+              color: Colors.black87,
+              child: Container(
+                  height: 25,
+                  width: context.widthPx,
+                  child: Text(
+                    "News",
+                    textAlign: TextAlign.center,
+                  )),
+            ),
             Expanded(
               flex: 1,
               child: CustomCard(
-                padding: [10, 12, 10, 0],
+                padding: [0, 6, 0, 0],
+                borderRadius: [0, 0, 10, 10],
                 elevation: 10,
                 shadowColor: Colors.black,
                 color: Color.fromRGBO(35, 47, 52, 0.8),
-                child: Scaffold(
-                  body: (news == null)
-                      ? Center(child: CircularProgressIndicator())
-                      : DraggableScrollbar(
-                          alwaysVisibleScrollThumb: true,
-                          backgroundColor: Colors.deepOrange,
-                          padding: EdgeInsets.only(right: 0.0),
-                          labelTextBuilder: (double offset) => Text("${offset ~/ _itemExtent}",
-                              style: TextStyle(
-                                color: Colors.white,
-                              )),
-                          controller: _scrollController,
-                          child: ListView.separated(
-                              controller: _scrollController,
-                              itemCount: news.length,
-                              separatorBuilder: (context, __) => SizedBox(height: 6),
-                              itemBuilder: (context, index) {
-                                return ExpansionCard(
-                                  borderRadius: 5,
-                                  margin: EdgeInsets.fromLTRB(0, 0, 5, 0),
-                                  title: CustomCard(
-                                    padding: [5, 0, 0, 0],
-                                    elevation: 6,
-                                    borderRadius: [5, 5, 5, 5],
-                                    color: Color.fromRGBO(35, 47, 52, 0.8),
-                                    child: Container(
-                                      height: 55,
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text(
-                                            "${news[index].title}",
-                                            overflow: TextOverflow.ellipsis,
-                                            softWrap: true,
-                                            textScaleFactor: 0.8,
-                                            style: Theme.of(context).textTheme.headline6,
-                                          ),
-                                          SizedBox(
-                                            height: 2,
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                "v${news[index].dateposted}",
-                                                overflow: TextOverflow.ellipsis,
-                                                softWrap: true,
-                                                textScaleFactor: 0.8,
-                                                style: Theme.of(context).textTheme.bodyText1,
-                                              ),
-                                              SizedBox(
-                                                width: 4,
-                                              ),
-                                              Text(
-                                                "${news[index].description}",
-                                                overflow: TextOverflow.clip,
-                                                softWrap: true,
-                                                textScaleFactor: 0.8,
-                                                style: Theme.of(context).textTheme.bodyText1,
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  children: <Widget>[
-                                    Container(
-                                      child: Divider(
-                                        color: Colors.white30,
-                                        height: 2,
-                                      ),
-                                      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-                                      child: Text(
-                                        "${news[index].details}",
-                                      ),
-                                    )
-                                  ],
-                                );
-                              }),
-                          heightScrollThumb: 48.0,
-                          scrollThumbBuilder: (
-                            Color backgroundColor,
-                            Animation<double> thumbAnimation,
-                            Animation<double> labelAnimation,
-                            double height, {
-                            Text labelText,
-                            BoxConstraints labelConstraints,
-                          }) {
-                            return FadeTransition(
-                              opacity: thumbAnimation,
-                              child: Container(
-                                height: height,
-                                width: 20.0,
-                                color: backgroundColor,
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Scaffold(
+                        body: (news == null)
+                            ? Center(child: CircularProgressIndicator())
+                            : DraggableScrollbar.arrows(
+                                alwaysVisibleScrollThumb: true,
+                                backgroundColor: Color.fromRGBO(35, 35, 35, 0.8),
+                                padding: EdgeInsets.only(right: 0.0),
+                                labelTextBuilder: (double offset) => Text("${offset ~/ _itemExtent}", style: TextStyle(color: Colors.white)),
+                                controller: _scrollController,
+                                child: ListView.separated(
+                                  controller: _scrollController,
+                                  itemCount: news.length,
+                                  separatorBuilder: (context, __) => SizedBox(height: 2),
+                                  itemBuilder: (context, index) {
+                                    return (news[index].isDynamic)
+                                        ? Center(child: CircularProgressIndicator())
+                                        : FadeInVertical(
+                                            delay: (index.toDouble() * 0.3) + 0.3,
+                                            distance: -75,
+                                            duratin: 500,
+                                            child: Padding(
+                                              padding: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                                              child: ExpansionNews(news[index], index),
+                                            ),
+                                          );
+                                  },
+                                ),
+                                heightScrollThumb: 48.0,
                               ),
-                            );
-                          },
-                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
