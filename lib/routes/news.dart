@@ -1,6 +1,5 @@
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:dynamic_widget/dynamic_widget.dart';
-import 'package:dynamic_widget/dynamic_widget/icons_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
@@ -68,10 +67,6 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
     super.initState();
   }
 
-  _scrollToBottom() {
-    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-  }
-
   Future<Widget> _buildWidget(BuildContext context, String json) async {
     return DynamicWidgetBuilder.build(json, context, new DefaultClickListener());
   }
@@ -93,16 +88,6 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
       },
     );
   }
-
-  var iconList = [
-    getIconGuessFavorFA(name: "bug"),
-    getIconGuessFavorFA(name: "whatshot"),
-    getIconGuessFavorFA(name: "hourglass"),
-    Icons.hourglass_empty,
-    Icons.threed_rotation,
-    Icons.image_aspect_ratio,
-    Icons.threesixty,
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -147,14 +132,13 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
                             ? Center(child: CircularProgressIndicator())
                             : DraggableScrollbar.arrows(
                                 alwaysVisibleScrollThumb: true,
-                                backgroundColor: Color.fromRGBO(35, 35, 35, 0.8),
-                                padding: EdgeInsets.only(right: 0.0),
-                                labelTextBuilder: (double offset) => Text("${offset ~/ _itemExtent}", style: TextStyle(color: Colors.white)),
+                                backgroundColor: Color.fromRGBO(35, 35, 35, 0.9),
+                                padding: EdgeInsets.only(right: 2),
                                 controller: _scrollController,
                                 child: ListView.separated(
                                   controller: _scrollController,
                                   itemCount: news.length,
-                                  separatorBuilder: (context, __) => SizedBox(height: 2),
+                                  separatorBuilder: (context, __) => SizedBox(height: 8),
                                   itemBuilder: (context, index) {
                                     return (news[index].isDynamic)
                                         ? Center(child: CircularProgressIndicator())
@@ -163,7 +147,7 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
                                             distance: -75,
                                             duratin: 500,
                                             child: Padding(
-                                              padding: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                                              padding: EdgeInsets.fromLTRB(10, 0, 23, 0),
                                               child: ExpansionNews(news[index], index),
                                             ),
                                           );

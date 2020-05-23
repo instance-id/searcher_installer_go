@@ -163,7 +163,7 @@ class _AnimatedTextFormFieldState extends State<AnimatedTextFormField> {
 
   void handleAnimationStatus(status) {
     if (status == AnimationStatus.completed) {
-      widget.inertiaController?.reverse();
+      widget.inertiaController?.reverse()?.orCancel;
     }
   }
 

@@ -1,15 +1,15 @@
 import 'package:faui/faui.dart';
 import 'package:faui/faui_api.dart';
 import 'package:faui/src/10_auth/auth_state_user.dart';
-
 import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:searcher_installer_go/data/provider/auth_provider.dart';
 import 'package:searcher_installer_go/data/provider/login_messages.dart';
 import 'package:searcher_installer_go/services/auth_storage.dart';
-import '../widgets/constants.dart';
+
 import '../helpers/custom_color.dart';
+import '../widgets/constants.dart';
 import '../widgets/custom_route.dart';
 import 'dashboard_screen.dart';
 import 'flutter_login.dart';
@@ -43,12 +43,14 @@ class _LoginScreen extends State<LoginScreen> {
 
   Future<String> doSignup(LoginData loginData, BuildContext context, bool mounted) async {
     try {
-      await fauiRegisterUser(
+      FauiUser fauiUser = await fauiRegisterUser(
         apiKey: data.getString('apiKey'),
         email: loginData.email,
         password: loginData.password,
         sendResetLink: false,
       );
+
+      this.afterAuthorized(context, fauiUser);
     } catch (e) {
       this.setState(() {
         return FauiError.exceptionToUiMessage(e);
@@ -74,8 +76,10 @@ class _LoginScreen extends State<LoginScreen> {
   Future<String> afterAuthorized(BuildContext context, FauiUser user) async {
     FauiAuthState.user = user;
     if (fauiUser != null || fauiUser != 'null') {
+      if (FauiAuthState.user.contactEmail == null || FauiAuthState.user.contactEmail == "") {
+        FauiAuthState.user.contactEmail = FauiAuthState.user.email;
+      }
       AuthStorage.saveUserLocallyForSilentSignIn();
-      data.updateValue("updateData", true);
       data.updateValue("updateData", true);
     }
     return null;

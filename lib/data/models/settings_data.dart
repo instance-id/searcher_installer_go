@@ -25,5 +25,5 @@ class SettingsData {
       : id = parsedJson['id'].toString(),
         bgImage = parsedJson['bgImage'],
         _useBG = parsedJson['useBG'],
-        _dynamicString = parsedJson['isDynamic'];
+        _dynamicString = parsedJson['is_dynamic'];
 }

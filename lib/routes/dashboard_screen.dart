@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:faui/faui.dart';
+import 'package:faui/src/10_auth/auth_state_user.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:getflutter/colors/gf_color.dart';
 import 'package:getflutter/components/tabs/gf_segment_tabs.dart';
 import 'package:getflutter/components/tabs/gf_tabbar_view.dart';
@@ -12,22 +15,20 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:searcher_installer_go/animations/slide_in.dart';
 import 'package:searcher_installer_go/data/provider/auth_provider.dart';
-import 'package:faui/src/10_auth/auth_state_user.dart';
-import 'package:searcher_installer_go/routes/login_screen.dart';
-import 'package:sized_context/sized_context.dart';
-
 import 'package:searcher_installer_go/helpers/custom_card.dart';
+import 'package:searcher_installer_go/helpers/custom_color.dart';
+import 'package:searcher_installer_go/routes/login_screen.dart';
 import 'package:searcher_installer_go/services/auth_storage.dart';
 import 'package:searcher_installer_go/widgets/transition_route_observer.dart';
-import '../widgets/login/theme.dart';
-import '../widgets/login/widgets.dart';
-import '../widgets/widgets/fade_in.dart';
-import '../widgets/constants.dart';
-import '../widgets/widgets/animated_numeric_text.dart';
-import '../widgets/widgets/round_button.dart';
-
 import 'package:simple_animations/simple_animations.dart';
+import 'package:sized_context/sized_context.dart';
 import 'package:supercharged/supercharged.dart';
+
+import '../widgets/constants.dart';
+import '../widgets/login/widgets.dart';
+import '../widgets/widgets/animated_numeric_text.dart';
+import '../widgets/widgets/fade_in.dart';
+import '../widgets/widgets/round_button.dart';
 
 class DashboardScreen extends StatefulWidget {
   static const routeName = '/dashboard';
@@ -36,12 +37,11 @@ class DashboardScreen extends StatefulWidget {
   _DashboardScreenState createState() => _DashboardScreenState();
 }
 
-const String _collection = 'access-data-demo-user';
-
 class _DashboardScreenState extends State<DashboardScreen> with TickerProviderStateMixin, TransitionRouteAware {
   var log = Logger();
   FauiDb fauiDb;
   final data = GlobalConfiguration();
+  String _collection;
   bool updateData;
 
   Future<bool> _goToLogin(BuildContext context, FauiUser fauiUser) {
@@ -60,6 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   TextEditingController _firstCtrl = TextEditingController();
   TextEditingController _lastCtrl = TextEditingController();
   TextEditingController _serialNum = TextEditingController();
+  TextEditingController _contactEmail = TextEditingController();
   Map<String, dynamic> _doc;
   bool _debug = false;
 
@@ -70,7 +71,9 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   @override
   void initState() {
+    _collection = data.getString('collection');
     updateData = data.getBool("updateData");
+    _debug = data.getBool("debug");
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     fauiDb = authProvider.fauiDb;
 
@@ -120,18 +123,25 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             _collection,
             fauiUser.userId,
           ) ??
-          {"first": "", "last": "", "serialNum": ""};
+          {"first": "", "last": "", "serialNum": "", "contactEmail": fauiUser.email};
 
       _firstCtrl.text = fauiUser.fname = _doc["first"];
       _lastCtrl.text = fauiUser.lname = _doc["last"];
       _serialNum.text = fauiUser.serialNum = _doc["serialNum"];
+      fauiUser.verified = _doc["verified"];
+
+      // @formatter:off
+      (_doc["contactEmail"] == null || _doc["contactEmail"] == "") ? _contactEmail.text = fauiUser.contactEmail = fauiUser.email : _contactEmail.text = fauiUser.contactEmail = _doc["contactEmail"];
 
       log.i('Data Loaded : Firebase;');
       data.updateValue("updateData", false);
+      data.updateValue("verified", verificationCheck(fauiUser));
+      setState(() {});
     } else {
       _firstCtrl.text = fauiUser.fname ?? "";
       _lastCtrl.text = fauiUser.lname ?? "";
       _serialNum.text = fauiUser.serialNum ?? "";
+      _contactEmail.text = fauiUser.contactEmail ?? fauiUser.email;
 
       log.i('Data Loaded : Local;');
     }
@@ -142,6 +152,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       "first": fauiUser.fname = _firstCtrl.text,
       "last": fauiUser.lname = _lastCtrl.text,
       "serialNum": fauiUser.serialNum = _serialNum.text,
+      "contactEmail": fauiUser.contactEmail = _contactEmail.text,
     };
 
     await FauiDbAccess(fauiDb, fauiUser.token).saveDoc(
@@ -149,58 +160,97 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       fauiUser.userId,
       _doc,
     );
+    log.i('UserId: ${fauiUser.userId}');
     setState(() => {});
   }
 
   @override
   void didPushAfterTransition() => _loadingController.forward().orCancel;
 
-  Widget headerType() {
+  String verificationCheck(FauiUser fauiUser) {
+    bool v = fauiUser.verified;
+    log.i('Verified? ${v}');
+    return (v) ? "Verified" : "Not Verified";
+  }
+
+  Widget headerType(ThemeData theme) {
+    final primaryColor = Colors.orange;
+    final accentColor = AppColors.BLUEISH;
     var loginOk = data.getBool('loginOk');
     if (!loginOk)
       return HeroText(
-        "${Constants.appName} Hero",
+        "${Constants.appName}",
         tag: Constants.titleTag,
         viewState: ViewState.shrunk,
-        style: LoginThemeHelper.loginTextStyle,
+        style: theme.textTheme.headline2.copyWith(
+          fontWeight: FontWeight.w300,
+          color: accentColor,
+          fontSize: 26,
+        ),
       );
     if (loginOk)
       return Text(
-        "${Constants.appName} Non-hero",
-        style: LoginThemeHelper.loginTextStyle,
+        "${Constants.appName}",
+        style: theme.textTheme.headline2.copyWith(
+          shadows: [Shadow(color: AppColors.BG_DARK, blurRadius: 2)],
+          fontWeight: FontWeight.w600,
+          color: accentColor,
+          fontSize: 36,
+        ),
       );
     return Text(
       "${Constants.appName}",
-      style: LoginThemeHelper.loginTextStyle,
+      style: theme.textTheme.headline2.copyWith(
+        fontWeight: FontWeight.w300,
+        color: accentColor,
+        fontSize: 26,
+      ),
     );
   }
 
   // @override
   Widget _buildAppBar(ThemeData theme, fauiUser) {
-    final signOutBtn = IconButton(
-      icon: const Icon(FontAwesomeIcons.signOutAlt),
-      color: theme.accentColor,
-      onPressed: () => _goToLogin(context, fauiUser),
-    );
-
-    final title = Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[headerType()],
+    final signOutBtn = Stack(alignment: Alignment.center, children: [
+      Positioned(
+        left: 11.1,
+        top: 12.1,
+        child: InkWell(
+          borderRadius: BorderRadius.all(Radius.circular(30)),
+          hoverColor: Color.fromRGBO(255, 110, 64, 0.6),
+          child: Transform.rotate(
+              angle: 180 * math.pi / 180,
+              child: Icon(
+                Ionicons.md_log_out,
+                color: Color.fromRGBO(35, 35, 35, 0.9),
+                size: 35,
+              )),
+          onTap: () => _goToLogin(context, fauiUser),
+        ),
       ),
-    );
+      InkWell(
+        borderRadius: BorderRadius.all(Radius.circular(30)),
+        hoverColor: Color.fromRGBO(255, 110, 64, 0.6),
+        child: Transform.rotate(
+            angle: 180 * math.pi / 180,
+            child: Icon(
+              Ionicons.md_log_out,
+              color: AppColors.BLUEISH,
+              size: 35,
+            )),
+//      color: theme.accentColor,
+        onTap: () => _goToLogin(context, fauiUser),
+      )
+    ]);
 
     return AppBar(
-      actions: <Widget>[
-        FadeIn(
-          child: signOutBtn,
-          controller: _loadingController,
-          offset: .3,
-          curve: headerAniInterval,
-          fadeDirection: FadeDirection.endToStart,
-        ),
-      ],
-      title: title,
+      leading: FadeIn(
+        controller: _loadingController,
+        offset: .3,
+        curve: headerAniInterval,
+        fadeDirection: FadeDirection.endToStart,
+        child: signOutBtn,
+      ),
+      title: headerType(theme),
       centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -210,8 +260,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   Widget _buildHeader(ThemeData theme, FauiUser fauiUser, BuildContext context) {
-    final primaryColor = Colors.orange; // Colors.primaries.where((c) => c == theme.primaryColor).first; // Colors.red;
-    final accentColor = Colors.deepOrangeAccent; // Colors.primaries.where((c) => c == theme.accentColor).first;  // Colors.orange;
+    final primaryColor = Colors.orange;
+    final accentColor = Colors.deepOrangeAccent;
     final linearGradient = LinearGradient(colors: [
       primaryColor.shade800,
       primaryColor.shade200,
@@ -292,7 +342,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     ..add(AniProps.offset, 0.0.tweenTo(400.0), 1000.milliseconds)
     ..add(AniProps.width, 400.0.tweenTo(300.0), 1000.milliseconds);
 
-  Widget _getSettingsPage(BuildContext context, FauiUser fauiUser) {
+  Widget _getSettingsPage(BuildContext context, FauiUser fauiUser, ThemeData theme) {
     const step = 0.04;
     const aniInterval = 0.75;
     parentHeight = context.heightPx;
@@ -460,7 +510,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                               ),
                               Container(
                                 alignment: Alignment.center,
-                                child: TextField(controller: _serialNum, decoration: InputDecoration(labelText: "Activation Key")),
+                                child: TextField(controller: _contactEmail, decoration: InputDecoration(labelText: "Gumroad Email")),
                               ),
                             ],
                           ),
@@ -497,7 +547,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                                   delay: (9 * 0.2) + 0.3,
                                   child: Container(
                                     alignment: Alignment.center,
-                                    child: TextField(controller: _serialNum, decoration: InputDecoration(labelText: "Activation Key")),
+                                    child: TextField(controller: _serialNum, decoration: InputDecoration(labelText: "Activation Key (${data.getString("verified")})")),
                                   )),
                             ],
                           ),
@@ -602,7 +652,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   Column(
                     children: <Widget>[
                       Container(
-                        child: _getSettingsPage(context, fauiUser),
+                        child: _getSettingsPage(context, fauiUser, theme),
                       ),
                       Expanded(
                         flex: 19,
@@ -611,7 +661,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       SizedBox(height: 0)
                     ],
                   ),
-                  if (!kReleaseMode || _debug) _buildDebugButtons(),
+                  if (!kReleaseMode && _debug) _buildDebugButtons(),
                 ],
               ),
             )),

@@ -32,5 +32,5 @@ class NewsData {
         image = parsedJson['image'],
         image_small = parsedJson['image_small'],
         icon = parsedJson['icon'],
-        _dynamicString = parsedJson['isdynamic'];
+        _dynamicString = parsedJson['is_dynamic'];
 }

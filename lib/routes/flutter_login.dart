@@ -1,12 +1,13 @@
 library flutter_login;
 
 import 'dart:math';
+
 import 'package:fluid_layout/fluid_layout.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:provider/provider.dart';
 import 'package:searcher_installer_go/data/provider/auth_provider.dart';
 import 'package:searcher_installer_go/data/provider/auth_state.dart';
@@ -14,16 +15,17 @@ import 'package:searcher_installer_go/data/provider/login_messages.dart';
 import 'package:searcher_installer_go/widgets/widgets/fade_in.dart';
 
 import '../data/provider/login_theme.dart';
-import '../widgets/login/src/widgets/null_widget.dart';
-import '../widgets/login/theme.dart';
-import '../widgets/login/src/dart_helper.dart';
 import '../widgets/login/src/color_helper.dart';
+import '../widgets/login/src/constants.dart';
+import '../widgets/login/src/dart_helper.dart';
 import '../widgets/login/src/regex.dart';
 import '../widgets/login/src/widgets/hero_text.dart';
+import '../widgets/login/src/widgets/null_widget.dart';
+import '../widgets/login/theme.dart';
+import 'auth_card.dart';
+
 export '../data/models/login_data.dart';
 export '../data/provider/login_theme.dart';
-import '../widgets/login/src/constants.dart';
-import 'auth_card.dart';
 
 class _AnimationTimeDilationDropdown extends StatelessWidget {
   _AnimationTimeDilationDropdown({
@@ -290,8 +292,7 @@ class FlutterLogin extends StatefulWidget {
   _FlutterLoginState createState() => _FlutterLoginState();
 }
 
-class _FlutterLoginState extends State<FlutterLogin>
-    with TickerProviderStateMixin {
+class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMixin {
   final GlobalKey<AuthCardState> authCardKey = GlobalKey();
   static const loadingDuration = const Duration(milliseconds: 275);
   AnimationController _loadingController;
@@ -301,7 +302,6 @@ class _FlutterLoginState extends State<FlutterLogin>
 
   @override
   void initState() {
-
     super.initState();
 
     _loadingController = AnimationController(
@@ -309,16 +309,12 @@ class _FlutterLoginState extends State<FlutterLogin>
       duration: loadingDuration,
     )..addStatusListener((status) {
         if (status == AnimationStatus.forward) {
-          _logoController.forward()
-              .orCancel;
-          _titleController.forward()
-              .orCancel;
+          _logoController.forward().orCancel;
+          _titleController.forward().orCancel;
         }
         if (status == AnimationStatus.reverse) {
-          _logoController.reverse()
-              .orCancel;
-          _titleController.reverse()
-              .orCancel;
+          _logoController.reverse().orCancel;
+          _titleController.reverse().orCancel;
         }
       });
     _logoController = AnimationController(
@@ -331,8 +327,7 @@ class _FlutterLoginState extends State<FlutterLogin>
     );
 
     Future.delayed(const Duration(milliseconds: 300), () {
-      _loadingController.forward()
-          .orCancel;
+      _loadingController.forward().orCancel;
     });
   }
 
@@ -346,14 +341,12 @@ class _FlutterLoginState extends State<FlutterLogin>
 
   void _reverseHeaderAnimation() {
     if (widget.logoTag == null) {
-      _logoController.reverse();
+      _logoController.reverse().orCancel;
     }
     if (widget.titleTag == null) {
-      _titleController.reverse();
+      _titleController.reverse().orCancel;
     }
   }
-
-
 
   Widget _buildHeader(double height, LoginTheme loginTheme) {
     return _Header(

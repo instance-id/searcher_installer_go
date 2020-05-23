@@ -2,6 +2,8 @@ import 'package:dynamic_widget/dynamic_widget/icons_helper.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:searcher_installer_go/data/models/news_data.dart';
+import 'package:searcher_installer_go/helpers/custom_card.dart';
+import 'package:searcher_installer_go/helpers/custom_color.dart';
 import 'package:supercharged/supercharged.dart';
 
 var iconList = [
@@ -24,9 +26,10 @@ class ExpansionNews extends StatelessWidget {
     return ExpandableNotifier(
       child: Padding(
         padding: const EdgeInsets.all(0),
-        child: Card(
-          color: Color.fromRGBO(35, 47, 52, 0.7),
-          clipBehavior: Clip.antiAlias,
+        child: CustomCard(
+          color: Color.fromRGBO(33, 33, 33, 0.9),
+//          color: Colors.deepOrange.withOpacity(0.3),
+          elevation: 2,
           child: ListView(
             shrinkWrap: true,
             children: <Widget>[
@@ -41,23 +44,32 @@ class ExpansionNews extends StatelessWidget {
                   ),
                   header: Container(
                     height: 50,
-                    child: Padding(
-                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                                child: (news.icon != "")
-                                    ? Icon(
-                                        getIconGuessFavorFA(name: news.icon),
-                                        color: Colors.orange.withOpacity(0.5),
-                                      )
-                                    : Icon(iconList[index])),
-                            Spacer(flex: 1),
-                            Text('${news.title}', style: Theme.of(context).textTheme.bodyText2),
-                            Spacer(flex: 19),
-                            Text('${news.dateposted}', style: Theme.of(context).textTheme.bodyText2),
-                          ],
-                        )),
+                    padding: EdgeInsets.fromLTRB(7, 3, 5, 3),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                            child: (news.icon != "")
+                                ? Icon(
+                                    getIconGuessFavorFA(name: news.icon),
+                                    color: Colors.orange.withOpacity(0.5),
+                                  )
+                                : Icon(iconList[index])),
+                        Spacer(flex: 5),
+                        Text('${news.title}',
+                            style: Theme.of(context).textTheme.bodyText2.copyWith(
+                              fontSize: 16,
+                              color: Color(0xFF607FAE),
+                              shadows: [Shadow(color: AppColors.BG_DARK, blurRadius: 1)],
+                            )),
+                        Spacer(flex: 95),
+                        Text('${news.dateposted}',
+                            style: Theme.of(context).textTheme.bodyText2.copyWith(
+                              fontSize: 16,
+                              color: Color(0xFF607FAE),
+                              shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
+                            )),
+                      ],
+                    ),
                   ),
                   collapsed: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,17 +81,18 @@ class ExpansionNews extends StatelessWidget {
                         indent: 0,
                         endIndent: 0,
                       ),
-                      SizedBox(
-                        height: 6,
-                      ),
+                      SizedBox(height: 6),
                       Padding(
-                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                         child: Text(
                           '${news.description}',
                           softWrap: true,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.subtitle2,
+                          style: Theme.of(context).textTheme.subtitle2.copyWith(
+                            fontSize: 13,
+                            shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
+                          ),
                         ),
                       ),
                     ],
@@ -94,23 +107,24 @@ class ExpansionNews extends StatelessWidget {
                         indent: 0,
                         endIndent: 0,
                       ),
-                      SizedBox(
-                        height: 6,
-                      ),
+                      SizedBox(height: 6),
                       for (var _ in Iterable.generate(5))
                         Padding(
-                            padding: EdgeInsets.only(bottom: 10, left: 10),
+                            padding: EdgeInsets.fromLTRB(20, 0, 0, 10),
                             child: Text(
                               '${news.details.trimLeft()}',
                               softWrap: true,
                               overflow: TextOverflow.fade,
-                              style: Theme.of(context).textTheme.subtitle2,
+                              style: Theme.of(context).textTheme.subtitle2.copyWith(
+                                fontSize: 13,
+                                shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
+                              ),
                             )),
                     ],
                   ),
                   builder: (_, collapsed, expanded) {
                     return Padding(
-                      padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                      padding: EdgeInsets.only(left: 0, right: 0, bottom: 10),
                       child: Expandable(
                         collapsed: collapsed,
                         expanded: expanded,

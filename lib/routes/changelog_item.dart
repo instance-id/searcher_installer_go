@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:searcher_installer_go/data/models/changelog_data.dart';
 import 'package:searcher_installer_go/data/provider/changelog_provider.dart';
 import 'package:searcher_installer_go/helpers/custom_card.dart';
+import 'package:searcher_installer_go/helpers/custom_color.dart';
 
 class ChangeLogItem extends StatelessWidget {
   final String id;
@@ -59,7 +60,12 @@ class ChangeLogItem extends StatelessWidget {
                               Row(
                                 children: [
                                   Container(
-                                    child: Text(title, style: Theme.of(context).textTheme.subhead),
+                                    child: Text(title,
+                                        style: Theme.of(context).textTheme.subhead.copyWith(
+                                          fontSize: 16,
+                                          color: Color(0xFF607FAE),
+                                          shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
+                                        )),
                                   ),
                                 ],
                               ),

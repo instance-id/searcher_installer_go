@@ -40,10 +40,12 @@ Future<void> main() async {
   settings = await settingProvider.getChanges();
 
   GlobalConfiguration().loadFromMap({
+    "debug": false,
     "title": "Searcher : Installer",
     "address": "https://instance.id",
-    "collection": "access-data-demo-user",
+    "collection": "users",
     "database": "(default)",
+    "verified": "Not Verified",
     "updateData": true,
     "loginOk": false,
     "showLogin": true,

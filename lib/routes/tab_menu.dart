@@ -108,37 +108,38 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
         setState(() {});
       });
 
-    _fadeFabOutAnimation =
-        Tween<double>(begin: 1, end: 0).animate(CurvedAnimation(
+    _fadeFabOutAnimation = Tween<double>(begin: 1, end: 0).animate(CurvedAnimation(
       parent: _fadeOutController,
       curve: Curves.easeOut,
     ))
-          ..addListener(() {
-            setState(() {
-              fabIconAlpha = _fadeFabOutAnimation.value;
-            });
-          })
-          ..addStatusListener((AnimationStatus status) {
-            if (status == AnimationStatus.completed) {
-              setState(() {
-                activeIcon = nextIcon;
-              });
-            }
+      ..addListener(() {
+        setState(() {
+          fabIconAlpha = _fadeFabOutAnimation.value;
+        });
+      })
+      ..addStatusListener((AnimationStatus status) {
+        if (status == AnimationStatus.completed) {
+          setState(() {
+            activeIcon = nextIcon;
           });
+        }
+      });
 
-    _fadeFabInAnimation =
-        Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-            parent: _animationController,
-            curve: Interval(
-              0.8,
-              1,
-              curve: Curves.easeOut,
-            )))
-          ..addListener(() {
-            setState(() {
-              fabIconAlpha = _fadeFabInAnimation.value;
-            });
-          });
+    _fadeFabInAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(
+          0.8,
+          1,
+          curve: Curves.easeOut,
+        )))
+      ..addListener(() {
+        setState(() {
+          fabIconAlpha = _fadeFabInAnimation.value;
+        });
+      });
+    setState(() {
+      _bgController.animateTo(1);
+    });
   }
 
   void navInfo() {
@@ -267,8 +268,7 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
                                           boxShadow: [
                                             BoxShadow(
                                                 // ------------------------------- Above circle shadow
-                                                color:
-                                                    Color.fromRGBO(1, 1, 1, .5),
+                                                color: Color.fromRGBO(1, 1, 1, .5),
                                                 offset: Offset(0, -1),
                                                 spreadRadius: 1,
                                                 blurRadius: 3)
@@ -297,8 +297,7 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
                                 child: Icon(
                                   activeIcon,
                                   // --------------------------------------------- Middle Icon
-                                  color: Color.fromRGBO(230, 111, 13,
-                                      .9), //color: Color(0xcc82b9ff),
+                                  color: Color.fromRGBO(230, 111, 13, .9), //color: Color(0xcc82b9ff),
                                 ),
                               ),
                             ),
@@ -323,7 +322,7 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
 
       _animationController.reset();
       _fadeOutController.reset();
-      _menuController.reverse();
+      _menuController.reverse().orCancel;
       _animationController.forward().orCancel;
       _fadeOutController.forward().orCancel;
     } else {
@@ -350,8 +349,7 @@ class HalfPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final Rect beforeRect = Rect.fromLTWH(0, (size.height / 2) - 10, 10, 10);
     final Rect largeRect = Rect.fromLTWH(10, 0, size.width - 20, 70);
-    final Rect afterRect =
-        Rect.fromLTWH(size.width - 10, (size.height / 2) - 10, 10, 10);
+    final Rect afterRect = Rect.fromLTWH(size.width - 10, (size.height / 2) - 10, 10, 10);
 
     final path = Path();
     path.arcTo(beforeRect, vector.radians(0), vector.radians(90), false);

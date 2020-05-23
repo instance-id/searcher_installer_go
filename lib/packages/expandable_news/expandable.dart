@@ -685,9 +685,9 @@ class _ExpandableIconState extends State<ExpandableIcon> with SingleTickerProvid
 
   _expandedStateChanged() {
     if (controller.expanded && const [AnimationStatus.dismissed, AnimationStatus.reverse].contains(animationController.status)) {
-      animationController.forward();
+      animationController.forward().orCancel;
     } else if (!controller.expanded && const [AnimationStatus.completed, AnimationStatus.forward].contains(animationController.status)) {
-      animationController.reverse();
+      animationController.reverse().orCancel;
     }
   }
 
@@ -744,7 +744,7 @@ class ExpandableButton extends StatelessWidget {
 
     if (theme.useInkWell) {
       return Container(
-        height: 30,
+        height: 50,
         child: InkWell(
           onTap: controller.toggle,
           child: child,

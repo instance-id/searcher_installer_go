@@ -8,6 +8,7 @@ import 'package:searcher_installer_go/animations/anim_FadeInVT.dart';
 import 'package:searcher_installer_go/data/models/news_data.dart';
 import 'package:searcher_installer_go/data/provider/news_provider.dart';
 import 'package:searcher_installer_go/helpers/custom_card.dart';
+import 'package:searcher_installer_go/helpers/custom_color.dart';
 import 'package:searcher_installer_go/packages/expandable_news/expandable.dart';
 import 'package:sized_context/sized_context.dart';
 import 'package:supercharged/supercharged.dart';
@@ -84,7 +85,7 @@ class _NewsMainHomeState extends State<NewsMainHome> with TickerProviderStateMix
                                       child: Padding(
                                     padding: const EdgeInsets.all(0),
                                     child: Card(
-                                      color: Color.fromRGBO(35, 47, 52, 0.8),
+                                      color: Color.fromRGBO(33, 33, 33, 0.9),
                                       clipBehavior: Clip.antiAlias,
                                       child: ListView(
                                         shrinkWrap: true,
@@ -115,26 +116,25 @@ class _NewsMainHomeState extends State<NewsMainHome> with TickerProviderStateMix
                                               ),
                                               header: Container(
                                                 child: Padding(
-                                                    padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                                    child: Text(
-                                                      'Read More',
-                                                      style: Theme.of(context).textTheme.overline,
-                                                    )),
-                                              ),
-                                              collapsed: Column(
-                                                children: [
-                                                  Padding(
-                                                    padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                                    child: Text(
-                                                      '${news[0].title}',
-                                                      softWrap: true,
-                                                      maxLines: 2,
-                                                      overflow: TextOverflow.ellipsis,
-                                                      style: Theme.of(context).textTheme.subtitle2,
+                                                  padding: EdgeInsets.fromLTRB(5, 0, 0, 5),
+                                                  child: Text(
+                                                    '${news[0].title}',
+                                                    softWrap: true,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: Theme.of(context).textTheme.subtitle2.copyWith(
+                                                      fontSize: 13,
+                                                      color: Color(0xFF607FAE),
+                                                      shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
                                                     ),
                                                   ),
+                                                ),
+                                              ),
+                                              collapsed: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
                                                   Padding(
-                                                    padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                                    padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                                                     child: Text(
                                                       '${news[0].description}',
                                                       softWrap: true,

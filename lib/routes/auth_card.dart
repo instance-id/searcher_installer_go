@@ -3,23 +3,24 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:searcher_installer_go/data/models/login_data.dart';
 import 'package:searcher_installer_go/data/provider/auth_state.dart';
 import 'package:searcher_installer_go/data/provider/login_messages.dart';
 import 'package:searcher_installer_go/widgets/widgets/fade_in.dart';
 import 'package:transformer_page_view/transformer_page_view.dart';
+
 import '../widgets/login/src/constants.dart';
-import '../widgets/login/src/widgets/animated_button.dart';
-import '../widgets/login/src/widgets/animated_text.dart';
-import '../widgets/login/src/widgets/custom_page_transformer.dart';
-import '../widgets/login/src/widgets/expandable_container.dart';
-import '../widgets/login/src/widgets/animated_text_form_field.dart';
 import '../widgets/login/src/dart_helper.dart';
 import '../widgets/login/src/matrix.dart';
 import '../widgets/login/src/paddings.dart';
 import '../widgets/login/src/widget_helper.dart';
+import '../widgets/login/src/widgets/animated_button.dart';
+import '../widgets/login/src/widgets/animated_text.dart';
+import '../widgets/login/src/widgets/animated_text_form_field.dart';
+import '../widgets/login/src/widgets/custom_page_transformer.dart';
+import '../widgets/login/src/widgets/expandable_container.dart';
 
 class AuthCard extends StatefulWidget {
   AuthCard({
@@ -151,7 +152,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
         }
       });
     } else if (widget.loadingController.isCompleted) {
-      return _formLoadingController.reverse().then((_) => widget.loadingController.reverse());
+      return _formLoadingController.reverse().orCancel.then((_) => widget.loadingController.reverse());
     }
     return Future(null);
   }
@@ -470,7 +471,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       setState(() => _showShadow = false);
     });
 
-    _submitController.reverse();
+    _submitController.reverse().orCancel;
 
     if (!DartHelper.isNullOrEmpty(error)) {
       showErrorToast(context, error);
@@ -745,12 +746,12 @@ class _RecoverCardState extends State<_RecoverCard> with SingleTickerProviderSta
     if (error != null) {
       showErrorToast(context, error);
       setState(() => _isSubmitting = false);
-      _submitController.reverse();
+      _submitController.reverse().orCancel;
       return false;
     } else {
       showSuccessToast(context, messages.recoverPasswordSuccess);
       setState(() => _isSubmitting = false);
-      _submitController.reverse();
+      _submitController.reverse().orCancel;
       return true;
     }
   }

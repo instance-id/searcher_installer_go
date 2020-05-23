@@ -7,11 +7,9 @@ import 'package:searcher_installer_go/data/models/changelog_data.dart';
 import 'package:searcher_installer_go/data/provider/changelog_provider.dart';
 import 'package:searcher_installer_go/helpers/custom_card.dart';
 import 'package:searcher_installer_go/helpers/icons_helper.dart';
-import 'package:searcher_installer_go/helpers/open_container.dart';
 import 'package:sized_context/sized_context.dart';
 
-import '../changelog_details.dart';
-import '../changelog_item.dart';
+import 'expansion_changelog.dart';
 
 class ChangeLogList extends StatefulWidget {
   ChangeLogList();
@@ -75,7 +73,6 @@ class _ChangeLogListState extends State<ChangeLogList> with SingleTickerProvider
             FluidLayout(
               horizontalPadding: FluidValue((_) => 0),
               child: Fluid(
-                  horizontalPadding: 10,
                   child: (changeLog == null)
                       ? Center(child: CircularProgressIndicator())
                       : Column(
@@ -91,36 +88,9 @@ class _ChangeLogListState extends State<ChangeLogList> with SingleTickerProvider
                                   delay: (index.toDouble() * 0.3) + 0.3,
                                   distance: -75,
                                   duratin: 500,
-                                  child: OpenContainer(
-                                    transitionType: ContainerTransitionType.fadeThrough,
-                                    closedShape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                      Radius.circular(12.0),
-                                    )),
-                                    closedColor: Colors.transparent,
-                                    closedElevation: 3.0,
-                                    closedBuilder: (BuildContext _, VoidCallback openContainer) {
-                                      return (changeLog[index] == null)
-                                          ? Center(child: CircularProgressIndicator())
-                                          : ChangeLogItem(
-                                              changeLog[index].id,
-                                              changeLog[index].version,
-                                              changeLog[index].title,
-                                              changeLog[index].description,
-                                              changeLog[index].dateposted,
-                                              changeLog[index].project,
-                                              iconList[index],
-                                              75,
-                                              openContainer: openContainer,
-                                            );
-                                    },
-                                    openColor: Colors.transparent,
-                                    openBuilder: (context, action) => ChangeLogDetails(
-                                      changeLog[index].id,
-                                      changeLog[index].project,
-                                      iconList[index],
-                                      80,
-                                    ),
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(7, 0, 7, 0),
+                                    child: ExpansionChangeLog(changeLog[index], index),
                                   ),
                                 ),
                               ),

@@ -36,7 +36,7 @@ class MainAppBar extends StatelessWidget {
                 }
               },
               icon: Icon(Icons.settings_applications, size: 20,),
-              tooltip: "Provider Menu",
+              tooltip: "About",
               itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
                 PopupMenuItem<int>(
                     height: 45,
