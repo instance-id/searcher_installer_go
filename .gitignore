@@ -141,3 +141,19 @@ app.*.symbols
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
 
+.gradle/6.1.1/fileChanges/
+.gradle/6.1.1/gc.properties
+.gradle/6.1.1/vcsMetadata-1/
+.gradle/buildOutputCleanup/cache.properties
+.gradle/vcs-1/
+android/app/src/main/kotlin/com/example/searcher_installer_go/
+gen/
+lib/generated_plugin_registrant.dart
+lib/routes/test.dart
+linux/CMakeLists.txt
+linux/flutter/CMakeLists.txt
+linux/flutter/generated_plugins.cmake
+local.properties
+web/
+windows/runner/utils.cpp
+windows/runner/utils.h
