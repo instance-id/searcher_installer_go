@@ -13,6 +13,8 @@ github.com/go-flutter-desktop/go-flutter v0.30.0/go.mod h1:NCryd/AqiRbYSd8pMzQld
 github.com/go-flutter-desktop/go-flutter v0.37.0/go.mod h1:8tjt3yZ3lTNLqgzWeH90f1uhCR9BL68LFoiy/n0aw/w=
 github.com/go-flutter-desktop/go-flutter v0.40.1 h1:4GC+9sc4jLxFoqLcHIGBNHdcF99ABC30g2q9iIQ+100=
 github.com/go-flutter-desktop/go-flutter v0.40.1/go.mod h1:VNXgUO61Nxa9y/5jHQJFFuWVK9oNQF56MPKPUgQXwlU=
+github.com/go-flutter-desktop/go-flutter v0.41.0 h1:YzGy0+r0Haj9vdMckxyfqM0JOmj/2ONgow2Z9yVN//A=
+github.com/go-flutter-desktop/go-flutter v0.41.0/go.mod h1:VNXgUO61Nxa9y/5jHQJFFuWVK9oNQF56MPKPUgQXwlU=
 github.com/go-flutter-desktop/plugins/image_picker v0.1.5 h1:VQza8aA+Els+trCLqNJa7phNJDBetLWVQMyzAIqYjts=
 github.com/go-flutter-desktop/plugins/image_picker v0.1.5/go.mod h1:lOmQKrMiJNsA55VM4ww3u78ufo//ptu2om+B3Ime+6o=
 github.com/go-flutter-desktop/plugins/path_provider v0.4.0 h1:LhYqOJjwuRjf9MzmbvkejCtLqrEEeBzrsCWkVONG6uw=

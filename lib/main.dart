@@ -1,21 +1,29 @@
-import 'dart:io';
+import 'dart:io' as io;
 
+import 'package:faui/faui_api.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:searcher_installer_go/app_home.dart';
 import 'package:searcher_installer_go/data/models/fbapp.dart';
-import 'package:searcher_installer_go/data/models/settings_data.dart';
 import 'package:searcher_installer_go/data/provider/auth_provider.dart';
 import 'package:searcher_installer_go/data/provider/changelog_provider.dart';
+import 'data/events/authstatus_event.dart';
+import 'data/events/expansion_event.dart';
+import 'data/events/messages_event.dart';
 import 'package:searcher_installer_go/data/provider/navigation_provider.dart';
 import 'package:searcher_installer_go/data/provider/news_provider.dart';
 import 'package:searcher_installer_go/data/provider/settings_provider.dart';
-import 'package:searcher_installer_go/data/provider/theme_data.dart';
-import 'package:searcher_installer_go/services/auth_storage.dart';
+import 'package:searcher_installer_go/services/data_storage.dart';
+import 'package:stack_trace/stack_trace.dart';
 
 import '.secret/secret.config.dart';
+import 'helpers/console.dart';
+import 'helpers/exceptions.dart';
+
+GetIt sl = GetIt.instance;
 
 FbApp getFbApp() {
   var api = GlobalConfiguration();
@@ -31,14 +39,43 @@ FbApp getFbApp() {
 }
 
 Future<void> main() async {
-  Logger log = Logger();
+  sl.registerSingleton<Logger>(
+      Logger(level: Level.warning,
+          printer: PrettyPrinter(
+            methodCount: 2,
+            errorMethodCount: 10,
+            lineLength: 100,
+            colors: io.stdout.supportsAnsiEscapes,
+            printEmojis: false,
+              printTime: false,
+          )
+      )
+  );
+  sl.registerSingleton<Message>(Message());
+  sl.registerSingleton<AuthStatusListener>(AuthStatusListener());
+  sl.registerSingleton<ExpansionListener>(ExpansionListener());
+  sl.registerSingleton<ExpansionController>(ExpansionController());
+
+  var log = sl<Logger>();
+  await Chain.capture(() async {
+    await runMain();
+  }, onError: (error, chain) {
+    if (error is ApplicationFailedException) {
+      log.w(error.message);
+      io.exitCode = error.exitCode;
+      return;
+    } else {
+      var logMsg = ('Something went wrong! You may have discovered a bug in `Searcher_Installer`.\n'
+          'Please file an issue at '
+          'https://github.com/instance-id/searcher_installer_go/issues/new?labels=package%3Asearcher_installer');
+      log.w(logMsg, error, chain.terse);
+      io.exitCode = 1;
+    }
+  });
+}
+
+void runMain() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SettingsDataProvider settingProvider = SettingsDataProvider();
-  List<SettingsData> settings;
-  String bgImage;
-
-  settings = await settingProvider.getChanges();
-
   GlobalConfiguration().loadFromMap({
     "debug": false,
     "title": "Searcher : Installer",
@@ -53,32 +90,37 @@ Future<void> main() async {
     "playDataAnim": true,
   }).loadFromMap(api);
   var app = getFbApp();
-  await AuthStorage.trySignInSilently(app.apiKey);
+  await DataStorage.trySignInSilently(app.apiKey);
+  await DataStorage.loadAppSettings();
+
   // enable network traffic logging
-  HttpClient.enableTimelineLogging = true;
-  runApp(MyApp(app));
+  io.HttpClient.enableTimelineLogging = GlobalConfiguration().getBool("debug");
+
+  runApp(
+    MultiProvider(providers: [
+      ChangeNotifierProvider<ChangeLogDataProvider>(create: (_) => ChangeLogDataProvider()..init()),
+      ChangeNotifierProvider<SettingsDataProvider>(create: (_) => SettingsDataProvider()..init()),
+      ChangeNotifierProvider<NewsDataProvider>(create: (_) => NewsDataProvider()..init()),
+      ChangeNotifierProvider<NavigationProvider>(create: (_) => NavigationProvider()),
+      ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider(app)..init()),
+    ], child: MyApp(app)),
+  );
 }
 
 class MyApp extends StatelessWidget {
   final app;
+
   MyApp(this.app);
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<SettingsDataProvider>(create: (_) => SettingsDataProvider()..init()),
-        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider(app)..init()),
-        ChangeNotifierProvider<NavigationProvider>(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider<NewsDataProvider>(create: (_) => NewsDataProvider()..init()),
-        ChangeNotifierProvider<ChangeLogDataProvider>(create: (_) => ChangeLogDataProvider()..init()),
-      ],
-      child: MaterialApp(
-        title: 'Searcher : Installer',
-        theme: themeData,
-        home: AppHome(),
-        debugShowCheckedModeBanner: false,
-      ),
+    final settings = Provider.of<SettingsDataProvider>(context);
+
+    return MaterialApp(
+      title: 'Searcher : Installer',
+      theme: settings.theme,
+      home: AppHome(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

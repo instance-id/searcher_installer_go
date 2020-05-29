@@ -7,10 +7,11 @@ enum _AniProps { opacity, translateX }
 class FadeInVertical extends StatelessWidget {
   final double delay;
   final double distance;
-  final int duratin;
+  final int duration;
   final Widget child;
+  final Curves curves;
 
-  FadeInVertical({this.delay, this.distance, this.duratin, this.child});
+  FadeInVertical({this.delay, this.distance, this.duration, this.curves, this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -21,14 +22,17 @@ class FadeInVertical extends StatelessWidget {
 
     return PlayAnimation<MultiTweenValues<_AniProps>>(
       delay: (300 * delay).round().milliseconds,
-      duration: duratin.milliseconds,
+      duration: duration.milliseconds,
       curve: Curves.easeOut,
       tween: tween,
       child: child,
       builder: (context, child, value) => Opacity(
         opacity: value.get(_AniProps.opacity),
         child: Transform.translate(
-          offset: Offset(0, value.get(_AniProps.translateX),),
+          offset: Offset(
+            0,
+            value.get(_AniProps.translateX),
+          ),
           child: child,
         ),
       ),

@@ -5,6 +5,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../data/events/expansion_event.dart';
+import '../../app_home.dart';
+
 class ExpandableThemeData {
   static final ExpandableThemeData defaults = ExpandableThemeData(
     iconColor: Colors.black54,
@@ -272,6 +275,7 @@ class ExpandableNotifier extends StatefulWidget {
   final ExpandableController controller;
   final bool initialExpanded;
   final Widget child;
+  final String type;
 
   ExpandableNotifier(
       {
@@ -280,6 +284,7 @@ class ExpandableNotifier extends StatefulWidget {
 
       /// If the controller is not provided, it's created with the initial value of `initialExpanded`.
       this.controller,
+      this.type,
 
       /// Initial expanded state. Must not be used together with [controller].
       this.initialExpanded,
@@ -301,7 +306,7 @@ class _ExpandableNotifierState extends State<ExpandableNotifier> {
   @override
   void initState() {
     super.initState();
-    controller = widget.controller ?? ExpandableController(initialExpanded: widget.initialExpanded ?? false);
+    controller = widget.controller ?? ExpandableController(initialExpanded: widget.initialExpanded ?? false, type: widget.type);
   }
 
   @override
@@ -343,13 +348,17 @@ class _ExpandableThemeNotifier extends InheritedWidget {
 /// Controls the state (expanded or collapsed) of one or more [Expandable].
 /// The controller should be provided to [Expandable] via [ExpandableNotifier].
 class ExpandableController extends ValueNotifier<bool> {
+  final expand = sl.get<ExpansionListener>();
+
   /// Returns [true] if the state is expanded, [false] if collapsed.
   bool get expanded => value;
 
   final Duration _animationDuration;
+  final String type;
 
   ExpandableController(
       {bool initialExpanded,
+      this.type,
       @deprecated
           // ignore: deprecated_member_use_from_same_package
           animationDuration})
@@ -362,6 +371,9 @@ class ExpandableController extends ValueNotifier<bool> {
   /// Sets the expanded state.
   set expanded(bool exp) {
     value = exp;
+    if (type != null) {
+      expand.sendMessage(exp, type);
+    }
   }
 
   /// Sets the expanded state to the opposite of the current state.
@@ -685,9 +697,9 @@ class _ExpandableIconState extends State<ExpandableIcon> with SingleTickerProvid
 
   _expandedStateChanged() {
     if (controller.expanded && const [AnimationStatus.dismissed, AnimationStatus.reverse].contains(animationController.status)) {
-      animationController.forward().orCancel;
+      animationController.forward();
     } else if (!controller.expanded && const [AnimationStatus.completed, AnimationStatus.forward].contains(animationController.status)) {
-      animationController.reverse().orCancel;
+      animationController.reverse();
     }
   }
 

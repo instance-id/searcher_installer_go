@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:simple_animations/simple_animations.dart';
 import 'package:sa_v1_migration/sa_v1_migration.dart';
-import 'package:supercharged/supercharged.dart';
 
-import 'anim_properties.dart';
 
 AnimationStatusListener animStatus;
 bool _setupComplete = false;

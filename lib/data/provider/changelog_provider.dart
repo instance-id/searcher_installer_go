@@ -3,7 +3,7 @@ import 'dart:convert' as convert;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'package:searcher_installer_go/data/models/changelog_data.dart';
+import '../../data/models/changelog_data.dart';
 
 class ChangeLogDataProvider with ChangeNotifier {
   var log = Logger();
@@ -18,8 +18,7 @@ class ChangeLogDataProvider with ChangeNotifier {
 
   void setWidth(bool expand) {
     _changeLogExpanded = expand;
-    print('Provider Expand: $expand');
-    setNeedsExpand(true);
+//    setNeedsExpand(true);
     notifyListeners();
   }
 

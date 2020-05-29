@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:searcher_installer_go/helpers/custom_color.dart';
 
 enum TextFieldInertiaDirection {
   left,
@@ -203,6 +204,7 @@ class _AnimatedTextFormFieldState extends State<AnimatedTextFormField> {
     final theme = Theme.of(context);
 
     Widget textField = TextFormField(
+      style: TextStyle(color: AppColors.M_DYELLOW, fontSize: 18.0),
       controller: widget.controller,
       focusNode: widget.focusNode,
       decoration: _getInputDecoration(theme),
@@ -301,7 +303,7 @@ class _AnimatedPasswordTextFormFieldState extends State<AnimatedPasswordTextForm
       width: widget.animatedWidth,
       enabled: widget.enabled,
       labelText: widget.labelText,
-      prefixIcon: Icon(FontAwesomeIcons.lock, size: 20),
+      prefixIcon: Icon(FontAwesomeIcons.lock, size: 20, color: AppColors.M_LGREEN),
       suffixIcon: GestureDetector(
         onTap: () => setState(() => _obscureText = !_obscureText),
         dragStartBehavior: DragStartBehavior.down,

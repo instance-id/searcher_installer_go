@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/data/provider/auth_provider.dart';
 import 'package:searcher_installer_go/data/provider/auth_state.dart';
 import 'package:searcher_installer_go/data/provider/login_messages.dart';
 import 'package:searcher_installer_go/widgets/widgets/fade_in.dart';
@@ -309,12 +308,12 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
       duration: loadingDuration,
     )..addStatusListener((status) {
         if (status == AnimationStatus.forward) {
-          _logoController.forward().orCancel;
-          _titleController.forward().orCancel;
+          _logoController?.forward()?.orCancel;
+          _titleController?.forward()?.orCancel;
         }
         if (status == AnimationStatus.reverse) {
-          _logoController.reverse().orCancel;
-          _titleController.reverse().orCancel;
+          _logoController?.reverse()?.orCancel;
+          _titleController?.reverse()?.orCancel;
         }
       });
     _logoController = AnimationController(
@@ -327,24 +326,24 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
     );
 
     Future.delayed(const Duration(milliseconds: 300), () {
-      _loadingController.forward().orCancel;
+      _loadingController?.forward();
     });
   }
 
   @override
   void dispose() {
+    _loadingController?.dispose();
+    _logoController?.dispose();
+    _titleController?.dispose();
     super.dispose();
-    _loadingController.dispose();
-    _logoController.dispose();
-    _titleController.dispose();
   }
 
   void _reverseHeaderAnimation() {
     if (widget.logoTag == null) {
-      _logoController.reverse().orCancel;
+      _logoController?.reverse()?.orCancel;
     }
     if (widget.titleTag == null) {
-      _titleController.reverse().orCancel;
+      _titleController?.reverse()?.orCancel;
     }
   }
 
@@ -514,14 +513,8 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context, listen: true);
     final loginTheme = widget.theme ?? LoginTheme();
     final theme = _mergeTheme(theme: Theme.of(context), loginTheme: loginTheme);
-    final deviceSize = MediaQuery.of(context).size;
-    const headerMargin = 0;
-    const cardInitialHeight = 300;
-    final cardTopPosition = (deviceSize.height / 2 - cardInitialHeight / 2);
-    final headerHeight = cardTopPosition - headerMargin;
     final emailValidator = widget.emailValidator ?? FlutterLogin.defaultEmailValidator;
     final passwordValidator = widget.passwordValidator ?? FlutterLogin.defaultPasswordValidator;
 
@@ -551,16 +544,14 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
                 child: Theme(
                   data: theme,
                   child: Container(
-                    width: MediaQuery.of(context).size.width,
+                    margin: EdgeInsets.fromLTRB(0, 0, 0, 40),
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    height: MediaQuery.of(context).size.height - 122,
                     child: Column(
-//                    alignment: Alignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Flexible(
                           flex: 1,
-                          child: _buildHeader(headerHeight, loginTheme),
-                        ),
-                        Flexible(
-                          flex: 2,
                           child: AuthCard(
                             key: authCardKey,
                             loadingController: _loadingController,

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'custom_color.dart';
+
 class TabItem extends StatefulWidget {
-  TabItem(
-      {@required this.selected,
-      this.iconData,
-      @required this.title,
-      @required this.callbackFunction});
+  TabItem({@required this.selected, this.iconData, @required this.title, @required this.callbackFunction});
 
   final String title;
   final IconData iconData;
@@ -23,7 +21,7 @@ const double TEXT_ON = 3.5;
 const double ALPHA_OFF = 0;
 const double ALPHA_ON = 1;
 const int ANIM_DURATION = 300;
-const Color PURPLE = Color(0xaaffffff);
+const Color PURPLE = Color(0xFF000000);
 
 class _TabItemState extends State<TabItem> {
   double iconYAlign = ICON_ON;
@@ -55,7 +53,7 @@ class _TabItemState extends State<TabItem> {
     return Expanded(
       child: Stack(
         fit: StackFit.expand,
-        children: [
+        children: <Widget>[
           Container(
             height: double.infinity,
             width: double.infinity,
@@ -63,11 +61,14 @@ class _TabItemState extends State<TabItem> {
                 duration: Duration(milliseconds: ANIM_DURATION),
                 alignment: Alignment(0, textYAlign),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0,0,0,13),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 13),
                   child: Text(
                     widget.title,
                     style: TextStyle(
-                        fontWeight: FontWeight.w600, color: Color(0xff74915d)),
+                      fontWeight: FontWeight.w600,
+                      // Colors ------------------------------------------
+                      color: AppColors.M_LBROWN,
+                    ),
                   ),
                 )),
           ),
@@ -81,14 +82,15 @@ class _TabItemState extends State<TabItem> {
               child: AnimatedOpacity(
                 duration: Duration(milliseconds: ANIM_DURATION),
                 opacity: iconAlpha,
-                child: IconButton(iconSize: 90,
+                child: IconButton(
+                  iconSize: 90,
                   highlightColor: Colors.transparent,
                   splashColor: Colors.transparent,
                   padding: EdgeInsets.all(0),
                   alignment: Alignment(0, 0),
                   icon: Icon(
                     widget.iconData,
-                    color: PURPLE,
+                    color: AppColors.M_LBROWN,
                   ),
                   onPressed: () {
                     widget.callbackFunction();

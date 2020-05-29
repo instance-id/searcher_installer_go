@@ -5,5 +5,7 @@ import (
 )
 
 var options = []flutter.Option{
-	flutter.WindowInitialDimensions(800, 500),
+	flutter.WindowInitialDimensions(800, 430),
+	// flutter.AddPlugin(&windowPlugin{}),
+	// getWindowModeFromJSON(),
 }

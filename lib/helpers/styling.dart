@@ -29,7 +29,6 @@ class AppTheme {
   );
 
   static const TextStyle headline4 = TextStyle( // h4 -> display1
-    fontFamily: 'WorkSans',
     fontWeight: FontWeight.bold,
     fontSize: 36,
     letterSpacing: 0.4,
@@ -38,7 +37,6 @@ class AppTheme {
   );
 
   static const TextStyle headline5 = TextStyle( // h5 -> headline
-    fontFamily: 'WorkSans',
     fontWeight: FontWeight.bold,
     fontSize: 24,
     letterSpacing: 0.27,
@@ -46,7 +44,6 @@ class AppTheme {
   );
 
   static const TextStyle headline6 = TextStyle( // h6 -> title
-    fontFamily: 'WorkSans',
     fontWeight: FontWeight.bold,
     fontSize: 16,
     letterSpacing: 0.18,
@@ -54,7 +51,6 @@ class AppTheme {
   );
 
   static const TextStyle subtitle2 = TextStyle( // subtitle2 -> subtitle
-    fontFamily: 'WorkSans',
     fontWeight: FontWeight.w400,
     fontSize: 14,
     letterSpacing: -0.04,
@@ -62,7 +58,6 @@ class AppTheme {
   );
 
   static const TextStyle bodyText1 = TextStyle( // body1 -> body2
-    fontFamily: 'WorkSans',
     fontWeight: FontWeight.w400,
     fontSize: 14,
     letterSpacing: 0.2,
@@ -70,7 +65,6 @@ class AppTheme {
   );
 
   static const TextStyle bodyText2 = TextStyle( // body2 -> body1
-    fontFamily: 'WorkSans',
     fontWeight: FontWeight.w400,
     fontSize: 16,
     letterSpacing: -0.05,
@@ -78,7 +72,6 @@ class AppTheme {
   );
 
   static const TextStyle caption = TextStyle( // Caption -> caption
-    fontFamily: 'WorkSans',
     fontWeight: FontWeight.w400,
     fontSize: 12,
     letterSpacing: 0.2,

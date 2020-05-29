@@ -1,40 +1,44 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/data/models/changelog_data.dart';
-import 'package:searcher_installer_go/data/provider/changelog_provider.dart';
-import 'package:searcher_installer_go/helpers/custom_card.dart';
-import 'package:searcher_installer_go/helpers/custom_color.dart';
-import 'package:searcher_installer_go/helpers/icons_helper.dart';
-import 'package:searcher_installer_go/packages/expandable_news/expandable.dart';
 import 'package:supercharged/supercharged.dart';
 
+import '../../data/models/changelog_data.dart';
+import '../../data/events/expansion_event.dart';
+import '../../helpers/custom_card.dart';
+import '../../helpers/custom_color.dart';
+import '../../helpers/icons_helper.dart';
+import '../../packages/expandable_news/expandable.dart';
 import 'changelog_header.dart';
 
-var backupIconList = [
-  getIconGuessFavorFA(name: "bug"),
-  getIconGuessFavorFA(name: "whatshot"),
-  getIconGuessFavorFA(name: "hourglass"),
-  Icons.hourglass_empty,
-  Icons.threed_rotation,
-  Icons.image_aspect_ratio,
-  Icons.threesixty,
-];
+GetIt sl = GetIt.instance;
 
 class ExpansionChangeLog extends StatelessWidget {
-  Logger log = Logger();
+  final log = sl<Logger>();
+  final exp = ExpansionListener();
+
   final ChangeLogData changeLog;
   final int index;
-  ExpansionChangeLog(this.changeLog, this.index);
+
+  ExpansionChangeLog({Key key, this.changeLog, this.index}) : super(key: key) {}
+
+  final themeData = ExpandableThemeData(
+    headerAlignment: ExpandablePanelHeaderAlignment.center,
+    useInkWell: false,
+    tapBodyToCollapse: false,
+    crossFadePoint: 0.8,
+    tapBodyToExpand: false,
+    animationDuration: 300.milliseconds,
+    fadeCurve: Curves.easeIn,
+    sizeCurve: Curves.easeInOutQuart,
+  );
 
   @override
   Widget build(BuildContext context) {
-    final changeLogData = Provider.of<ChangeLogDataProvider>(context);
-//    final _expandableController = ExpandableController.of(context);
-
     return ExpandableNotifier(
+      type: "changelog",
       child: Padding(
         padding: const EdgeInsets.all(0),
         child: CustomCard(
@@ -44,23 +48,15 @@ class ExpansionChangeLog extends StatelessWidget {
             shrinkWrap: true,
             children: <Widget>[
               ScrollOnExpand(
+                key: ValueKey(changeLog.id),
                 scrollOnExpand: true,
                 scrollOnCollapse: true,
                 child: ExpandablePanel(
-                  theme: ExpandableThemeData(
-                    headerAlignment: ExpandablePanelHeaderAlignment.center,
-                    useInkWell: false,
-                    tapBodyToCollapse: true,
-                    crossFadePoint: 0.8,
-                    tapBodyToExpand: true,
-                    animationDuration: 600.milliseconds,
-                    fadeCurve: Curves.easeIn,
-                    sizeCurve: Curves.easeInOutQuart,
-                  ),
-                  header: ChangelogHeader(changeLog, index),
+                  theme: themeData,
+                  header: ChangelogHeader(key: ValueKey(changeLog.id), changeLog: changeLog, index: index),
                   collapsed: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Divider(
                         color: Color.fromRGBO(210, 160, 12, 0.1),
                         thickness: 3.0,
@@ -74,7 +70,7 @@ class ExpansionChangeLog extends StatelessWidget {
                         child: Text(
                           '${changeLog.description}',
                           softWrap: true,
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.subtitle2.copyWith(
                             fontSize: 12,
@@ -95,7 +91,6 @@ class ExpansionChangeLog extends StatelessWidget {
                         endIndent: 0,
                       ),
                       SizedBox(height: 6),
-//                      for (var _ in Iterable.generate(5))
                       (changeLog.useMarkdown)
                           ? Container(
                               child: Markdown(
@@ -110,13 +105,13 @@ class ExpansionChangeLog extends StatelessWidget {
                               padding: EdgeInsets.fromLTRB(20, 0, 0, 10),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                                children: <Widget>[
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
+                                    children: <Widget>[
                                       for (var item in changeLog.itemList)
                                         Row(
-                                          children: [
+                                          children: <Widget>[
                                             Divider(
                                               color: Color.fromRGBO(210, 160, 12, 0.3),
                                               thickness: 3.0,
@@ -128,7 +123,8 @@ class ExpansionChangeLog extends StatelessWidget {
                                               '${item}',
                                               textAlign: TextAlign.left,
                                               softWrap: true,
-                                              overflow: TextOverflow.fade,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                               style: Theme.of(context).textTheme.subtitle2.copyWith(
                                                 fontSize: 12,
                                                 shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
@@ -149,20 +145,13 @@ class ExpansionChangeLog extends StatelessWidget {
                               ))
                     ],
                   ),
-                  builder: (context, collapsed, expanded) {
+                  builder: (_, collapsed, expanded) {
                     return Padding(
                       padding: EdgeInsets.only(left: 0, right: 0, bottom: 10),
                       child: Expandable(
                         collapsed: collapsed,
                         expanded: expanded,
-                        theme: ExpandableThemeData(
-                          useInkWell: false,
-                          crossFadePoint: 0.8,
-                          tapBodyToCollapse: true,
-                          tapBodyToExpand: true,
-                          fadeCurve: Curves.easeIn,
-                          sizeCurve: Curves.easeInOutQuart,
-                        ),
+                        theme: themeData,
                       ),
                     );
                   },

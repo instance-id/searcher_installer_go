@@ -5,9 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:searcher_installer_go/data/models/news_data.dart';
 import 'package:searcher_installer_go/data/provider/news_provider.dart';
 import 'package:searcher_installer_go/helpers/custom_card.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:supercharged/supercharged.dart';
-import 'package:sized_context/sized_context.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class NewsDetails extends StatefulWidget {
   final String id;
@@ -32,7 +31,7 @@ class _NewsDetailsState extends State<NewsDetails> with TickerProviderStateMixin
             duration: new Duration(milliseconds: 300),
             vsync: this,
             child: Column(
-              children: [
+              children: <Widget>[
                 IntrinsicHeight(
                   child: CustomCard(
                     padding: [10, 10, 10, 10],
@@ -40,7 +39,7 @@ class _NewsDetailsState extends State<NewsDetails> with TickerProviderStateMixin
                     elevation: 10,
                     color: Color.fromRGBO(35, 47, 52, 0.8),
                     child: Row(
-                      children: [
+                      children: <Widget>[
                         Container(
                           constraints: BoxConstraints(minHeight: 115, maxWidth: 300),
                           child: (news.image == null)
@@ -54,7 +53,7 @@ class _NewsDetailsState extends State<NewsDetails> with TickerProviderStateMixin
                         ),
                         Expanded(
                           child: Column(
-                            children: [
+                            children: <Widget>[
                               Center(
                                 child: Text('${news.project}',
                                     // ignore: deprecated_member_use
@@ -93,7 +92,7 @@ class _NewsDetailsState extends State<NewsDetails> with TickerProviderStateMixin
             padding: const EdgeInsets.fromLTRB(20, 5, 20, 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+              children: <Widget>[
                 Center(
                   heightFactor: 0.8,
                   child: Text('${news.title}',

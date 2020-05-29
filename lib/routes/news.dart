@@ -2,6 +2,7 @@ import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:dynamic_widget/dynamic_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -54,12 +55,13 @@ class News extends StatefulWidget {
   _NewsState createState() => _NewsState();
 }
 
+final sl = GetIt.instance;
+
 class _NewsState extends State<News> with TickerProviderStateMixin {
   ScrollController _scrollController = ScrollController();
   GlobalConfiguration config = GlobalConfiguration();
 
-  final _itemExtent = 100.0;
-  final Logger log = new Logger();
+  final log = sl<Logger>();
   List<NewsData> news;
 
   @override
@@ -102,7 +104,7 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
         alignment: Alignment.center,
         width: MediaQuery.of(context).size.width * 0.9,
         child: Column(
-          children: [
+          children: <Widget> [
             CustomCard(
               borderRadius: [10, 10, 0, 0],
               elevation: 3,
@@ -145,7 +147,7 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
                                         : FadeInVertical(
                                             delay: (index.toDouble() * 0.3) + 0.3,
                                             distance: -75,
-                                            duratin: 500,
+                                            duration: 500,
                                             child: Padding(
                                               padding: EdgeInsets.fromLTRB(10, 0, 23, 0),
                                               child: ExpansionNews(news[index], index),

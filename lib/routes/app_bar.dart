@@ -1,60 +1,171 @@
+import 'package:faui/faui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
+import 'package:get_it/get_it.dart';
 import 'package:global_configuration/global_configuration.dart';
-import 'package:searcher_installer_go/helpers/animate_route.dart';
-import 'package:searcher_installer_go/helpers/custom_color.dart';
-import 'package:searcher_installer_go/routes/about.dart';
-import 'package:searcher_installer_go/routes/tab_menu.dart';
+import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
-import 'dashboard_screen.dart';
+import '../data/enums/enums.dart';
+import '../data/events/authstatus_event.dart';
+import '../data/events/expansion_event.dart';
+import '../data/events/messages_event.dart';
+import '../data/provider/auth_provider.dart';
+import '../helpers/custom_color.dart';
+import '../routes/tab_menu.dart';
+import '../widgets//popupmenu.dart' as p;
+
+GetIt sl = GetIt.instance;
 
 class MainAppBar extends StatelessWidget {
-  MainAppBar(BuildContext context, this.keyNavigator);
+  final data = GlobalConfiguration();
+  final exp = sl<ExpansionListener>();
+  final auth = sl<AuthStatusListener>();
+  final msg = sl<Message>();
+  final log = sl<Logger>();
 
+  MainAppBar(BuildContext context, this.keyNavigator);
   final GlobalKey<TabMenuState> keyNavigator;
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Container(
       alignment: Alignment.center,
       child: AppBar(
           automaticallyImplyLeading: false,
           title: Text(
-            GlobalConfiguration().getString("title"),
-            style: TextStyle(color: Color(0xFF2ead51), letterSpacing: 1, fontSize: 18),
+            '${data.getString("title")} Login Status: ${authProvider.currentStatus}',
+            style: TextStyle(color: AppColors.M_DYELLOW, fontWeight: FontWeight.w500, letterSpacing: 1, fontSize: 18),
           ),
           centerTitle: true,
           iconTheme: const IconThemeData(
-            color: Color(0xFF2ead51),
+            color: AppColors.M_DYELLOW,
           ),
           actions: <Widget>[
-            PopupMenuButton<int>(
+            p.PopupMenuButton<int>(
               onSelected: (int result) async {
                 switch (result) {
                   case 0:
                     Scaffold.of(context).openDrawer();
                     break;
+                  case 1:
+                    if (fauiUser != null && authProvider.currentStatus == AuthStatus.signedIn) {
+                      auth.setStatus(AuthStatus.logOut);
+                    }
+                    break;
+                  case 2:
+                    if ((fauiUser == null || fauiUser == 'null') && authProvider.currentStatus == AuthStatus.loggedOut) {
+                      auth.setStatus(AuthStatus.signIn);
+                    }
+                    break;
+                  case 3:
+                    msg.sendMessage({
+                      'type': MsgType.info,
+                      'message': "Login Successful : Login Successful : Login Successful",
+                      'title': "Status:",
+                      'duration': 4500,
+                    });
+                    break;
+                  case 4:
+                    msg.sendMessage({
+                      'type': MsgType.error,
+                      'message': "Login Unsuccessful: Bad password!",
+                      'title': "Status:",
+                      'duration': 4500,
+                    });
+                    break;
                 }
               },
-              icon: Icon(Icons.settings_applications, size: 20,),
+              icon: Icon(Icons.settings_applications, size: 21),
               tooltip: "About",
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-                PopupMenuItem<int>(
-                    height: 45,
+              padding: EdgeInsets.all(0),
+              itemBuilder: (BuildContext context) => <p.PopupMenuEntry<int>>[
+                p.PopupMenuItem<int>(
+                    height: 35,
                     value: 0,
                     child: Container(
+                      padding: EdgeInsets.all(0),
                       alignment: Alignment.center,
                       height: 35,
-                      width: 85,
                       child: Row(
-                        children: [
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
                           Text("About"),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Icon(Icons.settings_applications),
+                          Spacer(),
+                          Icon(Icons.settings_applications, size: 21),
+                          SizedBox(width: 1),
                         ],
                       ),
-                    ))
+                    )),
+                (authProvider.currentStatus == AuthStatus.signedIn)
+                    ? p.PopupMenuItem<int>(
+                        height: 35,
+                        value: 1,
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 35,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text("Logout"),
+                              Spacer(),
+                              Icon(Ionicons.md_log_out, size: 21),
+                            ],
+                          ),
+                        ))
+                    : p.PopupMenuItem<int>(
+                        height: 35,
+                        value: 2,
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 35,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text("Login"),
+                              Spacer(),
+                              Icon(Ionicons.md_log_in, size: 21),
+                            ],
+                          ),
+                        )),
+                if (data.getBool("debug"))
+                  p.PopupMenuItem<int>(
+                      height: 35,
+                      value: 3,
+                      child: Container(
+                        padding: EdgeInsets.all(0),
+                        alignment: Alignment.center,
+                        height: 35,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text("Success"),
+                            Spacer(),
+                            Icon(Icons.settings_applications, size: 21),
+                            SizedBox(width: 1),
+                          ],
+                        ),
+                      )),
+                if (data.getBool("debug"))
+                  p.PopupMenuItem<int>(
+                      height: 35,
+                      value: 4,
+                      child: Container(
+                        padding: EdgeInsets.all(0),
+                        alignment: Alignment.center,
+                        height: 35,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text("Error"),
+                            Spacer(),
+                            Icon(Icons.settings_applications, size: 21),
+                            SizedBox(width: 1),
+                          ],
+                        ),
+                      )),
               ],
             )
           ]),

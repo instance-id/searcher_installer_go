@@ -69,7 +69,6 @@ class _RoundButtonState extends State<RoundButton> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = Colors.orange;
-//        Colors.primaries.where((c) => c == theme.primaryColor).first;
 
     return Padding(
       padding: const EdgeInsets.all(0.0),

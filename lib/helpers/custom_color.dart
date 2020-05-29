@@ -19,6 +19,19 @@ class AppColors {
   static const Color SECONDARY = Color(0xFF3E4345);
   static const Color LIGHT_TEXT = Color(0xFFD9DCDD);
   static const Color BLUEISH = Color(0xFF607FAE);
-  static const Color ORANGE = Color(0xFFD2A00C);
   static const Color GOLD = Color(0xFFE3C255);
+  static const Color M_DARK = Color(0xFF212121);
+  static const Color M_BROWN = Color(0xFF6c4b1a);
+  static const Color M_LBROWN = Color(0xFFb69a71);
+  static const Color M_LLBROWN = Color(0xFFC3C098);
+  static const Color M_DBROWN = Color(0xFF6c3108);
+  static const Color M_DDBROWN = Color(0xFF482714);
+  static const Color ORANGE = Color(0xFFc57200);
+  static const Color M_YELLOW = Color(0xEFEEDB74);
+  static const Color M_DYELLOW = Color(0xFFd1c064);
+  static const Color M_LGREEN = Color(0xFFafca90);
+  static const Color M_GREEN = Color(0xFF66883f);
+  static const Color M_DGRAY = Color(0xFF45525d);
+  static const Color M_MGRAY = Color(0xFF7a8491);
+  static const Color M_LGRAY = Color(0xFFadb6bb);
 }

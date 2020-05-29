@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:searcher_installer_go/helpers/navigation-bus.dart';
 import 'package:vector_math/vector_math.dart' as vector;
 
+import '../helpers/custom_color.dart';
+import '../helpers/navigation-bus.dart';
 import '../helpers/tab_item.dart';
 
 class TabMenu extends StatefulWidget {
@@ -26,14 +27,12 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
   AnimationController _fadeOutController;
   Animation<double> _fadeFabOutAnimation;
   Animation<double> _fadeFabInAnimation;
-  Animation<double> _fadeFabDownAnimation;
 
   TabController _bgController;
-  Animation _bgAnimation;
 
   double fabIconAlpha = 1;
-  IconData nextIcon = Icons.search;
-  IconData activeIcon = Icons.search;
+  IconData nextIcon = Icons.home;
+  IconData activeIcon = Icons.home;
 
   int currentSelected = 1;
 
@@ -57,11 +56,11 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    super.dispose();
     _bgController.dispose();
     _menuController.dispose();
     _animationController.dispose();
     _fadeOutController.dispose();
+    super.dispose();
   }
 
   @override
@@ -69,7 +68,6 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
     super.initState();
 
     _bgController = new TabController(vsync: this, length: 3);
-    _bgAnimation = _bgController.animation;
     NavigationBus.registerTabController(_bgController);
 
     _menuController = AnimationController(
@@ -143,34 +141,40 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
   }
 
   void navInfo() {
-    setState(() {
-      nextIcon = Icons.update;
-      currentSelected = 0;
-      _bgController.animateTo(0);
-    });
+    if (currentSelected != 0) {
+      setState(() {
+        nextIcon = Icons.update;
+        currentSelected = 0;
+        _bgController.animateTo(0);
+      });
 
-    _initAnimationAndStart(_positionAnimation.value, -1);
+      _initAnimationAndStart(_positionAnimation.value, -1);
+    }
   }
 
   void navHome() {
-    setState(() {
-      nextIcon = Icons.home;
-      currentSelected = 1;
-      _bgController.animateTo(1);
-    });
+    if (currentSelected != 1) {
+      setState(() {
+        nextIcon = Icons.home;
+        currentSelected = 1;
+        _bgController.animateTo(1);
+      });
 
-    _initAnimationAndStart(_positionAnimation.value, 0);
+      _initAnimationAndStart(_positionAnimation.value, 0);
+    }
   }
 
   void navUpdate() {
-    setState(() {
-      nextIcon = Icons.info;
-      fabIconAlpha = .1;
-      currentSelected = 2;
-      _bgController.animateTo(2);
-    });
+    if (currentSelected != 2) {
+      setState(() {
+        nextIcon = Icons.info;
+        fabIconAlpha = .1;
+        currentSelected = 2;
+        _bgController.animateTo(2);
+      });
 
-    _initAnimationAndStart(_positionAnimation.value, 1);
+      _initAnimationAndStart(_positionAnimation.value, 1);
+    }
   }
 
   void navDashboard() {
@@ -194,7 +198,7 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
           Container(
             height: 40,
             decoration: BoxDecoration(
-              color: Color.fromRGBO(35, 35, 35, 1),
+              color: AppColors.M_DARK,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black26,
@@ -210,7 +214,6 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
               children: <Widget>[
                 TabItem(
                     selected: currentSelected == 0,
-//                  iconData: Icons.info,
                     title: "INFO",
                     callbackFunction: () {
                       navInfo();
@@ -218,7 +221,6 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
                     }),
                 TabItem(
                     selected: currentSelected == 1,
-//                  iconData: Icons.home,
                     title: "HOME",
                     callbackFunction: () {
                       navHome();
@@ -226,7 +228,6 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
                     }),
                 TabItem(
                     selected: currentSelected == 2,
-//                  iconData: Icons.update,
                     title: "UPDATE",
                     callbackFunction: () {
                       navUpdate();
@@ -297,7 +298,7 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
                                 child: Icon(
                                   activeIcon,
                                   // --------------------------------------------- Middle Icon
-                                  color: Color.fromRGBO(230, 111, 13, .9), //color: Color(0xcc82b9ff),
+                                  color: AppColors.M_YELLOW, //color: Color(0xcc82b9ff),
                                 ),
                               ),
                             ),

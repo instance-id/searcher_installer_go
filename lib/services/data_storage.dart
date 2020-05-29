@@ -1,64 +1,88 @@
 import 'dart:convert';
 
 import 'package:cross_local_storage/cross_local_storage.dart';
+import 'package:faui/faui.dart';
 import 'package:faui/faui_api.dart';
 import 'package:faui/src/10_auth/auth_state_user.dart';
-import 'package:faui/faui.dart';
+import 'package:get_it/get_it.dart';
 import 'package:global_configuration/global_configuration.dart';
+import 'package:logger/logger.dart';
+import '../data/events/messages_event.dart';
 
-class AuthStorage {
-  final api = GlobalConfiguration();
+final _log = GetIt.instance<Logger>();
+final _data = GlobalConfiguration();
+
+class DataStorage {
   static const String _LocalKey = "user";
+  static const String _PrefKey = "pref";
+
+  static void loadAppSettings() async {
+    try {
+      String v = await _getLocalValue(_PrefKey);
+      if (v == null || v == "null") {
+        _log.d("No preferences file: Creating...");
+        _storeLocally(_PrefKey, jsonEncode({"debug": true}));
+        v = await _getLocalValue(_PrefKey);
+      }
+      Map<String, dynamic> prefs = jsonDecode(v);
+      _data.updateValue("debug", prefs['debug']);
+      log.d('Debug Enabled: ${_data.getBool('debug')}');
+      return;
+    } catch (ex) {
+      _log.e("Preference file cannot be created. Please contact the developer: http://github.com/instance-id/", ex);
+    }
+  }
 
   static void saveUserLocallyForSilentSignIn() {
     _storeLocally(_LocalKey, jsonEncode(FauiAuthState.user));
-    print("sso: saved locally");
+    _log.d("sso: saved locally");
   }
 
   static void deleteUserLocally() {
     _deleteLocally(_LocalKey);
-    print("sso: deleted locally");
+    _log.d("sso: deleted locally");
   }
 
   static trySignInSilently(String apiKey) async {
-    final api = GlobalConfiguration();
-    print("sso: started silent sign-in");
+    GetIt getIt = GetIt.instance;
+    var msg = getIt.get<Message>();
+
+    _log.d("sso: started silent sign-in");
     try {
       String v = await _getLocalValue(_LocalKey);
       if (v == null || v == "null") {
-        print("sso: no user stored");
+        _log.d("sso: no user stored");
         return;
       }
 
       FauiUser user = FauiUser.fromJson(jsonDecode(v));
       if (user == null || user.refreshToken == null) {
-        print("sso: no refresh token found");
+        _log.d("sso: no refresh token found");
         return;
       }
       user = await fauiRefreshToken(user: user, apiKey: apiKey);
-      _storeLocally(_LocalKey, jsonEncode(user));
-      api.updateValue('loginOk', true);
-      api.updateValue('showLogin', false);
+      _storeLocally(_LocalKey, jsonEncode(user.toJson()));
+      _data.updateValue('loginOk', true);
+      _data.updateValue('showLogin', false);
       FauiAuthState.user = user;
-      print("sso: succeeded silent sign-in");
+      _log.d("sso: succeeded silent sign-in");
+
       return;
     } catch (ex) {
-      print("sso: error during silent sign-in:");
-      print(ex.toString());
-      api.updateValue('loginOk', false);
+      _log.e("sso: error during silent sign-in:", ex.toString());
+      _data.updateValue('loginOk', false);
       return;
     }
   }
 
   static _deleteLocally(String key) async {
-    final api = GlobalConfiguration();
     LocalStorageInterface prefs;
     try {
       prefs = await LocalStorage.getInstance();
       prefs.setString(key, 'null');
-      api.updateValue('loginOk', false);
+      _data.updateValue('loginOk', false);
     } catch (ex) {
-      print("sso: Error deleting from SharedPreferences Instance");
+      _log.e("sso: Error deleting from SharedPreferences Instance");
     }
   }
 
@@ -68,7 +92,7 @@ class AuthStorage {
       prefs = await LocalStorage.getInstance();
       return prefs.getString(key);
     } catch (ex) {
-      print("sso: Error retrieving from SharedPreferences Instance : " + ex);
+      _log.e("sso: Error retrieving from SharedPreferences Instance : " + ex);
       return null;
     }
   }
@@ -83,7 +107,7 @@ class AuthStorage {
       prefs.setString(key, value);
       if (prefs.getString(key) != value) throw ("sso: Error - Unable to verify data stored correctly");
     } catch (ex) {
-      print(ex);
+      _log.e(ex);
     }
   }
 }

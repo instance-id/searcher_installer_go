@@ -3,7 +3,7 @@ import 'dart:convert' as convert;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'package:searcher_installer_go/data/models/news_data.dart';
+import '../../data/models/news_data.dart';
 
 class NewsDataProvider with ChangeNotifier {
   var log = Logger();

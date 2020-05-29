@@ -35,7 +35,7 @@ class ExpansionNews extends StatelessWidget {
             children: <Widget>[
               ScrollOnExpand(
                 scrollOnExpand: true,
-                scrollOnCollapse: false,
+                scrollOnCollapse: true,
                 child: ExpandablePanel(
                   theme: ExpandableThemeData(
                     headerAlignment: ExpandablePanelHeaderAlignment.center,

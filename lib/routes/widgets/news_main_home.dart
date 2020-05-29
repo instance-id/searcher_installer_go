@@ -51,7 +51,7 @@ class _NewsMainHomeState extends State<NewsMainHome> with TickerProviderStateMix
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Column(
-          children: [
+          children: <Widget>[
             CustomCard(
               borderRadius: [10, 10, 0, 0],
               elevation: 3,
@@ -67,114 +67,116 @@ class _NewsMainHomeState extends State<NewsMainHome> with TickerProviderStateMix
             Expanded(
               child: ListView(
                 shrinkWrap: true,
-                children: [
+                children: <Widget>[
                   Column(
                     children: <Widget>[
                       SizedBox(height: 6),
                       FluidLayout(
                         horizontalPadding: FluidValue((_) => 0),
                         child: Fluid(
-                          horizontalPadding: 10,
+                          horizontalPadding: 5,
                           child: (news == null)
                               ? Center(child: CircularProgressIndicator())
                               : FadeInVertical(
                                   delay: 0,
                                   distance: -75,
-                                  duratin: 500,
+                                  duration: 500,
                                   child: ExpandableNotifier(
-                                      child: Padding(
-                                    padding: const EdgeInsets.all(0),
-                                    child: Card(
-                                      color: Color.fromRGBO(33, 33, 33, 0.9),
-                                      clipBehavior: Clip.antiAlias,
-                                      child: ListView(
-                                        shrinkWrap: true,
-                                        children: <Widget>[
-                                          AnimatedSize(
-                                            curve: Curves.easeIn,
-                                            duration: 300.milliseconds,
-                                            vsync: this,
-                                            child: Container(
-                                              constraints: BoxConstraints(minHeight: 50),
-                                              child: (news[0].image == null)
-                                                  ? AssetImage('assets/images/searcher_default.png')
-                                                  : FadeInImage.memoryNetwork(
-                                                      placeholderCacheHeight: 115,
-                                                      placeholder: kTransparentImage,
-                                                      image: '${config.getString("address")}/${news[0].image}',
-                                                      fit: BoxFit.fitWidth,
-                                                    ),
-                                            ),
-                                          ),
-                                          ScrollOnExpand(
-                                            scrollOnExpand: true,
-                                            scrollOnCollapse: false,
-                                            child: ExpandablePanel(
-                                              theme: const ExpandableThemeData(
-                                                headerAlignment: ExpandablePanelHeaderAlignment.center,
-                                                tapBodyToCollapse: true,
+                                      type: "news",
+                                      child: Card(
+                                        color: Color.fromRGBO(33, 33, 33, 0.9),
+                                        clipBehavior: Clip.antiAlias,
+                                        child: ListView(
+                                          shrinkWrap: true,
+                                          children: <Widget>[
+                                            AnimatedSize(
+                                              curve: Curves.easeIn,
+                                              duration: 300.milliseconds,
+                                              vsync: this,
+                                              child: Container(
+                                                constraints: BoxConstraints(
+                                                  /*minHeight: 50,*/ maxHeight: 200,
+                                                  maxWidth: context.widthPx,
+                                                ),
+                                                child: (news[0].image == null)
+                                                    ? AssetImage('assets/images/searcher_default.png')
+                                                    : FadeInImage.memoryNetwork(
+                                                        placeholderCacheHeight: 115,
+                                                        placeholderCacheWidth: 100,
+                                                        placeholder: kTransparentImage,
+                                                        image: '${config.getString("address")}/${news[0].image}',
+                                                        fit: BoxFit.fitWidth,
+                                                      ),
                                               ),
-                                              header: Container(
-                                                child: Padding(
-                                                  padding: EdgeInsets.fromLTRB(5, 0, 0, 5),
-                                                  child: Text(
-                                                    '${news[0].title}',
-                                                    softWrap: true,
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: Theme.of(context).textTheme.subtitle2.copyWith(
-                                                      fontSize: 13,
-                                                      color: Color(0xFF607FAE),
-                                                      shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
+                                            ),
+                                            ScrollOnExpand(
+                                              scrollOnExpand: true,
+                                              scrollOnCollapse: false,
+                                              child: ExpandablePanel(
+                                                theme: const ExpandableThemeData(
+                                                  headerAlignment: ExpandablePanelHeaderAlignment.center,
+                                                  tapBodyToCollapse: true,
+                                                ),
+                                                header: Container(
+                                                  child: Padding(
+                                                    padding: EdgeInsets.fromLTRB(5, 0, 0, 5),
+                                                    child: Text(
+                                                      '${news[0].title}',
+                                                      softWrap: true,
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: Theme.of(context).textTheme.subtitle2.copyWith(
+                                                        fontSize: 13,
+                                                        color: Color(0xFF607FAE),
+                                                        shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                              collapsed: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Padding(
-                                                    padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                                    child: Text(
-                                                      '${news[0].description}',
-                                                      softWrap: true,
-                                                      maxLines: 2,
-                                                      overflow: TextOverflow.ellipsis,
-                                                      style: Theme.of(context).textTheme.subtitle2,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              expanded: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: <Widget>[
-                                                  for (var _ in Iterable.generate(5))
+                                                collapsed: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
                                                     Padding(
-                                                        padding: EdgeInsets.only(bottom: 10, left: 0),
-                                                        child: Text(
-                                                          '${news[0].details}',
-                                                          softWrap: true,
-                                                          overflow: TextOverflow.fade,
-                                                          style: Theme.of(context).textTheme.subtitle2,
-                                                        )),
-                                                ],
+                                                      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                                      child: Text(
+                                                        '${news[0].description}',
+                                                        softWrap: true,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: Theme.of(context).textTheme.subtitle2,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                expanded: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    for (var _ in Iterable.generate(5))
+                                                      Padding(
+                                                          padding: EdgeInsets.only(bottom: 10, left: 0),
+                                                          child: Text(
+                                                            '${news[0].details}',
+                                                            softWrap: true,
+                                                            overflow: TextOverflow.fade,
+                                                            style: Theme.of(context).textTheme.subtitle2,
+                                                          )),
+                                                  ],
+                                                ),
+                                                builder: (_, collapsed, expanded) {
+                                                  return Padding(
+                                                    padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                                                    child: Expandable(
+                                                      collapsed: collapsed,
+                                                      expanded: expanded,
+                                                      theme: const ExpandableThemeData(crossFadePoint: 0),
+                                                    ),
+                                                  );
+                                                },
                                               ),
-                                              builder: (_, collapsed, expanded) {
-                                                return Padding(
-                                                  padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                                                  child: Expandable(
-                                                    collapsed: collapsed,
-                                                    expanded: expanded,
-                                                    theme: const ExpandableThemeData(crossFadePoint: 0),
-                                                  ),
-                                                );
-                                              },
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ))),
+                                          ],
+                                        ),
+                                      ))),
                         ),
                       ),
                     ],

@@ -3,11 +3,13 @@ import 'package:faui/faui_api.dart';
 import 'package:faui/src/10_auth/auth_state_user.dart';
 import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:searcher_installer_go/data/provider/auth_provider.dart';
 import 'package:searcher_installer_go/data/provider/login_messages.dart';
-import 'package:searcher_installer_go/services/auth_storage.dart';
+import 'package:searcher_installer_go/services/data_storage.dart';
 
+import '../data/enums/enums.dart';
 import '../helpers/custom_color.dart';
 import '../widgets/constants.dart';
 import '../widgets/custom_route.dart';
@@ -23,6 +25,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreen extends State<LoginScreen> {
   var data = GlobalConfiguration();
+  Logger log = Logger();
 
   Future<String> doLogin(LoginData loginData, BuildContext context, bool mounted) async {
     try {
@@ -34,9 +37,7 @@ class _LoginScreen extends State<LoginScreen> {
 
       this.afterAuthorized(context, fauiUser);
     } catch (e) {
-      this.setState(() {
-        return FauiError.exceptionToUiMessage(e);
-      });
+       return FauiError.exceptionToUiMessage(e);
     }
     return null;
   }
@@ -74,12 +75,14 @@ class _LoginScreen extends State<LoginScreen> {
   }
 
   Future<String> afterAuthorized(BuildContext context, FauiUser user) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     FauiAuthState.user = user;
+//    authProvider.doAuthChange(AuthStatus.signedIn);
     if (fauiUser != null || fauiUser != 'null') {
       if (FauiAuthState.user.contactEmail == null || FauiAuthState.user.contactEmail == "") {
         FauiAuthState.user.contactEmail = FauiAuthState.user.email;
       }
-      AuthStorage.saveUserLocallyForSilentSignIn();
+      DataStorage.saveUserLocallyForSilentSignIn();
       data.updateValue("updateData", true);
     }
     return null;
@@ -100,18 +103,18 @@ class _LoginScreen extends State<LoginScreen> {
       logoTag: Constants.logoTag,
       titleTag: Constants.titleTag,
       messages: LoginMessages(
-        usernameHint: 'Username',
+        usernameHint: 'Email Address',
         passwordHint: 'Password',
         confirmPasswordHint: 'Confirm',
-        loginButton: 'LOG IN',
-        signupButton: 'REGISTER',
+        loginButton: 'Login',
+        signupButton: 'Register',
         forgotPasswordButton: 'Reset Password',
-        recoverPasswordButton: 'HELP ME',
-        goBackButton: 'GO BACK',
-        confirmPasswordError: 'Not match!',
+        recoverPasswordButton: 'Reset!',
+        goBackButton: 'Go Back',
+        confirmPasswordError: 'Not matching!',
         recoverPasswordIntro: 'Don\'t feel bad. Happens all the time.',
-        recoverPasswordDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-        recoverPasswordSuccess: 'Password rescued successfully',
+        recoverPasswordDescription: 'To reset your password, please enter your email address.',
+        recoverPasswordSuccess: 'Password reset request has been sent.',
       ),
       theme: LoginTheme(
         primaryColor: AppColors.LIGHT_TEXT,
@@ -121,7 +124,6 @@ class _LoginScreen extends State<LoginScreen> {
         pageColorDark: AppColors.BG_DARK,
         titleStyle: TextStyle(
           color: AppColors.LIGHT_TEXT,
-          fontFamily: 'Quicksand',
           letterSpacing: 4,
         ),
         // beforeHeroFontSize: 50,
@@ -131,21 +133,21 @@ class _LoginScreen extends State<LoginScreen> {
           fontStyle: FontStyle.normal,
           fontSize: 12,
           fontWeight: FontWeight.w800,
-          decoration: TextDecoration.underline,
+          decoration: TextDecoration.none,
         ),
         bodyStyle2: TextStyle(
           color: AppColors.LIGHT_TEXT,
           fontStyle: FontStyle.italic,
-          decoration: TextDecoration.underline,
+          decoration: TextDecoration.none,
         ),
         textFieldStyle: TextStyle(
-          color: AppColors.GOLD,
-          shadows: [Shadow(color: AppColors.GOLD, blurRadius: 1)],
+          color: AppColors.M_YELLOW,
+//          shadows: [Shadow(color: AppColors.M_YELLOW, blurRadius: 1)],
         ),
         buttonStyle: TextStyle(
           fontWeight: FontWeight.w800,
           backgroundColor: Colors.transparent,
-          color: AppColors.ORANGE,
+          color: AppColors.BLUEISH,
         ),
         cardTheme: CardTheme(
           color: Color.fromRGBO(35, 47, 52, .90),
@@ -155,6 +157,10 @@ class _LoginScreen extends State<LoginScreen> {
           shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
         ),
         inputTheme: InputDecorationTheme(
+          hintStyle: TextStyle(
+            backgroundColor: Colors.blue,
+            color: Colors.white,
+          ),
           filled: true,
           fillColor: AppColors.BG_DARK.withOpacity(0.5),
           contentPadding: EdgeInsets.zero,
@@ -223,6 +229,8 @@ class _LoginScreen extends State<LoginScreen> {
         return doSignup(loginData, context, mounted);
       },
       onSubmitAnimationCompleted: () {
+        auth.doAuthChange(AuthStatus.signedIn);
+
         Navigator.of(context).push(FadePageRoute(
           builder: (context) => DashboardScreen(),
         ));

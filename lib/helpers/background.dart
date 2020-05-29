@@ -5,9 +5,10 @@
 import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/data/models/settings_data.dart';
-import 'package:searcher_installer_go/data/provider/settings_provider.dart';
 import 'package:transparent_image/transparent_image.dart';
+
+import '../data/models/settings_data.dart';
+import '../data/provider/settings_provider.dart';
 
 import 'navigation-bus.dart';
 
