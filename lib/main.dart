@@ -1,6 +1,5 @@
 import 'dart:io' as io;
 
-import 'package:faui/faui_api.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:global_configuration/global_configuration.dart';
@@ -20,7 +19,6 @@ import 'package:searcher_installer_go/services/data_storage.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 import '.secret/secret.config.dart';
-import 'helpers/console.dart';
 import 'helpers/exceptions.dart';
 
 GetIt sl = GetIt.instance;

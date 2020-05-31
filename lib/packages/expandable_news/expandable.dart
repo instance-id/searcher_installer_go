@@ -313,9 +313,11 @@ class _ExpandableNotifierState extends State<ExpandableNotifier> {
   void didUpdateWidget(ExpandableNotifier oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller && widget.controller != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         controller = widget.controller;
       });
+        });
     }
   }
 
@@ -372,7 +374,7 @@ class ExpandableController extends ValueNotifier<bool> {
   set expanded(bool exp) {
     value = exp;
     if (type != null) {
-      expand.sendMessage(exp, type);
+      Future.microtask(() => expand.sendMessage(exp, type));
     }
   }
 

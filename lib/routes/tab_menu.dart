@@ -135,6 +135,7 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
           fabIconAlpha = _fadeFabInAnimation.value;
         });
       });
+
     setState(() {
       _bgController.animateTo(1);
     });

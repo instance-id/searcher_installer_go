@@ -55,9 +55,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       vsync: this,
     );
     flexAnimation = FlexAnimation(_controller);
-//    WidgetsBinding.instance.addPostFrameCallback((_) {
-//      setState(() {});
-//    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {});
+    });
     super.initState();
   }
 

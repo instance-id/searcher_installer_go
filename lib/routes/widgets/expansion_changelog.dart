@@ -94,7 +94,7 @@ class ExpansionChangeLog extends StatelessWidget {
                       (changeLog.useMarkdown)
                           ? Container(
                               child: Markdown(
-                                padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
                                 shrinkWrap: true,
                                 selectable: true,
                                 data: '${changeLog.details}',
@@ -102,7 +102,7 @@ class ExpansionChangeLog extends StatelessWidget {
                               ),
                             )
                           : Padding(
-                              padding: EdgeInsets.fromLTRB(20, 0, 0, 10),
+                              padding: EdgeInsets.fromLTRB(20, 0, 0, 15),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
@@ -142,7 +142,13 @@ class ExpansionChangeLog extends StatelessWidget {
                                     imageDirectory: 'https://raw.githubusercontent.com',
                                   ),
                                 ],
-                              ))
+                              )), Divider(
+                        color: Color.fromRGBO(21, 21, 21, 0.6),
+                        thickness: 3.0,
+                        height: 2.0,
+                        indent: 30,
+                        endIndent: 30,
+                      ),
                     ],
                   ),
                   builder: (_, collapsed, expanded) {

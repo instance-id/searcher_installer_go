@@ -36,7 +36,7 @@ class MainAppBar extends StatelessWidget {
       child: AppBar(
           automaticallyImplyLeading: false,
           title: Text(
-            '${data.getString("title")} Login Status: ${authProvider.currentStatus}',
+            '${data.getString("title")}',
             style: TextStyle(color: AppColors.M_DYELLOW, fontWeight: FontWeight.w500, letterSpacing: 1, fontSize: 18),
           ),
           centerTitle: true,

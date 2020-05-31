@@ -138,9 +138,9 @@ class _ExpansionTileState extends State<ExpansionCard> with SingleTickerProvider
     setState(() {
       _isExpanded = !_isExpanded;
       if (_isExpanded) {
-        _controller.forward().orCancel;
+        _controller.forward();
       } else {
-        _controller.reverse().orCancel.then<void>((void value) {
+        _controller.reverse().then<void>((void value) {
           if (!mounted) return;
           setState(() {
             // Rebuild without widget.children.

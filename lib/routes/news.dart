@@ -39,8 +39,6 @@ var jsonString = '''
 
 ''';
 
-bool startCompleted = false;
-
 class DefaultClickListener implements ClickListener {
   @override
   void onClicked(String event) {
@@ -58,8 +56,8 @@ class News extends StatefulWidget {
 final sl = GetIt.instance;
 
 class _NewsState extends State<News> with TickerProviderStateMixin {
-  ScrollController _scrollController = ScrollController();
-  GlobalConfiguration config = GlobalConfiguration();
+  final _scrollController = ScrollController();
+  final config = GlobalConfiguration();
 
   final log = sl<Logger>();
   List<NewsData> news;
@@ -68,6 +66,13 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
   void initState() {
     super.initState();
   }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
 
   Future<Widget> _buildWidget(BuildContext context, String json) async {
     return DynamicWidgetBuilder.build(json, context, new DefaultClickListener());

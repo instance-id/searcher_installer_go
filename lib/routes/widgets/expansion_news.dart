@@ -16,6 +16,17 @@ var iconList = [
   Icons.threesixty,
 ];
 
+final themeData = ExpandableThemeData(
+  headerAlignment: ExpandablePanelHeaderAlignment.center,
+  useInkWell: false,
+  tapBodyToCollapse: false,
+  crossFadePoint: 0.8,
+  tapBodyToExpand: false,
+  animationDuration: 300.milliseconds,
+  fadeCurve: Curves.easeIn,
+  sizeCurve: Curves.easeInOutQuart,
+);
+
 class ExpansionNews extends StatelessWidget {
   ExpansionNews(this.news, this.index);
   final NewsData news;
@@ -37,11 +48,7 @@ class ExpansionNews extends StatelessWidget {
                 scrollOnExpand: true,
                 scrollOnCollapse: true,
                 child: ExpandablePanel(
-                  theme: ExpandableThemeData(
-                    headerAlignment: ExpandablePanelHeaderAlignment.center,
-                    tapBodyToCollapse: true,
-                    animationDuration: 500.milliseconds,
-                  ),
+                  theme: themeData,
                   header: Container(
                     height: 50,
                     padding: EdgeInsets.fromLTRB(7, 3, 5, 3),
@@ -128,7 +135,7 @@ class ExpansionNews extends StatelessWidget {
                       child: Expandable(
                         collapsed: collapsed,
                         expanded: expanded,
-                        theme: const ExpandableThemeData(crossFadePoint: 0),
+                        theme: themeData,
                       ),
                     );
                   },

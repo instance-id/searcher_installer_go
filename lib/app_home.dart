@@ -83,7 +83,6 @@ class _AppHomeState extends State<AppHome> with TickerProviderStateMixin {
   }
 
   Future<bool> _loginMenu() async {
-
     onChanged(2);
     _keyNavigator.currentState.move(2);
     return true;
@@ -101,7 +100,6 @@ class _AppHomeState extends State<AppHome> with TickerProviderStateMixin {
       Future.microtask(() =>authProvider.doAuthChange(AuthStatus.loggedOut));
       Future.microtask(() => msg.sendMessage({'type': MsgType.info, 'message': "Logged out successfully", 'title': "Logout:", 'duration': 4500}));
     }
-//    if (authProvider.currentStatus == AuthStatus.signIn) Future.microtask(() => _setMenu());
 
     return Scaffold(
         primary: true,

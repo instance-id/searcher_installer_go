@@ -78,7 +78,7 @@ class _ChangeLogListState extends State<ChangeLogList> {
                                   child: Padding(
                                     padding: EdgeInsets.fromLTRB(7, 0, 7, 0),
                                     child: ExpansionChangeLog(
-//                                      key: ValueKey('${changeLog[index].id}'),
+                                      key: ValueKey('${changeLog[index].id}'),
                                       changeLog: changeLog[index],
                                       index: index,
                                     ),
