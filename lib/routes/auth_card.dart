@@ -4,15 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/data/models/login_data.dart';
-import 'package:searcher_installer_go/data/provider/auth_state.dart';
-import 'package:searcher_installer_go/data/provider/login_messages.dart';
-import 'package:searcher_installer_go/helpers/custom_color.dart';
-import 'package:searcher_installer_go/widgets/widgets/fade_in.dart';
 import 'package:transformer_page_view/transformer_page_view.dart';
 
+import '../data/models/login_data.dart';
+import '../data/provider/auth_state.dart';
+import '../data/provider/login_messages.dart';
+import '../helpers/custom_color.dart';
+import '../widgets/widgets/fade_in.dart';
 import '../widgets/login/src/constants.dart';
 import '../widgets/login/src/dart_helper.dart';
 import '../widgets/login/src/matrix.dart';
@@ -472,7 +471,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     // workaround to run after _cardSizeAnimation in parent finished
     // need a cleaner way but currently it works so..
     Future.delayed(const Duration(milliseconds: 270), () {
-      setState(() => _showShadow = false);
+      if(mounted)  setState(() => _showShadow = false);
     });
 
     _submitController.reverse();

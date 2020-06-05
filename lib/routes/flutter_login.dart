@@ -1,5 +1,3 @@
-library flutter_login;
-
 import 'dart:math';
 
 import 'package:fluid_layout/fluid_layout.dart';
@@ -9,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/data/provider/auth_state.dart';
-import 'package:searcher_installer_go/data/provider/login_messages.dart';
-import 'package:searcher_installer_go/widgets/widgets/fade_in.dart';
 
+import '../data/provider/auth_state.dart';
+import '../data/provider/login_messages.dart';
+import '../widgets/widgets/fade_in.dart';
 import '../data/provider/login_theme.dart';
 import '../widgets/login/src/color_helper.dart';
 import '../widgets/login/src/constants.dart';
@@ -347,19 +345,6 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
     }
   }
 
-  Widget _buildHeader(double height, LoginTheme loginTheme) {
-    return _Header(
-      logoController: _logoController,
-      titleController: _titleController,
-      height: height,
-      logoPath: widget.logo,
-      logoTag: widget.logoTag,
-      title: widget.title,
-      titleTag: widget.titleTag,
-      loginTheme: loginTheme,
-    );
-  }
-
   Widget _buildDebugAnimationButtons(BuildContext context) {
     const textStyle = TextStyle(fontSize: 12, color: Colors.white);
 
@@ -561,7 +546,7 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
                             onSubmitCompleted: widget.onSubmitAnimationCompleted,
                           ),
                         ),
-                        if (!kReleaseMode && widget.showDebugButtons)
+                        if (kDebugMode && widget.showDebugButtons)
                           Flexible(
                             child: _buildDebugAnimationButtons(context),
                             flex: 1,

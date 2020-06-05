@@ -2,19 +2,12 @@ import 'package:event/event.dart';
 import '../enums/enums.dart';
 
 class AuthStatusListener {
-  AuthStatus status = AuthStatus.loggedOut;
+  AuthStatus status = AuthStatus.signedOut;
   var valueChangedEvent = Event();
-  var relayEvent = Event();
 
   void setStatus(AuthStatus value) {
     this.status = value;
-    print('From Listener: ${this.status}');
+    print(this.status);
     valueChangedEvent.broadcast();
-  }
-
-  void relayStatus(AuthStatus value) {
-    this.status = value;
-    print('From Relay: ${this.status}');
-    relayEvent.broadcast();
   }
 }

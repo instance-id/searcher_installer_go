@@ -50,7 +50,7 @@ class _ChangeLogDetailsState extends State<ChangeLogDetails> with TickerProvider
 
     Widget _topRow(ChangeLogData cLog) {
       return Row(
-        children: [
+        children: <Widget>[
           Flexible(
             flex: 2,
             child: AnimatedSize(

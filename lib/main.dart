@@ -1,24 +1,26 @@
 import 'dart:io' as io;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/app_home.dart';
-import 'package:searcher_installer_go/data/models/fbapp.dart';
-import 'package:searcher_installer_go/data/provider/auth_provider.dart';
-import 'package:searcher_installer_go/data/provider/changelog_provider.dart';
+import 'app_home.dart';
+import 'data/events/requestlogin_event.dart';
+import 'data/models/fbapp.dart';
+import 'data/provider/changelog_provider.dart';
 import 'data/events/authstatus_event.dart';
 import 'data/events/expansion_event.dart';
 import 'data/events/messages_event.dart';
-import 'package:searcher_installer_go/data/provider/navigation_provider.dart';
-import 'package:searcher_installer_go/data/provider/news_provider.dart';
-import 'package:searcher_installer_go/data/provider/settings_provider.dart';
-import 'package:searcher_installer_go/services/data_storage.dart';
+import 'data/provider/navigation_provider.dart';
+import 'data/provider/news_provider.dart';
+import 'data/provider/settings_provider.dart';
+import 'services/data_storage.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 import '.secret/secret.config.dart';
+import 'data/provider/fb_auth_provider.dart';
 import 'helpers/exceptions.dart';
 
 GetIt sl = GetIt.instance;
@@ -38,7 +40,7 @@ FbApp getFbApp() {
 
 Future<void> main() async {
   sl.registerSingleton<Logger>(
-      Logger(level: Level.warning,
+      Logger(level: kDebugMode ? Level.debug : Level.info,
           printer: PrettyPrinter(
             methodCount: 2,
             errorMethodCount: 10,
@@ -50,6 +52,7 @@ Future<void> main() async {
       )
   );
   sl.registerSingleton<Message>(Message());
+  sl.registerSingleton<RequestLogin>(RequestLogin());
   sl.registerSingleton<AuthStatusListener>(AuthStatusListener());
   sl.registerSingleton<ExpansionListener>(ExpansionListener());
   sl.registerSingleton<ExpansionController>(ExpansionController());
@@ -88,7 +91,6 @@ void runMain() async {
     "playDataAnim": true,
   }).loadFromMap(api);
   var app = getFbApp();
-  await DataStorage.trySignInSilently(app.apiKey);
   await DataStorage.loadAppSettings();
 
   // enable network traffic logging
@@ -100,7 +102,7 @@ void runMain() async {
       ChangeNotifierProvider<SettingsDataProvider>(create: (_) => SettingsDataProvider()..init()),
       ChangeNotifierProvider<NewsDataProvider>(create: (_) => NewsDataProvider()..init()),
       ChangeNotifierProvider<NavigationProvider>(create: (_) => NavigationProvider()),
-      ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider(app)..init()),
+      ChangeNotifierProvider<FBAuthProvider>(create: (_) => FBAuthProvider()..init()),
     ], child: MyApp(app)),
   );
 }

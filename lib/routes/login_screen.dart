@@ -1,15 +1,15 @@
-import 'package:faui/faui.dart';
-import 'package:faui/faui_api.dart';
-import 'package:faui/src/10_auth/auth_state_user.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/data/provider/auth_provider.dart';
-import 'package:searcher_installer_go/data/provider/login_messages.dart';
-import 'package:searcher_installer_go/services/data_storage.dart';
 
 import '../data/enums/enums.dart';
+import '../data/errors/errors.dart';
+import '../data/events/authstatus_event.dart';
+import '../data/extension/extensions.dart';
+import '../data/provider/fb_auth_provider.dart';
+import '../data/provider/login_messages.dart';
 import '../helpers/custom_color.dart';
 import '../widgets/constants.dart';
 import '../widgets/custom_route.dart';
@@ -23,38 +23,30 @@ class LoginScreen extends StatefulWidget {
   _LoginScreen createState() => _LoginScreen();
 }
 
+final sl = GetIt.instance;
+
 class _LoginScreen extends State<LoginScreen> {
   var data = GlobalConfiguration();
-  Logger log = Logger();
+  final log = sl<Logger>();
+  final status = sl<AuthStatusListener>();
 
   Future<String> doLogin(LoginData loginData, BuildContext context, bool mounted) async {
     try {
-      FauiUser fauiUser = await fauiSignInUser(
-        apiKey: data.getString('apiKey'),
-        email: loginData.email,
-        password: loginData.password,
-      );
-
-      this.afterAuthorized(context, fauiUser);
+      await context.read<FBAuthProvider>().signIn(loginData);
+      await this.afterAuthorized(context);
     } catch (e) {
-       return FauiError.exceptionToUiMessage(e);
+      return FBError.exceptionToUiMessage(e);
     }
     return null;
   }
 
   Future<String> doSignup(LoginData loginData, BuildContext context, bool mounted) async {
     try {
-      FauiUser fauiUser = await fauiRegisterUser(
-        apiKey: data.getString('apiKey'),
-        email: loginData.email,
-        password: loginData.password,
-        sendResetLink: false,
-      );
-
-      this.afterAuthorized(context, fauiUser);
+      await context.read<FBAuthProvider>().signUp(loginData);
+      this.afterAuthorized(context);
     } catch (e) {
       this.setState(() {
-        return FauiError.exceptionToUiMessage(e);
+        return FBError.exceptionToUiMessage(e);
       });
     }
     return null;
@@ -62,27 +54,21 @@ class _LoginScreen extends State<LoginScreen> {
 
   Future<String> _recoverPassword(String _email, BuildContext context, bool mounted) async {
     try {
-      await fauiSendResetLink(
-        apiKey: data.getString('apiKey'),
-        email: _email,
-      );
+      await context.read<FBAuthProvider>().recoverPassword(_email);
     } catch (e) {
       this.setState(() {
-        return FauiError.exceptionToUiMessage(e);
+        return FBError.exceptionToUiMessage(e);
       });
     }
     return null;
   }
 
-  Future<String> afterAuthorized(BuildContext context, FauiUser user) async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    FauiAuthState.user = user;
-//    authProvider.doAuthChange(AuthStatus.signedIn);
-    if (fauiUser != null || fauiUser != 'null') {
-      if (FauiAuthState.user.contactEmail == null || FauiAuthState.user.contactEmail == "") {
-        FauiAuthState.user.contactEmail = FauiAuthState.user.email;
+  Future<String> afterAuthorized(BuildContext context) async {
+    var user = await context.read<FBAuthProvider>().user;
+    if (user != null || user != 'null') {
+      if (user.contactEmail == null || user.contactEmail == "") {
+        user.contactEmail = user.email;
       }
-      DataStorage.saveUserLocallyForSilentSignIn();
       data.updateValue("updateData", true);
     }
     return null;
@@ -90,7 +76,7 @@ class _LoginScreen extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final auth = Provider.of<FBAuthProvider>(context);
 
     final inputBorder = BorderRadius.vertical(
       bottom: Radius.circular(5.0),
@@ -216,7 +202,7 @@ class _LoginScreen extends State<LoginScreen> {
         }
         return null;
       },
-      onLogin: (loginData) {
+      onLogin: (loginData) async {
         print('Login info');
         print('Name: ${loginData.email}');
         print('Password: ${loginData.password}');
@@ -229,11 +215,10 @@ class _LoginScreen extends State<LoginScreen> {
         return doSignup(loginData, context, mounted);
       },
       onSubmitAnimationCompleted: () {
-        auth.doAuthChange(AuthStatus.signedIn);
-
-        Navigator.of(context).push(FadePageRoute(
-          builder: (context) => DashboardScreen(),
-        ));
+          status.setStatus(AuthStatus.signedIn);
+          Navigator.of(context).push(FadePageRoute(
+            builder: (context) => DashboardScreen(),
+          ));
       },
       onRecoverPassword: (_email) {
         print('Recover password info');

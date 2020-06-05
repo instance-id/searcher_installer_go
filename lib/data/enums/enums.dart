@@ -1,1 +1,1 @@
-enum AuthStatus { signIn, signedIn, loggedOut, logOut }
+enum AuthStatus { signIn, signedIn, signedOut, signOut }

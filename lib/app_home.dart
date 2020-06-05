@@ -1,14 +1,11 @@
-import 'package:faui/faui.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
+import 'package:simple_animations/simple_animations.dart';
 
-import 'data/enums/enums.dart';
-import 'data/events/authstatus_event.dart';
 import 'data/events/messages_event.dart';
-import 'data/provider/auth_provider.dart';
+import 'data/events/requestlogin_event.dart';
 import 'helpers/background.dart';
 import 'routes/about.dart';
 import 'routes/app_bar.dart';
@@ -25,11 +22,11 @@ class AppHome extends StatefulWidget {
 
 GetIt sl = GetIt.instance;
 
-class _AppHomeState extends State<AppHome> with TickerProviderStateMixin {
+class _AppHomeState extends State<AppHome> with AnimationMixin {
   final GlobalKey<TabMenuState> _keyNavigator = GlobalKey<TabMenuState>();
   final log = sl<Logger>();
   final msg = sl<Message>();
-  final auth = sl<AuthStatusListener>();
+  final login = sl<RequestLogin>();
 
   GlobalConfiguration data = GlobalConfiguration();
   List<String> title = ["Searcher : News", "Searcher : Installer", "Searcher : Account", "Searcher : Change Log"];
@@ -42,14 +39,9 @@ class _AppHomeState extends State<AppHome> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     msg.valueChangedEvent + (args) => Future.microtask(() => _showMessage(msg));
-    auth.valueChangedEvent + (args) => (auth.status == AuthStatus.signIn) ? _loginMenu().then((value) => auth.setStatus(AuthStatus.loggedOut)) : null;
+    login.event + (args) =>  _loginMenu();
 
-    if (data.getBool('loginOk') && fauiUser != null && authProvider.currentStatus == AuthStatus.loggedOut) {
-      Future.microtask(() => authProvider.doAuthChange(AuthStatus.signedIn));
-      msg.sendMessage({'type': MsgType.info, 'message': "Login Successful", 'title': "Status:", 'duration': 4500});
-    }
     super.initState();
   }
 
@@ -90,20 +82,14 @@ class _AppHomeState extends State<AppHome> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
     TabMenu navigator = TabMenu(
       key: _keyNavigator,
       onChanged: onChanged,
     );
 
-    if ( authProvider.currentStatus == AuthStatus.logOut) {
-      Future.microtask(() =>authProvider.doAuthChange(AuthStatus.loggedOut));
-      Future.microtask(() => msg.sendMessage({'type': MsgType.info, 'message': "Logged out successfully", 'title': "Logout:", 'duration': 4500}));
-    }
-
     return Scaffold(
         primary: true,
-        appBar: DraggebleAppBar(appBar: MainAppBar(context, _keyNavigator)),
+        appBar: DraggebleAppBar(appBar: MainAppBar(context)),
         drawer: Drawer(child: AboutRoute(context)),
         body: Container(
           child: Stack(

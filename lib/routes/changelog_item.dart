@@ -58,7 +58,7 @@ class ChangeLogItem extends StatelessWidget {
                           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                             Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                               Row(
-                                children: [
+                                children: <Widget> [
                                   Container(
                                     child: Text(title,
                                         style: Theme.of(context).textTheme.subhead.copyWith(
@@ -71,7 +71,7 @@ class ChangeLogItem extends StatelessWidget {
                               ),
                               SizedBox(height: 3),
                               Row(
-                                children: [
+                                children: <Widget> [
                                   SizedBox(width: 1),
                                   Container(
                                       alignment: Alignment.centerRight,
@@ -89,10 +89,10 @@ class ChangeLogItem extends StatelessWidget {
                             ]),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
+                              children: <Widget>[
                                 Container(
                                   child: Row(
-                                    children: [
+                                    children: <Widget>[
                                       Text("v", style: Theme.of(context).textTheme.bodyText1),
                                       Text(version, style: Theme.of(context).textTheme.bodyText1),
                                     ],

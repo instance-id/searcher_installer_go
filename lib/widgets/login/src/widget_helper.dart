@@ -16,7 +16,7 @@ Flushbar showSuccessToast(BuildContext context, String message, String title, in
     flushbarPosition: FlushbarPosition.TOP,
     flushbarStyle: FlushbarStyle.FLOATING,
     messageText: Row(
-      children: [
+      children: <Widget> [
         Text(title, style: TextStyle(color: AppColors.M_DYELLOW, fontWeight: FontWeight.w600)),
         SizedBox(width: 5),
         Text(message, style: TextStyle(color: Colors.green, fontWeight: FontWeight.w400)),
@@ -39,7 +39,7 @@ Flushbar showErrorToast(BuildContext context, String message, String title, int 
     flushbarStyle: FlushbarStyle.FLOATING,
     borderRadius: 0,
     messageText: Row(
-      children: [
+      children: <Widget> [
         Text(title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
         SizedBox(width: 5),
         Text(message, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400)),

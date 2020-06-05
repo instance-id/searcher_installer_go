@@ -20,7 +20,7 @@ const double TEXT_OFF = 2;
 const double TEXT_ON = 3.5;
 const double ALPHA_OFF = 0;
 const double ALPHA_ON = 1;
-const int ANIM_DURATION = 300;
+const Duration ANIM_DURATION = Duration(milliseconds: 300);
 const Color PURPLE = Color(0xFF000000);
 
 class _TabItemState extends State<TabItem> {
@@ -58,7 +58,7 @@ class _TabItemState extends State<TabItem> {
             height: double.infinity,
             width: double.infinity,
             child: AnimatedAlign(
-                duration: Duration(milliseconds: ANIM_DURATION),
+                duration: ANIM_DURATION,
                 alignment: Alignment(0, textYAlign),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 13),
@@ -76,11 +76,11 @@ class _TabItemState extends State<TabItem> {
             height: double.infinity,
             width: double.infinity,
             child: AnimatedAlign(
-              duration: Duration(milliseconds: ANIM_DURATION),
+              duration:ANIM_DURATION,
               curve: Curves.easeIn,
               alignment: Alignment(0, iconYAlign),
               child: AnimatedOpacity(
-                duration: Duration(milliseconds: ANIM_DURATION),
+                duration:ANIM_DURATION,
                 opacity: iconAlpha,
                 child: IconButton(
                   iconSize: 90,

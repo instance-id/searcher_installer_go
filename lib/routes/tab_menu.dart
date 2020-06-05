@@ -78,43 +78,23 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
     _animationController = AnimationController(
         vsync: this,
         duration: Duration(
-          milliseconds: ANIM_DURATION,
+          milliseconds: ANIM_DURATION.inMilliseconds,
         ));
     _fadeOutController = AnimationController(
         vsync: this,
         duration: Duration(
-          milliseconds: (ANIM_DURATION ~/ 5),
+          milliseconds: (ANIM_DURATION.inMilliseconds ~/ 5),
         ));
-
-    _menuTween = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, 1.0));
-    _menuAnimation = _menuTween.animate(
-      CurvedAnimation(
-        parent: _menuController,
-        curve: Curves.easeOut,
-      ),
-    )..addListener(() {
-        setState(() {});
-      });
 
     _positionTween = Tween<double>(begin: 0, end: 0);
     _positionAnimation = _positionTween.animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
-    )..addListener(() {
-        setState(() {});
-      });
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
 
     _fadeFabOutAnimation = Tween<double>(begin: 1, end: 0).animate(CurvedAnimation(
       parent: _fadeOutController,
       curve: Curves.easeOut,
     ))
-      ..addListener(() {
-        setState(() {
-          fabIconAlpha = _fadeFabOutAnimation.value;
-        });
-      })
       ..addStatusListener((AnimationStatus status) {
         if (status == AnimationStatus.completed) {
           setState(() {
@@ -123,18 +103,7 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
         }
       });
 
-    _fadeFabInAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: Interval(
-          0.8,
-          1,
-          curve: Curves.easeOut,
-        )))
-      ..addListener(() {
-        setState(() {
-          fabIconAlpha = _fadeFabInAnimation.value;
-        });
-      });
+    _fadeFabInAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _animationController, curve: Interval(0.8, 1, curve: Curves.easeOut)));
 
     setState(() {
       _bgController.animateTo(1);
@@ -169,7 +138,6 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
     if (currentSelected != 2) {
       setState(() {
         nextIcon = Icons.info;
-        fabIconAlpha = .1;
         currentSelected = 2;
         _bgController.animateTo(2);
       });
@@ -181,7 +149,6 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
   void navDashboard() {
     setState(() {
       nextIcon = Icons.home;
-      fabIconAlpha = .1;
       currentSelected = 1;
       menuHidden = true;
       _bgController.animateTo(3);
@@ -191,129 +158,132 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _menuAnimation,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: <Widget>[
-          Container(
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.M_DARK,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  spreadRadius: 3,
-                  offset: Offset(0, -1),
-                  blurRadius: 6,
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                TabItem(
-                    selected: currentSelected == 0,
-                    title: "INFO",
-                    callbackFunction: () {
-                      navInfo();
-                      widget.onChanged(0);
-                    }),
-                TabItem(
-                    selected: currentSelected == 1,
-                    title: "HOME",
-                    callbackFunction: () {
-                      navHome();
-                      widget.onChanged(1);
-                    }),
-                TabItem(
-                    selected: currentSelected == 2,
-                    title: "UPDATE",
-                    callbackFunction: () {
-                      navUpdate();
-                      widget.onChanged(2);
-                    })
-              ],
-            ),
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: <Widget>[
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.M_DARK,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                spreadRadius: 3,
+                offset: Offset(0, -1),
+                blurRadius: 6,
+              ),
+            ],
           ),
-          IgnorePointer(
-            ignoring: true,
-            child: Container(
-              height: 60,
-              decoration: BoxDecoration(color: Colors.transparent),
-              child: Align(
-                alignment: Alignment(_positionAnimation.value, 0),
-                child: FractionallySizedBox(
-                  widthFactor: 1 / 3,
-                  child: Container(
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              TabItem(
+                  selected: currentSelected == 0,
+                  title: "INFO",
+                  callbackFunction: () {
+                    navInfo();
+                    widget.onChanged(0);
+                  }),
+              TabItem(
+                  selected: currentSelected == 1,
+                  title: "HOME",
+                  callbackFunction: () {
+                    navHome();
+                    widget.onChanged(1);
+                  }),
+              TabItem(
+                  selected: currentSelected == 2,
+                  title: "UPDATE",
+                  callbackFunction: () {
+                    navUpdate();
+                    widget.onChanged(2);
+                  })
+            ],
+          ),
+        ),
+        IgnorePointer(
+          ignoring: true,
+          child: Container(
+            height: 60,
+            decoration: BoxDecoration(color: Colors.transparent),
+            child: AnimatedBuilder(
+              animation: _positionAnimation,
+              builder: (_, child) {
+                return Align(
+                  alignment: Alignment(_positionAnimation.value, 0),
+                  child: child,
+                );
+              },
+              child: FractionallySizedBox(
+                widthFactor: 1 / 3,
+                child: Container(
+                  alignment: Alignment.topCenter,
+                  child: Stack(
                     alignment: Alignment.topCenter,
-                    child: Stack(
-                      alignment: Alignment.topCenter,
-                      children: <Widget>[
-                        SizedBox(
-                          height: 40,
-                          width: 50,
-                          child: ClipRect(
-                              clipper: HalfClipper(),
-                              child: Container(
-                                alignment: Alignment.topCenter,
-                                child: Center(
-                                  child: Container(
-                                      height: 33,
-                                      width: 50,
-                                      decoration: BoxDecoration(
-                                          color:
-                                              // --------------------------------- Above Circle ---
-                                              Color.fromRGBO(55, 55, 55, 1),
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                                // ------------------------------- Above circle shadow
-                                                color: Color.fromRGBO(1, 1, 1, .5),
-                                                offset: Offset(0, -1),
-                                                spreadRadius: 1,
-                                                blurRadius: 3)
-                                          ])),
-                                ),
-                              )),
-                        ),
-                        SizedBox(
-                          height: 40,
-                          width: 34,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              // ------------------------------------------------- Main Circle
-                              color: Color(0xFF484848),
-                              border: Border.all(
-                                  // --------------------------------------------- Inner circle ring
-                                  color: Color.fromRGBO(30, 30, 30, 1),
-                                  width: 2,
-                                  style: BorderStyle.solid),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(0),
-                              child: Opacity(
-                                opacity: fabIconAlpha,
-                                child: Icon(
-                                  activeIcon,
-                                  // --------------------------------------------- Middle Icon
-                                  color: AppColors.M_YELLOW, //color: Color(0xcc82b9ff),
-                                ),
+                    children: <Widget>[
+                      SizedBox(
+                        height: 40,
+                        width: 50,
+                        child: ClipRect(
+                            clipper: HalfClipper(),
+                            child: Container(
+                              alignment: Alignment.topCenter,
+                              child: Center(
+                                child: Container(
+                                    height: 33,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                        color:
+                                            // --------------------------------- Above Circle ---
+                                            Color.fromRGBO(55, 55, 55, 1),
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              // ------------------------------- Above circle shadow
+                                              color: Color.fromRGBO(1, 1, 1, .5),
+                                              offset: Offset(0, -1),
+                                              spreadRadius: 1,
+                                              blurRadius: 3)
+                                        ])),
+                              ),
+                            )),
+                      ),
+                      SizedBox(
+                        height: 40,
+                        width: 34,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            // ------------------------------------------------- Main Circle
+                            color: Color(0xFF484848),
+                            border: Border.all(
+                                // --------------------------------------------- Inner circle ring
+                                color: Color.fromRGBO(30, 30, 30, 1),
+                                width: 2,
+                                style: BorderStyle.solid),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(0),
+                            child: Opacity(
+                              opacity: fabIconAlpha,
+                              child: Icon(
+                                activeIcon,
+                                // --------------------------------------------- Middle Icon
+                                color: AppColors.M_YELLOW, //color: Color(0xcc82b9ff),
                               ),
                             ),
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
                 ),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

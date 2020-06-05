@@ -131,7 +131,7 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
                 shadowColor: Colors.black,
                 color: Color.fromRGBO(35, 47, 52, 0.8),
                 child: Column(
-                  children: [
+                  children: <Widget> [
                     Expanded(
                       flex: 1,
                       child: Scaffold(

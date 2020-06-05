@@ -1,25 +1,33 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../../routes/home.dart';
-import '../../routes/choose_location.dart';
-
-enum NavPages { ScheduledJobs, Home, JobStatus, ProviderList }
 
 class NavigationProvider with ChangeNotifier {
-  int currentNavigation = 1;
+  double begin = 0;
+  double end = 0;
+  bool _animate = true;
+  Tween<double> _positionTween = Tween<double>();
 
-  Widget get getNavigation {
-    if (currentNavigation == 1) {
-      return ChooseLocation();
-    } else if (currentNavigation == 2) {
-      return Home();
-    } else {
-      return Home();
-    }
+  get positionTween => _positionTween;
+  set positionTween(Tween<double> value) {
+    _positionTween = value;
   }
 
-  void updateNavigation(int navigation) {
-    currentNavigation = navigation;
+  get animate => _animate;
+  set animate(bool value) {
+    _animate = value;
     notifyListeners();
+  }
+
+  setAnim(double end) {
+    positionTween.begin = begin;
+    positionTween.end = end;
+     begin = end;
+    animate = true;
+     notifyListeners();
+  }
+
+  NavigationProvider() {
+    _positionTween = Tween<double>(begin: begin, end: end);
+    setAnim(end);
   }
 }

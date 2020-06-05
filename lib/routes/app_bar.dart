@@ -1,35 +1,27 @@
-import 'package:faui/faui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:global_configuration/global_configuration.dart';
-import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
-import '../data/enums/enums.dart';
-import '../data/events/authstatus_event.dart';
-import '../data/events/expansion_event.dart';
 import '../data/events/messages_event.dart';
-import '../data/provider/auth_provider.dart';
+import '../data/events/requestlogin_event.dart';
+import '../data/provider/fb_auth_provider.dart';
 import '../helpers/custom_color.dart';
-import '../routes/tab_menu.dart';
 import '../widgets//popupmenu.dart' as p;
 
 GetIt sl = GetIt.instance;
 
 class MainAppBar extends StatelessWidget {
   final data = GlobalConfiguration();
-  final exp = sl<ExpansionListener>();
-  final auth = sl<AuthStatusListener>();
   final msg = sl<Message>();
-  final log = sl<Logger>();
+  final login = sl<RequestLogin>();
 
-  MainAppBar(BuildContext context, this.keyNavigator);
-  final GlobalKey<TabMenuState> keyNavigator;
+  MainAppBar(BuildContext context);
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    final isLoggedIn = context.select((FBAuthProvider f) => f.isLoggedIn);
 
     return Container(
       alignment: Alignment.center,
@@ -51,13 +43,14 @@ class MainAppBar extends StatelessWidget {
                     Scaffold.of(context).openDrawer();
                     break;
                   case 1:
-                    if (fauiUser != null && authProvider.currentStatus == AuthStatus.signedIn) {
-                      auth.setStatus(AuthStatus.logOut);
+                    if (isLoggedIn) {
+                      login.sendEvent();
+                      Future.microtask(() => context.read<FBAuthProvider>().signOut());
                     }
                     break;
                   case 2:
-                    if ((fauiUser == null || fauiUser == 'null') && authProvider.currentStatus == AuthStatus.loggedOut) {
-                      auth.setStatus(AuthStatus.signIn);
+                    if ((!isLoggedIn)) {
+                      login.sendEvent();
                     }
                     break;
                   case 3:
@@ -75,6 +68,8 @@ class MainAppBar extends StatelessWidget {
                       'title': "Status:",
                       'duration': 4500,
                     });
+                    break;
+                  case 5:
                     break;
                 }
               },
@@ -99,7 +94,7 @@ class MainAppBar extends StatelessWidget {
                         ],
                       ),
                     )),
-                (authProvider.currentStatus == AuthStatus.signedIn)
+                (isLoggedIn)
                     ? p.PopupMenuItem<int>(
                         height: 35,
                         value: 1,
@@ -130,42 +125,60 @@ class MainAppBar extends StatelessWidget {
                             ],
                           ),
                         )),
-                if (data.getBool("debug"))
-                  p.PopupMenuItem<int>(
-                      height: 35,
-                      value: 3,
-                      child: Container(
-                        padding: EdgeInsets.all(0),
-                        alignment: Alignment.center,
-                        height: 35,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text("Success"),
-                            Spacer(),
-                            Icon(Icons.settings_applications, size: 21),
-                            SizedBox(width: 1),
-                          ],
-                        ),
-                      )),
-                if (data.getBool("debug"))
-                  p.PopupMenuItem<int>(
-                      height: 35,
-                      value: 4,
-                      child: Container(
-                        padding: EdgeInsets.all(0),
-                        alignment: Alignment.center,
-                        height: 35,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text("Error"),
-                            Spacer(),
-                            Icon(Icons.settings_applications, size: 21),
-                            SizedBox(width: 1),
-                          ],
-                        ),
-                      )),
+//                if (data.getBool("debug"))
+//                  p.PopupMenuItem<int>(
+//                      height: 35,
+//                      value: 3,
+//                      child: Container(
+//                        padding: EdgeInsets.all(0),
+//                        alignment: Alignment.center,
+//                        height: 35,
+//                        child: Row(
+//                          mainAxisAlignment: MainAxisAlignment.center,
+//                          children: <Widget>[
+//                            Text("Success"),
+//                            Spacer(),
+//                            Icon(Icons.settings_applications, size: 21),
+//                            SizedBox(width: 1),
+//                          ],
+//                        ),
+//                      )),
+//                if (data.getBool("debug"))
+//                  p.PopupMenuItem<int>(
+//                      height: 35,
+//                      value: 4,
+//                      child: Container(
+//                        padding: EdgeInsets.all(0),
+//                        alignment: Alignment.center,
+//                        height: 35,
+//                        child: Row(
+//                          mainAxisAlignment: MainAxisAlignment.center,
+//                          children: <Widget>[
+//                            Text("Error"),
+//                            Spacer(),
+//                            Icon(Icons.settings_applications, size: 21),
+//                            SizedBox(width: 1),
+//                          ],
+//                        ),
+//                      )),
+//                if (data.getBool("debug"))
+//                  p.PopupMenuItem<int>(
+//                      height: 35,
+//                      value: 5,
+//                      child: Container(
+//                        padding: EdgeInsets.all(0),
+//                        alignment: Alignment.center,
+//                        height: 35,
+//                        child: Row(
+//                          mainAxisAlignment: MainAxisAlignment.center,
+//                          children: <Widget>[
+//                            Text("Firebase"),
+//                            Spacer(),
+//                            Icon(Icons.settings_applications, size: 21),
+//                            SizedBox(width: 1),
+//                          ],
+//                        ),
+//                      )),
               ],
             )
           ]),

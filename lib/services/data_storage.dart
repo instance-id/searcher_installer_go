@@ -21,7 +21,7 @@ class DataStorage {
       String v = await _getLocalValue(_PrefKey);
       if (v == null || v == "null") {
         _log.d("No preferences file: Creating...");
-        _storeLocally(_PrefKey, jsonEncode({"debug": true}));
+        _storeLocally(_PrefKey, jsonEncode({"debug": false}));
         v = await _getLocalValue(_PrefKey);
       }
       Map<String, dynamic> prefs = jsonDecode(v);
@@ -42,6 +42,8 @@ class DataStorage {
     _deleteLocally(_LocalKey);
     _log.d("sso: deleted locally");
   }
+
+
 
   static trySignInSilently(String apiKey) async {
     GetIt getIt = GetIt.instance;

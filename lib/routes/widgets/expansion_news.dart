@@ -53,7 +53,7 @@ class ExpansionNews extends StatelessWidget {
                     height: 50,
                     padding: EdgeInsets.fromLTRB(7, 3, 5, 3),
                     child: Row(
-                      children: [
+                      children: <Widget>[
                         CircleAvatar(
                             child: (news.icon != "")
                                 ? Icon(
@@ -80,7 +80,7 @@ class ExpansionNews extends StatelessWidget {
                   ),
                   collapsed: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget> [
                       Divider(
                         color: Color.fromRGBO(210, 160, 12, 0.1),
                         thickness: 3.0,

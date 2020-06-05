@@ -1,5 +1,4 @@
-import 'package:faui/faui.dart';
-import 'package:faui/src/10_auth/auth_state_user.dart';
+import 'package:firedart/auth/user_gateway.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +16,11 @@ import '../animations/anim_FadeInHZ.dart';
 import '../animations/anim_FadeInVT.dart';
 import '../data/enums/enums.dart';
 import '../data/events/authstatus_event.dart';
-import '../data/provider/auth_provider.dart';
+import '../data/extension/extensions.dart';
+import '../data/provider/fb_auth_provider.dart';
 import '../helpers/custom_card.dart';
 import '../helpers/custom_color.dart';
 import '../routes/login_screen.dart';
-import '../services/data_storage.dart';
 import '../widgets/constants.dart';
 import '../widgets/login/widgets.dart';
 import '../widgets/transition_route_observer.dart';
@@ -41,57 +40,41 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   final log = sl<Logger>();
   final auth = sl<AuthStatusListener>();
   final data = GlobalConfiguration();
-  FauiDb fauiDb;
-  String _collection;
   bool updateData;
-  AuthProvider authProvider;
   AuthStatus currentStatus;
 
   final routeObserver = TransitionRouteObserver<PageRoute>();
   static const headerAniInterval = const Interval(.1, .3, curve: Curves.easeOut);
-  Animation<double> _headerScaleAnimation;
   AnimationController _loadingController;
   TextEditingController _firstCtrl = TextEditingController();
   TextEditingController _lastCtrl = TextEditingController();
   TextEditingController _serialNum = TextEditingController();
   TextEditingController _contactEmail = TextEditingController();
-  Map<String, dynamic> _doc;
+  dynamic _doc;
   bool _debug = false;
 
   double parentHeight;
   double parentwidth;
   TabController tabController;
   bool isDisposed = false;
+  User user;
 
   @override
   void initState() {
-    auth.valueChangedEvent + (args) => (auth.status == AuthStatus.logOut) ? _signOut(context, fauiUser) : null;
-    _collection = data.getString('collection');
     updateData = data.getBool("updateData");
     _debug = data.getBool("debug");
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    fauiDb = authProvider.fauiDb;
+    user = context.read<FBAuthProvider>().user;
 
-    if (data.getBool("showLogin")) data.updateValue("showLogin", false);
-
-    if (fauiUser != null) {
+    if (user != null) {
       _loadData();
-    } else {
-      Navigator.of(context).pushReplacementNamed(LoginScreen.routeName).then((_) => false);
     }
 
     if (!isDisposed) {
       tabController = TabController(length: 3, vsync: this);
-
       _loadingController = AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 1250),
       );
-
-      _headerScaleAnimation = Tween<double>(begin: .6, end: 1).animate(CurvedAnimation(
-        parent: _loadingController,
-        curve: headerAniInterval,
-      ));
 
       tabController.animateTo(1);
     }
@@ -115,72 +98,56 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     super.dispose();
   }
 
-  // 'Welcome ${guard(() => fauiUser?.displayName, 'Guest')}, ',
-  Future<bool> _goToLogin(BuildContext context, FauiUser fauiUser, AuthProvider authProvider) {
-    if (data.getBool("debug")) log.d("From Nav Pop: Logging Out");
-    _doc = null;
-    DataStorage.deleteUserLocally();
-    FauiAuthState.user = null;
-    data.updateValue("showLogin", true);
-    authProvider.doAuthChange(AuthStatus.loggedOut);
-    return Navigator.of(context).pushReplacementNamed(LoginScreen.routeName).then((_) => false);
-  }
+  // 'Welcome ${guard(() => user?.displayName, 'Guest')}, ',
+  Future<bool> _signOut({BuildContext context, User user}) async {
+    if (context.read<FBAuthProvider>().isLoggedIn) {
+      context.read<FBAuthProvider>().signOut();
 
-  Future<bool> _signOut(BuildContext context, FauiUser fauiUser) async {
-    if (data.getBool("debug")) log.d("Logging Out");
-    _doc = null;
-    DataStorage.deleteUserLocally();
-    FauiAuthState.user = null;
-    data.updateValue("showLogin", true);
-    auth.setStatus(AuthStatus.loggedOut);
+      if (data.getBool("debug")) log.d("Logging Out");
+      _doc = null;
+      return Navigator.of(context).pushReplacementNamed(LoginScreen.routeName).then((_) => false);
+    }
   }
 
   Future<void> _loadData() async {
     if (updateData) {
-      _doc = await FauiDbAccess(fauiDb, fauiUser.token).loadDoc(
-            _collection,
-            fauiUser.userId,
-          ) ??
-          {"first": "", "last": "", "serialNum": "", "contactEmail": fauiUser.email};
+      _doc = await context.read<FBAuthProvider>().document ?? {"first": "", "last": "", "serialNum": "", "contactEmail": user.email};
 
-      _firstCtrl.text = fauiUser.fname = _doc["first"];
-      _lastCtrl.text = fauiUser.lname = _doc["last"];
-      _serialNum.text = fauiUser.serialNum = _doc["serialNum"];
-      fauiUser.verified = _doc["verified"];
+      _firstCtrl.text = user.fname = _doc["first"];
+      _lastCtrl.text = user.lname = _doc["last"];
+      _serialNum.text = user.serialNum = _doc["serialNum"];
+      user.verified = _doc["verified"];
 
       // @formatter:off
-      (_doc["contactEmail"] == null || _doc["contactEmail"] == "") ? _contactEmail.text = fauiUser.contactEmail = fauiUser.email : _contactEmail.text = fauiUser.contactEmail = _doc["contactEmail"];
+      (_doc["contactEmail"] == null || _doc["contactEmail"] == "") ? _contactEmail.text = user.contactEmail = user.email : _contactEmail.text = user.contactEmail = _doc["contactEmail"];
 
       if (data.getBool("debug")) log.d('Data Loaded : Firebase;');
       data.updateValue("updateData", false);
-      data.updateValue("verified", verificationCheck(fauiUser));
+      data.updateValue("verified", verificationCheck(user));
       if (mounted) {
         setState(() {});
       }
     } else {
-      _firstCtrl.text = fauiUser.fname ?? "";
-      _lastCtrl.text = fauiUser.lname ?? "";
-      _serialNum.text = fauiUser.serialNum ?? "";
-      _contactEmail.text = fauiUser.contactEmail ?? fauiUser.email;
+      _firstCtrl.text = user.fname ?? "";
+      _lastCtrl.text = user.lname ?? "";
+      _serialNum.text = user.serialNum ?? "";
+      _contactEmail.text = user.contactEmail ?? user.email;
 
       if (data.getBool("debug")) log.d('Data Loaded : Local;');
     }
   }
 
   Future<void> _saveData() async {
-    _doc = {
-      "first": fauiUser.fname = _firstCtrl.text,
-      "last": fauiUser.lname = _lastCtrl.text,
-      "serialNum": fauiUser.serialNum = _serialNum.text,
-      "contactEmail": fauiUser.contactEmail = _contactEmail.text,
+    var doc = {
+      "first": user.fname = _firstCtrl.text,
+      "last": user.lname = _lastCtrl.text,
+      "serialNum": user.serialNum = _serialNum.text,
+      "contactEmail": user.contactEmail = _contactEmail.text,
     };
 
-    await FauiDbAccess(fauiDb, fauiUser.token).saveDoc(
-      _collection,
-      fauiUser.userId,
-      _doc,
-    );
-    if (data.getBool("debug")) log.d('UserId: ${fauiUser.userId}');
+    await context.read<FBAuthProvider>().updateDoc(doc);
+
+    if (data.getBool("debug")) log.d('UserId: ${user.id}');
     if (mounted) {
       setState(() {});
     }
@@ -189,8 +156,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   @override
   void didPushAfterTransition() => _loadingController.forward();
 
-  String verificationCheck(FauiUser fauiUser) {
-    bool v = fauiUser.verified;
+  String verificationCheck(User user) {
+    bool v = user.verified;
     if (data.getBool("debug")) log.d('Verified? ${v}');
     return (v) ? "Verified" : "Not Verified";
   }
@@ -247,7 +214,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
-  Widget _getSettingsPage(BuildContext context, FauiUser fauiUser, ThemeData theme) {
+  Widget _getSettingsPage(BuildContext context, User user, ThemeData theme) {
     const aniInterval = 0.75;
     parentHeight = context.heightPx;
 
@@ -359,7 +326,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildDashboardGrid(BuildContext context, FauiUser fauiUser) {
+  Widget _buildDashboardGrid(BuildContext context, User user) {
     parentHeight = context.heightPx;
     parentwidth = context.widthPx;
 
@@ -524,11 +491,9 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    authProvider = Provider.of<AuthProvider>(context);
-//    if ((authProvider.currentStatus == AuthStatus.loggedOut && fauiUser != null) || (authProvider.currentStatus == AuthStatus.logOut && authProvider.loginStatus)) Future.microtask(() => _signOut(context, fauiUser, authProvider));
 
     return WillPopScope(
-      onWillPop: () => _goToLogin(context, fauiUser, authProvider),
+      onWillPop: () => _signOut(context: context,user: user),
       child: SafeArea(
           child: Scaffold(
               body: Container(
@@ -543,11 +508,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               children: <Widget>[
                 SizedBox(height: 22),
                 Container(
-                  child: _getSettingsPage(context, fauiUser, theme),
+                  child: _getSettingsPage(context, user, theme),
                 ),
                 Expanded(
                   flex: 19,
-                  child: _buildDashboardGrid(context, fauiUser),
+                  child: _buildDashboardGrid(context, user),
                 ),
                 SizedBox(height: 0)
               ],
