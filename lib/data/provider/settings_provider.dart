@@ -1,15 +1,16 @@
 import 'dart:convert' as convert;
 
 import 'package:flutter/material.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+
 import '../../data/models/settings_data.dart';
 import '../../data/provider/theme_data.dart';
+import '../../services/service_locator.dart';
 
 class SettingsDataProvider with ChangeNotifier {
-  var log = Logger();
-  GlobalConfiguration data = GlobalConfiguration();
+  var log = sl<Logger>();
+
   List<SettingsData> settings;
   bool _fetchComplete = false;
   ThemeData theme = themeData;
@@ -42,8 +43,6 @@ class SettingsDataProvider with ChangeNotifier {
   Future<List<SettingsData>> fetchsettingslist() async {
     var response = await http.get("https://instance.id/api/v1.0/settings/settings.json");
     var jsonResponse = convert.jsonDecode(response.body) as List;
-    // TODO REmove settings response
-    //    log.i(jsonResponse);
     return jsonResponse.map((settings) => SettingsData.fromJson(settings)).toList();
   }
 

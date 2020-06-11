@@ -3,13 +3,12 @@
 // Copyright 2019 The Innovation Group - MIT License
 
 import 'package:flutter/material.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import '../data/models/settings_data.dart';
 import '../data/provider/settings_provider.dart';
-
+import '../services/service_locator.dart';
 import 'navigation-bus.dart';
 
 class Background extends StatefulWidget {
@@ -24,7 +23,6 @@ class Background extends StatefulWidget {
 }
 
 class BackgroundState extends State<Background> {
-  GlobalConfiguration config = GlobalConfiguration();
   List<SettingsData> settings;
 
   double get _aspectRatio {
@@ -67,7 +65,7 @@ class BackgroundState extends State<Background> {
                   : FadeInImage.memoryNetwork(
                       placeholderCacheHeight: 1024,
                       placeholder: kTransparentImage,
-                      image: '${config.getString("address")}/${settings[0].bgImage}',
+                      image: '${data.getString("address")}/${settings[0].bgImage}',
                       fit: BoxFit.fitWidth,
                     ),
             ),

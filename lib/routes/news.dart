@@ -2,16 +2,16 @@ import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:dynamic_widget/dynamic_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/animations/anim_FadeInVT.dart';
-import 'package:searcher_installer_go/data/models/news_data.dart';
-import 'package:searcher_installer_go/data/provider/news_provider.dart';
-import 'package:searcher_installer_go/helpers/custom_card.dart';
-import 'package:searcher_installer_go/routes/widgets/expansion_news.dart';
 import 'package:sized_context/sized_context.dart';
+
+import '../animations/anim_FadeInVT.dart';
+import '../data/models/news_data.dart';
+import '../data/provider/news_provider.dart';
+import '../helpers/custom_card.dart';
+import '../routes/widgets/expansion_news.dart';
+import '../services/service_locator.dart';
 
 var jsonString = '''
 {
@@ -47,17 +47,14 @@ class DefaultClickListener implements ClickListener {
 }
 
 class News extends StatefulWidget {
-  static const routeName = '/information';
+  static const routeName = '/info';
 
   @override
   _NewsState createState() => _NewsState();
 }
 
-final sl = GetIt.instance;
-
 class _NewsState extends State<News> with TickerProviderStateMixin {
   final _scrollController = ScrollController();
-  final config = GlobalConfiguration();
 
   final log = sl<Logger>();
   List<NewsData> news;
@@ -72,7 +69,6 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
     _scrollController.dispose();
     super.dispose();
   }
-
 
   Future<Widget> _buildWidget(BuildContext context, String json) async {
     return DynamicWidgetBuilder.build(json, context, new DefaultClickListener());
@@ -109,7 +105,7 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
         alignment: Alignment.center,
         width: MediaQuery.of(context).size.width * 0.9,
         child: Column(
-          children: <Widget> [
+          children: <Widget>[
             CustomCard(
               borderRadius: [10, 10, 0, 0],
               elevation: 3,
@@ -131,7 +127,7 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
                 shadowColor: Colors.black,
                 color: Color.fromRGBO(35, 47, 52, 0.8),
                 child: Column(
-                  children: <Widget> [
+                  children: <Widget>[
                     Expanded(
                       flex: 1,
                       child: Scaffold(

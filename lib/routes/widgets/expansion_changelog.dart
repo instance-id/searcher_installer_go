@@ -1,19 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:supercharged/supercharged.dart';
 
+import '../../services/service_locator.dart';
 import '../../data/models/changelog_data.dart';
 import '../../data/events/expansion_event.dart';
 import '../../helpers/custom_card.dart';
 import '../../helpers/custom_color.dart';
-import '../../helpers/icons_helper.dart';
 import '../../packages/expandable_news/expandable.dart';
 import 'changelog_header.dart';
 
-GetIt sl = GetIt.instance;
 
 class ExpansionChangeLog extends StatelessWidget {
   final log = sl<Logger>();

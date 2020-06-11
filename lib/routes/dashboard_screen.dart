@@ -1,26 +1,24 @@
+import 'package:eventsubscriber/eventsubscriber.dart';
 import 'package:firedart/auth/user_gateway.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
-import 'package:get_it/get_it.dart';
 import 'package:getflutter/colors/gf_color.dart';
 import 'package:getflutter/components/tabs/gf_segment_tabs.dart';
 import 'package:getflutter/components/tabs/gf_tabbar_view.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:sized_context/sized_context.dart';
 
 import '../animations/anim_FadeInHZ.dart';
 import '../animations/anim_FadeInVT.dart';
-import '../data/enums/enums.dart';
 import '../data/events/authstatus_event.dart';
 import '../data/extension/extensions.dart';
 import '../data/provider/fb_auth_provider.dart';
 import '../helpers/custom_card.dart';
 import '../helpers/custom_color.dart';
 import '../routes/login_screen.dart';
+import '../services/service_locator.dart';
 import '../widgets/constants.dart';
 import '../widgets/login/widgets.dart';
 import '../widgets/transition_route_observer.dart';
@@ -34,12 +32,10 @@ class DashboardScreen extends StatefulWidget {
   _DashboardScreenState createState() => _DashboardScreenState();
 }
 
-GetIt sl = GetIt.instance;
-
 class _DashboardScreenState extends State<DashboardScreen> with TickerProviderStateMixin, TransitionRouteAware {
   final log = sl<Logger>();
-  final auth = sl<AuthStatusListener>();
-  final data = GlobalConfiguration();
+  final authStatus = sl<AuthStatusListener>();
+  final loginScreen = sl<LoginScreen>();
   bool updateData;
   AuthStatus currentStatus;
 
@@ -61,11 +57,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   @override
   void initState() {
-    updateData = data.getBool("updateData");
     _debug = data.getBool("debug");
     user = context.read<FBAuthProvider>().user;
 
-    if (user != null) {
+    if (user != null && data.getBool("updateData")) {
+      data.updateValue("updateData", false);
+
       _loadData();
     }
 
@@ -100,18 +97,21 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   // 'Welcome ${guard(() => user?.displayName, 'Guest')}, ',
   Future<bool> _signOut({BuildContext context, User user}) async {
-    if (context.read<FBAuthProvider>().isLoggedIn) {
-      context.read<FBAuthProvider>().signOut();
-
-      if (data.getBool("debug")) log.d("Logging Out");
-      _doc = null;
-      return Navigator.of(context).pushReplacementNamed(LoginScreen.routeName).then((_) => false);
-    }
+    if (data.getBool("debug")) log.d("Logging Out");
+    _doc = null;
+    return Navigator.of(context).pushReplacementNamed(LoginScreen.routeName).then((_) => false);
   }
 
   Future<void> _loadData() async {
-    if (updateData) {
-      _doc = await context.read<FBAuthProvider>().document ?? {"first": "", "last": "", "serialNum": "", "contactEmail": user.email};
+    if (data.getBool("updateData")) {
+      data.updateValue("updateData", false);
+      _doc = await context.read<FBAuthProvider>().document ??
+          {
+            "first": "",
+            "last": "",
+            "serialNum": "",
+            "contactEmail": user.email,
+          };
 
       _firstCtrl.text = user.fname = _doc["first"];
       _lastCtrl.text = user.lname = _doc["last"];
@@ -122,7 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       (_doc["contactEmail"] == null || _doc["contactEmail"] == "") ? _contactEmail.text = user.contactEmail = user.email : _contactEmail.text = user.contactEmail = _doc["contactEmail"];
 
       if (data.getBool("debug")) log.d('Data Loaded : Firebase;');
-      data.updateValue("updateData", false);
+
       data.updateValue("verified", verificationCheck(user));
       if (mounted) {
         setState(() {});
@@ -362,15 +362,24 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             children: <Widget>[
                               Container(
                                 alignment: Alignment.center,
-                                child: TextField(controller: _firstCtrl, decoration: InputDecoration(labelText: "First Name")),
+                                child: TextField(
+                                  controller: _firstCtrl,
+                                  decoration: InputDecoration(labelText: "First Name"),
+                                ),
                               ),
                               Container(
                                 alignment: Alignment.center,
-                                child: TextField(controller: _lastCtrl, decoration: InputDecoration(labelText: "Last Name")),
+                                child: TextField(
+                                  controller: _lastCtrl,
+                                  decoration: InputDecoration(labelText: "Last Name"),
+                                ),
                               ),
                               Container(
                                 alignment: Alignment.center,
-                                child: TextField(controller: _contactEmail, decoration: InputDecoration(labelText: "Gumroad Email")),
+                                child: TextField(
+                                  controller: _contactEmail,
+                                  decoration: InputDecoration(labelText: "Gumroad Email"),
+                                ),
                               ),
                             ],
                           ),
@@ -388,7 +397,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                                   duratin: 500,
                                   child: Container(
                                     alignment: Alignment.center,
-                                    child: TextField(controller: _firstCtrl, decoration: InputDecoration(labelText: "First Name")),
+                                    child: TextField(
+                                      controller: _firstCtrl,
+                                      decoration: InputDecoration(labelText: "First Name"),
+                                    ),
                                   )),
                               FadeInHorizontal(
                                   delay: 0.4,
@@ -396,7 +408,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                                   duratin: 500,
                                   child: Container(
                                     alignment: Alignment.center,
-                                    child: TextField(controller: _lastCtrl, decoration: InputDecoration(labelText: "Last Name")),
+                                    child: TextField(
+                                      controller: _lastCtrl,
+                                      decoration: InputDecoration(labelText: "Last Name"),
+                                    ),
                                   )),
                               FadeInHorizontal(
                                   delay: 0.6,
@@ -404,7 +419,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                                   duratin: 500,
                                   child: Container(
                                     alignment: Alignment.center,
-                                    child: TextField(controller: _serialNum, decoration: InputDecoration(labelText: "Activation Key (${data.getString("verified")})")),
+                                    child: TextField(
+                                      controller: _serialNum,
+                                      decoration: InputDecoration(labelText: "Activation Key (${data.getString("verified")})"),
+                                    ),
                                   )),
                             ],
                           ),
@@ -418,15 +436,24 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             children: <Widget>[
                               Container(
                                 alignment: Alignment.center,
-                                child: TextField(controller: _firstCtrl, decoration: InputDecoration(labelText: "First Name")),
+                                child: TextField(
+                                  controller: _firstCtrl,
+                                  decoration: InputDecoration(labelText: "First Name"),
+                                ),
                               ),
                               Container(
                                 alignment: Alignment.center,
-                                child: TextField(controller: _lastCtrl, decoration: InputDecoration(labelText: "Last Name")),
+                                child: TextField(
+                                  controller: _lastCtrl,
+                                  decoration: InputDecoration(labelText: "Last Name"),
+                                ),
                               ),
                               Container(
                                 alignment: Alignment.center,
-                                child: TextField(controller: _serialNum, decoration: InputDecoration(labelText: "Activation Key")),
+                                child: TextField(
+                                  controller: _serialNum,
+                                  decoration: InputDecoration(labelText: "Activation Key"),
+                                ),
                               ),
                             ],
                           ),
@@ -488,39 +515,54 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
+  var runOnce = true;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return WillPopScope(
-      onWillPop: () => _signOut(context: context,user: user),
+      onWillPop: () => _signOut(context: context, user: user),
       child: SafeArea(
-          child: Scaffold(
-              body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 30),
-        color: theme.primaryColor.withOpacity(.0),
-        child: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            Column(
+        child: Scaffold(
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 30),
+            color: theme.primaryColor.withOpacity(.0),
+            child: Stack(
+              fit: StackFit.expand,
               children: <Widget>[
-                SizedBox(height: 22),
-                Container(
-                  child: _getSettingsPage(context, user, theme),
+                Column(
+                  children: <Widget>[
+                    SizedBox(height: 22),
+                    Container(
+                      child: _getSettingsPage(context, user, theme),
+                    ),
+                    Expanded(
+                      flex: 19,
+                      child: _buildDashboardGrid(context, user),
+                    ),
+                    SizedBox(height: 0)
+                  ],
                 ),
-                Expanded(
-                  flex: 19,
-                  child: _buildDashboardGrid(context, user),
-                ),
-                SizedBox(height: 0)
+                if (!kReleaseMode && _debug) _buildDebugButtons(),
+                EventSubscriber(
+                  event: authStatus.event,
+                  handler: (context, args) {
+                    if (authStatus.isSignOut && runOnce) {
+                      runOnce = false;
+                      _signOut(context: context, user: user).then(
+                        (value) => authStatus.setStatus(AuthStatus.signedOut),
+                      );
+                    }
+                    return Container();
+                  },
+                )
               ],
             ),
-            if (!kReleaseMode && _debug) _buildDebugButtons(),
-          ],
+          ),
         ),
-      ))),
+      ),
     );
   }
 }

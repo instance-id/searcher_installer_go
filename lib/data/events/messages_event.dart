@@ -1,6 +1,6 @@
 import 'package:event/event.dart';
 
-enum MsgType {error, info}
+enum MsgType {error, success, info}
 
 class Message {
   Map<String, dynamic> payload = Map<String, dynamic>();

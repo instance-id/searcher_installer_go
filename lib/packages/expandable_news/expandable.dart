@@ -6,7 +6,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../data/events/expansion_event.dart';
-import '../../app_home.dart';
+import '../../services/service_locator.dart';
 
 class ExpandableThemeData {
   static final ExpandableThemeData defaults = ExpandableThemeData(
@@ -314,10 +314,10 @@ class _ExpandableNotifierState extends State<ExpandableNotifier> {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller && widget.controller != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        controller = widget.controller;
-      });
+        setState(() {
+          controller = widget.controller;
         });
+      });
     }
   }
 

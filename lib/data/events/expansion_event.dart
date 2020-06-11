@@ -4,7 +4,7 @@ import 'package:searcher_installer_go/routes/home.dart';
 class ExpansionListener {
   bool value = false;
   String type;
-  var valueChangedEvent = Event(); // declare Event
+  var valueChangedEvent = Event();
 
   void sendMessage(bool value, String type) {
     this.value = value;
@@ -15,7 +15,7 @@ class ExpansionListener {
 
 class ExpansionController {
   ExpandTarget target = ExpandTarget.NONE;
-  var valueChangedEvent = Event(); // declare Event
+  var valueChangedEvent = Event();
 
   void expandTarget(ExpandTarget value) {
     this.target = value;

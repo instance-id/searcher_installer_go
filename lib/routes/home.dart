@@ -2,20 +2,18 @@ import 'package:eventsubscriber/eventsubscriber.dart';
 import 'package:fluid_layout/fluid_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:searcher_installer_go/animations/anim_flex.dart';
-import 'package:searcher_installer_go/data/provider/changelog_provider.dart';
+import '../services/service_locator.dart';
+import '../animations/anim_flex.dart';
+import '../data/provider/changelog_provider.dart';
 import '../data/events/expansion_event.dart';
-import 'package:searcher_installer_go/routes/widgets/change_log_list.dart';
-import 'package:searcher_installer_go/routes/widgets/news_main_home.dart';
+import '../routes/widgets/change_log_list.dart';
+import '../routes/widgets/news_main_home.dart';
 
 const appTitle = "Searcher : Installer";
 bool startCompleted = false;
 
 enum ExpandTarget { NONE, NEWS, CHANGELOG }
-
-final sl = GetIt.instance;
 
 class Home extends StatefulWidget {
   static const routeName = '/home';

@@ -1,13 +1,18 @@
 import 'package:event/event.dart';
-import '../enums/enums.dart';
+
+import '../../data/provider/fb_auth_provider.dart';
 
 class AuthStatusListener {
   AuthStatus status = AuthStatus.signedOut;
-  var valueChangedEvent = Event();
+  get isVerified => status == AuthStatus.verified;
+  get notVerified => status == AuthStatus.notVerified;
+  get isSignedIn => status == AuthStatus.signedIn;
+  get isSignIn => status == AuthStatus.signIn;
+  get isSignOut => status == AuthStatus.signOut;
+  var event = Event();
 
   void setStatus(AuthStatus value) {
     this.status = value;
-    print(this.status);
-    valueChangedEvent.broadcast();
+    event.broadcast();
   }
 }

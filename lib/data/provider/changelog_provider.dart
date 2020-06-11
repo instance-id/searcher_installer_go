@@ -3,10 +3,13 @@ import 'dart:convert' as convert;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import '../../services/service_locator.dart';
 import '../../data/models/changelog_data.dart';
 
+
 class ChangeLogDataProvider with ChangeNotifier {
-  var log = Logger();
+
+  var log = sl<Logger>();
   List<ChangeLogData> changeLog;
   bool _fetchComplete = false;
   bool _changeLogExpanded = false;

@@ -1,18 +1,18 @@
 import 'package:fluid_layout/fluid_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/animations/anim_FadeInVT.dart';
-import 'package:searcher_installer_go/data/models/news_data.dart';
-import 'package:searcher_installer_go/data/provider/news_provider.dart';
-import 'package:searcher_installer_go/helpers/custom_card.dart';
-import 'package:searcher_installer_go/helpers/custom_color.dart';
-import 'package:searcher_installer_go/packages/expandable_news/expandable.dart';
 import 'package:sized_context/sized_context.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:transparent_image/transparent_image.dart';
+
+import '../../animations/anim_FadeInVT.dart';
+import '../../data/provider/news_provider.dart';
+import '../../helpers/custom_card.dart';
+import '../../helpers/custom_color.dart';
+import '../../packages/expandable_news/expandable.dart';
+import '../../services/service_locator.dart';
 
 class NewsMainHome extends StatefulWidget {
   NewsMainHome();
@@ -22,9 +22,8 @@ class NewsMainHome extends StatefulWidget {
 }
 
 class _NewsMainHomeState extends State<NewsMainHome> with TickerProviderStateMixin {
-  final Logger log = new Logger();
-  GlobalConfiguration config = GlobalConfiguration();
-  List<NewsData> news;
+  final log = sl<Logger>();
+  var news;
   String address;
 
   @override
@@ -104,7 +103,7 @@ class _NewsMainHomeState extends State<NewsMainHome> with TickerProviderStateMix
                                                         placeholderCacheHeight: 115,
                                                         placeholderCacheWidth: 100,
                                                         placeholder: kTransparentImage,
-                                                        image: '${config.getString("address")}/${news[0].image}',
+                                                        image: '${data.getString("address")}/${news[0].image}',
                                                         fit: BoxFit.fitWidth,
                                                       ),
                                               ),

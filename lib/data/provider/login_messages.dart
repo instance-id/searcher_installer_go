@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-class LoginMessages with ChangeNotifier {
+class LoginMessages extends ChangeNotifier {
   LoginMessages({
     this.usernameHint: defaultUsernameHint,
     this.passwordHint: defaultPasswordHint,
     this.confirmPasswordHint: defaultConfirmPasswordHint,
     this.forgotPasswordButton: defaultForgotPasswordButton,
+    this.resendVerificationButton: defaultResendVerificationButton,
+    this.verifyEmailLabel: defaultLoginButton,
     this.loginButton: defaultLoginButton,
+    this.verifyEmailButton: defaultLoginButton,
     this.signupButton: defaultSignupButton,
     this.recoverPasswordButton: defaultRecoverPasswordButton,
     this.recoverPasswordIntro: defaultRecoverPasswordIntro,
@@ -20,7 +23,10 @@ class LoginMessages with ChangeNotifier {
   static const defaultPasswordHint = 'Password';
   static const defaultConfirmPasswordHint = 'Confirm Password';
   static const defaultForgotPasswordButton = 'Forgot Password?';
+  static const defaultResendVerificationButton = 'Resend Email';
+  static const defaultVerifyEmailLabel = 'Please verify your email address. Once completed, press Continue';
   static const defaultLoginButton = 'LOGIN';
+  static const defaultVerifyEmailButton = 'COMPLETE';
   static const defaultSignupButton = 'SIGNUP';
   static const defaultRecoverPasswordButton = 'RECOVER';
   static const defaultRecoverPasswordIntro = 'Reset your password here';
@@ -42,8 +48,17 @@ class LoginMessages with ChangeNotifier {
   /// Forgot password button's label
   final String forgotPasswordButton;
 
+  /// Forgot password button's label
+  final String resendVerificationButton;
+
   /// Login button's label
   final String loginButton;
+
+  /// Forgot password button's label
+  final String verifyEmailLabel;
+
+  /// Verify Email button's label
+  final String verifyEmailButton;
 
   /// Signup button's label
   final String signupButton;

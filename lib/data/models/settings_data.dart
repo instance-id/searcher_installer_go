@@ -1,4 +1,4 @@
-import 'package:global_configuration/global_configuration.dart';
+import 'package:searcher_installer_go/services/service_locator.dart';
 
 class SettingsData {
   final String id;
@@ -17,7 +17,7 @@ class SettingsData {
     return (_useBG != null) ? _useBG.toLowerCase() == 'true' : false;
   }
 
-  String address = GlobalConfiguration().getString("address");
+  String address = data.getString("address");
 
   SettingsData({this.id, this.bgImage});
 

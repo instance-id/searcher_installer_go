@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:get_it/get_it.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:provider/provider.dart';
 
 import '../data/events/messages_event.dart';
-import '../data/events/requestlogin_event.dart';
+import '../data/events/request_login_event.dart';
 import '../data/provider/fb_auth_provider.dart';
 import '../helpers/custom_color.dart';
-import '../widgets//popupmenu.dart' as p;
-
-GetIt sl = GetIt.instance;
+import '../services/service_locator.dart';
+import '../widgets//drop_down.dart' as p;
 
 class MainAppBar extends StatelessWidget {
-  final data = GlobalConfiguration();
   final msg = sl<Message>();
   final login = sl<RequestLogin>();
 
-  MainAppBar(BuildContext context);
+  MainAppBar();
 
   @override
   Widget build(BuildContext context) {
-    final isLoggedIn = context.select((FBAuthProvider f) => f.isLoggedIn);
+    final isLoggedIn = context.watch<FBAuthProvider>().isLoggedIn;
+    final auth = Provider.of<FBAuthProvider>(context, listen: false);
 
     return Container(
       alignment: Alignment.center,
@@ -45,31 +42,13 @@ class MainAppBar extends StatelessWidget {
                   case 1:
                     if (isLoggedIn) {
                       login.sendEvent();
-                      Future.microtask(() => context.read<FBAuthProvider>().signOut());
+                      Future.microtask(() => auth.signOut());
                     }
                     break;
                   case 2:
                     if ((!isLoggedIn)) {
                       login.sendEvent();
                     }
-                    break;
-                  case 3:
-                    msg.sendMessage({
-                      'type': MsgType.info,
-                      'message': "Login Successful : Login Successful : Login Successful",
-                      'title': "Status:",
-                      'duration': 4500,
-                    });
-                    break;
-                  case 4:
-                    msg.sendMessage({
-                      'type': MsgType.error,
-                      'message': "Login Unsuccessful: Bad password!",
-                      'title': "Status:",
-                      'duration': 4500,
-                    });
-                    break;
-                  case 5:
                     break;
                 }
               },
@@ -125,60 +104,6 @@ class MainAppBar extends StatelessWidget {
                             ],
                           ),
                         )),
-//                if (data.getBool("debug"))
-//                  p.PopupMenuItem<int>(
-//                      height: 35,
-//                      value: 3,
-//                      child: Container(
-//                        padding: EdgeInsets.all(0),
-//                        alignment: Alignment.center,
-//                        height: 35,
-//                        child: Row(
-//                          mainAxisAlignment: MainAxisAlignment.center,
-//                          children: <Widget>[
-//                            Text("Success"),
-//                            Spacer(),
-//                            Icon(Icons.settings_applications, size: 21),
-//                            SizedBox(width: 1),
-//                          ],
-//                        ),
-//                      )),
-//                if (data.getBool("debug"))
-//                  p.PopupMenuItem<int>(
-//                      height: 35,
-//                      value: 4,
-//                      child: Container(
-//                        padding: EdgeInsets.all(0),
-//                        alignment: Alignment.center,
-//                        height: 35,
-//                        child: Row(
-//                          mainAxisAlignment: MainAxisAlignment.center,
-//                          children: <Widget>[
-//                            Text("Error"),
-//                            Spacer(),
-//                            Icon(Icons.settings_applications, size: 21),
-//                            SizedBox(width: 1),
-//                          ],
-//                        ),
-//                      )),
-//                if (data.getBool("debug"))
-//                  p.PopupMenuItem<int>(
-//                      height: 35,
-//                      value: 5,
-//                      child: Container(
-//                        padding: EdgeInsets.all(0),
-//                        alignment: Alignment.center,
-//                        height: 35,
-//                        child: Row(
-//                          mainAxisAlignment: MainAxisAlignment.center,
-//                          children: <Widget>[
-//                            Text("Firebase"),
-//                            Spacer(),
-//                            Icon(Icons.settings_applications, size: 21),
-//                            SizedBox(width: 1),
-//                          ],
-//                        ),
-//                      )),
               ],
             )
           ]),
@@ -189,9 +114,9 @@ class MainAppBar extends StatelessWidget {
 class DraggebleAppBar extends StatelessWidget implements PreferredSizeWidget {
 //  static const platform_channel_dragable = MethodChannel('samples.go-flutter.dev/dragable');
 
-  final MainAppBar appBar;
+  MainAppBar appBar = MainAppBar();
 
-  const DraggebleAppBar({Key key, this.appBar}) : super(key: key);
+  DraggebleAppBar({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

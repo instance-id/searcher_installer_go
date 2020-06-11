@@ -4,14 +4,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:searcher_installer_go/widgets/custom_route.dart';
 import 'package:transformer_page_view/transformer_page_view.dart';
 
+import '../data/events/authstatus_event.dart';
 import '../data/models/login_data.dart';
 import '../data/provider/auth_state.dart';
+import '../data/provider/fb_auth_provider.dart';
 import '../data/provider/login_messages.dart';
 import '../helpers/custom_color.dart';
-import '../widgets/widgets/fade_in.dart';
+import '../services/service_locator.dart';
 import '../widgets/login/src/constants.dart';
 import '../widgets/login/src/dart_helper.dart';
 import '../widgets/login/src/matrix.dart';
@@ -22,6 +26,8 @@ import '../widgets/login/src/widgets/animated_text.dart';
 import '../widgets/login/src/widgets/animated_text_form_field.dart';
 import '../widgets/login/src/widgets/custom_page_transformer.dart';
 import '../widgets/login/src/widgets/expandable_container.dart';
+import '../widgets/widgets/fade_in.dart';
+import 'dashboard_screen.dart';
 
 class AuthCard extends StatefulWidget {
   AuthCard({
@@ -47,6 +53,9 @@ class AuthCard extends StatefulWidget {
 
 class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
   GlobalKey _cardKey = GlobalKey();
+  final authStatus = sl<AuthStatusListener>();
+  final dashboardScreen = sl<DashboardScreen>();
+  final log = sl<Logger>();
 
   var _isLoadingFirstTime = true;
   var _pageIndex = 0;
@@ -63,6 +72,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
   Animation<double> _cardRotationAnimation;
   Animation<double> _cardOverlayHeightFactorAnimation;
   Animation<double> _cardOverlaySizeAndOpacityAnimation;
+  dynamic handler;
 
   @override
   void initState() {
@@ -116,16 +126,34 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
       parent: _routeTransitionController,
       curve: Interval(.72727272, 1 /* ~300ms */, curve: Curves.easeInOutCubic),
     ));
+
+    handler = buildHandler(authStatus, context);
+    authStatus.event.subscribe(handler);
+  }
+
+  buildHandler(AuthStatusListener listener, BuildContext context) {
+    return (args) => () {
+          if (authStatus.isSignIn) {
+            setState(() {});
+            Future.microtask(() => _routeTransitionController.forward()).then((value) {
+              Navigator.of(context).pushReplacement(FadePageRoute(
+                builder: (context) => dashboardScreen,
+              ));
+              authStatus.setStatus(AuthStatus.signedIn);
+            });
+          }
+        }();
   }
 
   @override
   void dispose() {
     if (!_isDisposed) {
+      authStatus.event.unsubscribe(handler);
       _formLoadingController?.dispose();
       _pageController?.dispose();
       _routeTransitionController?.dispose();
-      _isDisposed = true;
     }
+    _isDisposed = true;
     super.dispose();
   }
 
@@ -163,10 +191,11 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
 
   Future<void> _forwardChangeRouteAnimation() {
     final isLogin = Provider.of<AuthState>(context, listen: false).isLogin;
+    final isVerify = Provider.of<AuthState>(context, listen: false).isVerify;
     final deviceSize = MediaQuery.of(context).size;
     final cardSize = getWidgetSize(_cardKey);
     // add .25 to make sure the scaling will cover the whole screen
-    final widthRatio = deviceSize.width / cardSize.height + (isLogin ? .25 : .65);
+    final widthRatio = deviceSize.width / cardSize.height + ((isLogin || isVerify) ? .25 : .65);
     final heightRatio = deviceSize.height / cardSize.width + .25;
 
     _cardSize2AnimationX = Tween<double>(begin: 1.0, end: heightRatio / cardSizeScaleEnd).animate(CurvedAnimation(
@@ -343,6 +372,8 @@ class _LoginCard extends StatefulWidget {
 
 class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey();
+  final authStatus = sl<AuthStatusListener>();
+  final log = sl<Logger>();
 
   final _passwordFocusNode = FocusNode();
   final _confirmPasswordFocusNode = FocusNode();
@@ -368,11 +399,15 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
   bool get buttonEnabled => !_isLoading && !_isSubmitting;
 
+  dynamic handler;
+
   @override
   void initState() {
     super.initState();
-
     final auth = Provider.of<AuthState>(context, listen: false);
+
+    if (authStatus.status == AuthStatus.notVerified) Future.microtask(() => _switchAuthMode(verify: true));
+
     _nameController = TextEditingController(text: auth.email);
     _passController = TextEditingController(text: auth.password);
     _confirmPassController = TextEditingController(text: auth.confirmPassword);
@@ -406,6 +441,26 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       parent: _loadingController,
       curve: Interval(.4, 1.0, curve: Curves.easeOutBack),
     ));
+
+    handler = buildHandler(authStatus, context);
+    authStatus.event.subscribe(handler);
+  }
+
+  buildHandler(AuthStatusListener listener, BuildContext context) {
+    return (args) => () {
+          switch (authStatus.status) {
+            case AuthStatus.notVerified:
+              showInfoToast(context, "Please verify email to continue", "Info", 4000);
+              Future.microtask(() => _switchAuthMode(verify: true));
+              break;
+            case AuthStatus.verified:
+              showSuccessToast(context, "Verification complete!", "Success:", 4000);
+              authStatus.setStatus(AuthStatus.signIn);
+              break;
+            default:
+              break;
+          }
+        }();
   }
 
   void handleLoadingAnimationStatus(AnimationStatus status) {
@@ -419,6 +474,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    authStatus.event.unsubscribe(handler);
     _loadingController?.removeStatusListener(handleLoadingAnimationStatus);
     _passwordFocusNode.dispose();
     _confirmPasswordFocusNode.dispose();
@@ -429,9 +485,9 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void _switchAuthMode() {
+  void _switchAuthMode({bool verify}) {
     final auth = Provider.of<AuthState>(context, listen: false);
-    final newAuthMode = auth.switchAuth();
+    final newAuthMode = auth.switchAuth(verify: verify);
 
     if (newAuthMode == AuthMode.Signup) {
       _switchAuthController.forward().orCancel;
@@ -454,15 +510,23 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     _submitController.forward();
     setState(() => _isSubmitting = true);
     final auth = Provider.of<AuthState>(context, listen: false);
-    String error;
+    final fbAuth = Provider.of<FBAuthProvider>(context, listen: false);
+
+    String result;
 
     if (auth.isLogin) {
-      error = await auth.onLogin(LoginData(
+      result = await auth.onLogin(LoginData(
+        email: auth.email,
+        password: auth.password,
+      ));
+      log.d('Login Result: $result');
+    } else if (auth.isVerify) {
+      result = await auth.onVerifyEmail(LoginData(
         email: auth.email,
         password: auth.password,
       ));
     } else {
-      error = await auth.onSignup(LoginData(
+      result = await auth.onSignup(LoginData(
         email: auth.email,
         password: auth.password,
       ));
@@ -471,23 +535,57 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     // workaround to run after _cardSizeAnimation in parent finished
     // need a cleaner way but currently it works so..
     Future.delayed(const Duration(milliseconds: 270), () {
-      if(mounted)  setState(() => _showShadow = false);
+      if (mounted) setState(() => _showShadow = false);
     });
 
     _submitController.reverse();
 
-    if (!DartHelper.isNullOrEmpty(error)) {
-      showErrorToast(context, error, "Error", 4000);
+    if (!DartHelper.isNullOrEmpty(result)) {
+      if (result == "notVerified") {
+        log.d("Status: Please verify email address to continue");
+      } else {
+        showErrorToast(context, result, "Error", 4000);
+        log.e("Error: ${result}");
+      }
       Future.delayed(const Duration(milliseconds: 271), () {
         setState(() => _showShadow = true);
       });
       setState(() => _isSubmitting = false);
       return false;
     }
-
-    widget?.onSubmitCompleted();
+    log.d('Running onSubmitComplete?');
+    if (!authStatus.notVerified) authStatus.setStatus(AuthStatus.signIn);
+    widget.onSubmitCompleted();
 
     return true;
+  }
+
+  Widget _buildVerifyEmailText(BuildContext context, double width, LoginMessages messages, AuthState auth) {
+    final fbAuth = context.watch<FBAuthProvider>();
+    _nameController.text = fbAuth?.cacheEmail;
+
+    return AnimatedTextFormField(
+      controller: _nameController,
+      width: width,
+      loadingController: _loadingController,
+      interval: _nameTextFieldLoadingAnimationInterval,
+      labelText: messages.usernameHint,
+      prefixIcon: Icon(
+        FontAwesomeIcons.solidUserCircle,
+        color: AppColors.M_DYELLOW,
+      ),
+      keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.next,
+      onFieldSubmitted: (value) {
+        _submit();
+      },
+      validator: widget.emailValidator,
+      onSaved: (value) => auth.email = value,
+      formatter: [
+        WhitelistingTextInputFormatter(RegExp(r"([a-zA-Z0-9\-\._@])")),
+        BlacklistingTextInputFormatter(RegExp(r"[\r\t+]")),
+      ],
+    );
   }
 
   Widget _buildNameField(double width, LoginMessages messages, AuthState auth) {
@@ -577,7 +675,8 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       fadeDirection: FadeDirection.bottomToTop,
       offset: .5,
       curve: _textButtonLoadingAnimationInterval,
-      child: FlatButton(materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      child: FlatButton(
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         child: Text(
           messages.forgotPasswordButton,
           style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w600, color: AppColors.M_LGRAY),
@@ -594,12 +693,49 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildResendVerification(BuildContext context, ThemeData theme, LoginMessages messages) {
+    final fbAuth = context.watch<FBAuthProvider>();
+
+    return FadeIn(
+      controller: _loadingController,
+      fadeDirection: FadeDirection.bottomToTop,
+      offset: .5,
+      curve: _textButtonLoadingAnimationInterval,
+      child: FlatButton(
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        child: Text(
+          messages.resendVerificationButton,
+          style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w600, color: AppColors.BLUEISH),
+          textAlign: TextAlign.left,
+        ),
+        onPressed: buttonEnabled
+            ? () {
+                fbAuth.auth.requestEmailVerification().then((value) => showInfoToast(context, "Email verification message sent", "Status:", 4000));
+              }
+            : null,
+      ),
+    );
+  }
+
   Widget _buildSubmitButton(ThemeData theme, LoginMessages messages, AuthState auth) {
     return ScaleTransition(
       scale: _buttonScaleAnimation,
       child: AnimatedButton(
         controller: _submitController,
-        text: auth.isLogin ? messages.loginButton : messages.signupButton,
+        text: () {
+          switch (auth.mode) {
+            case AuthMode.Login:
+              return messages.loginButton;
+              break;
+            case AuthMode.Signup:
+              return messages.signupButton;
+              break;
+            case AuthMode.Verify:
+              return messages.verifyEmailButton;
+              break;
+            default:
+          }
+        }(),
         onPressed: _submit,
       ),
     );
@@ -618,10 +754,8 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
           textRotation: AnimatedTextRotation.down,
         ),
         disabledTextColor: theme.primaryColor,
-        onPressed: buttonEnabled ? _switchAuthMode : null,
-//        padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
+        onPressed: buttonEnabled ? () => _switchAuthMode(verify: false) : null,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-//        textColor: theme.primaryColor,
       ),
     );
   }
@@ -629,7 +763,8 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthState>(context, listen: true);
-    final isLogin = auth.isLogin;
+    final isSignup = auth.isSignup;
+    final isVerify = auth.isVerify;
     final messages = Provider.of<LoginMessages>(context, listen: false);
     final theme = Theme.of(context);
     final deviceSize = MediaQuery.of(context).size;
@@ -650,9 +785,15 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                _buildNameField(textFieldWidth, messages, auth),
+                (isVerify) ? _buildVerifyEmailText(context, textFieldWidth, messages, auth) : _buildNameField(textFieldWidth, messages, auth),
                 SizedBox(height: 20),
-                _buildPasswordField(textFieldWidth, messages, auth),
+                (isVerify)
+                    ? Text(
+                        messages.verifyEmailLabel,
+                        style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w600, color: AppColors.M_LGRAY),
+                        textAlign: TextAlign.left,
+                      )
+                    : _buildPasswordField(textFieldWidth, messages, auth),
                 SizedBox(height: 10),
               ],
             ),
@@ -660,7 +801,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
           ExpandableContainer(
             backgroundColor: theme.accentColor,
             controller: _switchAuthController,
-            initialState: isLogin ? ExpandableContainerState.shrunk : ExpandableContainerState.expanded,
+            initialState: isSignup ? ExpandableContainerState.expanded : ExpandableContainerState.shrunk,
             alignment: Alignment.topLeft,
             color: theme.cardTheme.color,
             width: cardWidth,
@@ -677,9 +818,22 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Container(width: 130, child: _buildSwitchAuthButton(theme, messages, auth)),
-                Align(alignment: Alignment.center, child: _buildSubmitButton(theme, messages, auth)),
-                Container(width: 130,child: _buildForgotPassword(theme, messages)),
+                (isVerify)
+                    ? Container(width: 130, child: Container())
+                    : Container(
+                        width: 130,
+                        child: _buildSwitchAuthButton(theme, messages, auth),
+                      ),
+                Align(
+                  alignment: Alignment.center,
+                  child: _buildSubmitButton(theme, messages, auth),
+                ),
+                (isVerify)
+                    ? Container(width: 130, child: _buildResendVerification(context, theme, messages))
+                    : Container(
+                        width: 130,
+                        child: _buildForgotPassword(theme, messages),
+                      ),
               ],
             ),
           ),
@@ -699,10 +853,12 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 class _RecoverCard extends StatefulWidget {
   _RecoverCard({
     Key key,
+    this.messages,
     @required this.emailValidator,
     @required this.onSwitchLogin,
   }) : super(key: key);
 
+  final LoginMessages messages;
   final FormFieldValidator<String> emailValidator;
   final Function onSwitchLogin;
 
@@ -712,7 +868,6 @@ class _RecoverCard extends StatefulWidget {
 
 class _RecoverCardState extends State<_RecoverCard> with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formRecoverKey = GlobalKey();
-
   TextEditingController _nameController;
 
   var _isSubmitting = false;

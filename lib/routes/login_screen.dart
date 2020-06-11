@@ -1,39 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
-import '../data/enums/enums.dart';
 import '../data/errors/errors.dart';
 import '../data/events/authstatus_event.dart';
 import '../data/extension/extensions.dart';
 import '../data/provider/fb_auth_provider.dart';
-import '../data/provider/login_messages.dart';
+import '../data/provider/message_text.dart';
 import '../helpers/custom_color.dart';
+import '../services/service_locator.dart';
 import '../widgets/constants.dart';
 import '../widgets/custom_route.dart';
 import 'dashboard_screen.dart';
 import 'flutter_login.dart';
 
 class LoginScreen extends StatefulWidget {
-  static const routeName = '/auth';
+  static const routeName = '/login';
 
   @override
   _LoginScreen createState() => _LoginScreen();
 }
 
-final sl = GetIt.instance;
-
 class _LoginScreen extends State<LoginScreen> {
-  var data = GlobalConfiguration();
   final log = sl<Logger>();
+  final messageText = sl<MessageText>();
   final status = sl<AuthStatusListener>();
+  final dashboardScreen = sl<DashboardScreen>();
 
   Future<String> doLogin(LoginData loginData, BuildContext context, bool mounted) async {
     try {
-      await context.read<FBAuthProvider>().signIn(loginData);
+      var result = await context.read<FBAuthProvider>().signIn(loginData);
       await this.afterAuthorized(context);
+      if (result == "notVerified") return result;
     } catch (e) {
       return FBError.exceptionToUiMessage(e);
     }
@@ -42,14 +40,28 @@ class _LoginScreen extends State<LoginScreen> {
 
   Future<String> doSignup(LoginData loginData, BuildContext context, bool mounted) async {
     try {
-      await context.read<FBAuthProvider>().signUp(loginData);
+      var result = await context.read<FBAuthProvider>().signUp(loginData);
       this.afterAuthorized(context);
+      if (result == "notVerified") return result;
     } catch (e) {
       this.setState(() {
         return FBError.exceptionToUiMessage(e);
       });
     }
     return null;
+  }
+
+  Future<String> doVerifyEmail(BuildContext context, bool mounted) async {
+    String result;
+    try {
+      result = await context.read<FBAuthProvider>().checkEmailVerification();
+      this.afterAuthorized(context);
+    } catch (e) {
+      this.setState(() {
+        return FBError.exceptionToUiMessage(e);
+      });
+    }
+    return result;
   }
 
   Future<String> _recoverPassword(String _email, BuildContext context, bool mounted) async {
@@ -65,7 +77,7 @@ class _LoginScreen extends State<LoginScreen> {
 
   Future<String> afterAuthorized(BuildContext context) async {
     var user = await context.read<FBAuthProvider>().user;
-    if (user != null || user != 'null') {
+    if (user != null) {
       if (user.contactEmail == null || user.contactEmail == "") {
         user.contactEmail = user.email;
       }
@@ -88,20 +100,7 @@ class _LoginScreen extends State<LoginScreen> {
       logo: null,
       logoTag: Constants.logoTag,
       titleTag: Constants.titleTag,
-      messages: LoginMessages(
-        usernameHint: 'Email Address',
-        passwordHint: 'Password',
-        confirmPasswordHint: 'Confirm',
-        loginButton: 'Login',
-        signupButton: 'Register',
-        forgotPasswordButton: 'Reset Password',
-        recoverPasswordButton: 'Reset!',
-        goBackButton: 'Go Back',
-        confirmPasswordError: 'Not matching!',
-        recoverPasswordIntro: 'Don\'t feel bad. Happens all the time.',
-        recoverPasswordDescription: 'To reset your password, please enter your email address.',
-        recoverPasswordSuccess: 'Password reset request has been sent.',
-      ),
+      messages: messageText.messages,
       theme: LoginTheme(
         primaryColor: AppColors.LIGHT_TEXT,
         accentColor: AppColors.BLUEISH,
@@ -185,9 +184,6 @@ class _LoginScreen extends State<LoginScreen> {
           shape: BeveledRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-          // shape: CircleBorder(side: BorderSide(color: Colors.green)),
-          // shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(55.0)),
         ),
       ),
       emailValidator: (value) {
@@ -214,11 +210,15 @@ class _LoginScreen extends State<LoginScreen> {
         print('Password: ${loginData.password}');
         return doSignup(loginData, context, mounted);
       },
+      onVerifyEmail: (loginData) {
+        print('ONVERIFYEMAIL CALLBACK');
+        return doVerifyEmail(context, mounted);
+      },
       onSubmitAnimationCompleted: () {
-          status.setStatus(AuthStatus.signedIn);
-          Navigator.of(context).push(FadePageRoute(
-            builder: (context) => DashboardScreen(),
-          ));
+        print('ON SUBMIT ANIMATION COMPLETE?');
+        Navigator.of(context).pushReplacement(FadePageRoute(
+          builder: (context) => dashboardScreen,
+        ));
       },
       onRecoverPassword: (_email) {
         print('Recover password info');

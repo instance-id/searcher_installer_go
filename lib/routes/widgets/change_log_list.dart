@@ -1,10 +1,10 @@
 import 'package:fluid_layout/fluid_layout.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:sized_context/sized_context.dart';
 
+import '../../services/service_locator.dart';
 import '../../data/events/expansion_event.dart';
 import '../../animations/anim_FadeInVT.dart';
 import '../../data/models/changelog_data.dart';
@@ -20,7 +20,6 @@ class ChangeLogList extends StatefulWidget {
   _ChangeLogListState createState() => _ChangeLogListState();
 }
 
-final sl = GetIt.instance;
 
 class _ChangeLogListState extends State<ChangeLogList> {
   final log = sl<Logger>();

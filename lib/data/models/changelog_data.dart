@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:global_configuration/global_configuration.dart';
+import 'package:searcher_installer_go/services/service_locator.dart';
 
 class ChangeLogData {
   final String id;
@@ -28,7 +28,7 @@ class ChangeLogData {
     return (_markdownString != null) ? _markdownString.toLowerCase() == 'true' : false;
   }
 
-  String address = GlobalConfiguration().getString("address");
+  String address = data.getString("address");
 
   ChangeLogData({this.description, this.details, this.version, this.title, this.id, this.dateposted, this.project, this.image, this.image_small, this.icon});
 

@@ -1,21 +1,20 @@
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
+import '../../services/service_locator.dart';
 
 import '../../helpers/utils.dart';
 
-final _sl = GetIt.instance;
-final _log = _sl<Logger>();
+final _log = sl<Logger>();
 
-class FirebaseErrorCodes {
-  static const UserNotFoundCode = "USER_NOT_FOUND";
+class FBErrorCodes {
+  static const DocumentNotFoundCode = "NOT_FOUND";
+  static const EmailExistsCode = "EMAIL_EXISTS";
   static const EmailNotFoundCode = "EMAIL_NOT_FOUND";
   static const InvalidEmailCode = "INVALID_EMAIL";
   static const InvalidPasswordCode = "INVALID_PASSWORD";
-  static const EmailExistsCode = "EMAIL_EXISTS";
-  static const DocumentNotFoundCode = "NOT_FOUND";
   static const TooManyAttempts = "TOO_MANY_ATTEMPTS_TRY_LATER";
+  static const UserNotFoundCode = "USER_NOT_FOUND";
 }
 
 enum FBFailures {
@@ -62,12 +61,12 @@ class FBError extends Error {
     }
 
     if (exception is FBError) {
-      if (exception.response.body.toString().contains(FirebaseErrorCodes.UserNotFoundCode)) return "User not found.";
-      if (exception.response.body.toString().contains(FirebaseErrorCodes.EmailNotFoundCode)) return "Email address not found.";
-      if (exception.response.body.toString().contains(FirebaseErrorCodes.TooManyAttempts)) return "Too many login attempts. Please try again later.";
-      if (exception.response.body.toString().contains(FirebaseErrorCodes.InvalidEmailCode)) return "Invalid EMail address.";
-      if (exception.response.body.toString().contains(FirebaseErrorCodes.InvalidPasswordCode)) return "Invalid password. Please try again.";
-      if (exception.response.body.toString().contains(FirebaseErrorCodes.EmailExistsCode)) return "This email is already registered.";
+      if (exception.toString().contains(FBErrorCodes.UserNotFoundCode)) return "User not found.";
+      if (exception.toString().contains(FBErrorCodes.EmailNotFoundCode)) return "Email address not found.";
+      if (exception.toString().contains(FBErrorCodes.TooManyAttempts)) return "Too many login attempts. Please try again later.";
+      if (exception.toString().contains(FBErrorCodes.InvalidEmailCode)) return "Invalid EMail address.";
+      if (exception.toString().contains(FBErrorCodes.InvalidPasswordCode)) return "Invalid password. Please try again.";
+      if (exception.toString().contains(FBErrorCodes.EmailExistsCode)) return "This email is already registered.";
     }
 
     if (exception is ClientException) {

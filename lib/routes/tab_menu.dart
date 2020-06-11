@@ -17,8 +17,7 @@ class TabMenu extends StatefulWidget {
 class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
   bool menuHidden = false;
   AnimationController _menuController;
-  Tween<Offset> _menuTween;
-  Animation<Offset> _menuAnimation;
+
 
   AnimationController _animationController;
   Tween<double> _positionTween;

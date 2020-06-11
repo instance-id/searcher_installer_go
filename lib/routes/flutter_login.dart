@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:fluid_layout/fluid_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -10,14 +8,10 @@ import 'package:provider/provider.dart';
 
 import '../data/provider/auth_state.dart';
 import '../data/provider/login_messages.dart';
-import '../widgets/widgets/fade_in.dart';
 import '../data/provider/login_theme.dart';
 import '../widgets/login/src/color_helper.dart';
 import '../widgets/login/src/constants.dart';
-import '../widgets/login/src/dart_helper.dart';
 import '../widgets/login/src/regex.dart';
-import '../widgets/login/src/widgets/hero_text.dart';
-import '../widgets/login/src/widgets/null_widget.dart';
 import '../widgets/login/theme.dart';
 import 'auth_card.dart';
 
@@ -66,149 +60,12 @@ class _AnimationTimeDilationDropdown extends StatelessWidget {
   }
 }
 
-class _Header extends StatefulWidget {
-  _Header({
-    this.logoPath,
-    this.logoTag,
-    this.title,
-    this.titleTag,
-    this.height = 30.0,
-    this.logoController,
-    this.titleController,
-    @required this.loginTheme,
-  });
-
-  final String logoPath;
-  final String logoTag;
-  final String title;
-  final String titleTag;
-  final double height;
-  final LoginTheme loginTheme;
-  final AnimationController logoController;
-  final AnimationController titleController;
-
-  @override
-  __HeaderState createState() => __HeaderState();
-}
-
-class __HeaderState extends State<_Header> {
-  double _titleHeight = 0.0;
-
-  /// https://stackoverflow.com/a/56997641/9449426
-  double getEstimatedTitleHeight() {
-    if (DartHelper.isNullOrEmpty(widget.title)) {
-      return 0.0;
-    }
-
-    final theme = Theme.of(context);
-    final renderParagraph = RenderParagraph(
-      TextSpan(
-        text: widget.title,
-        style: theme.textTheme.display2.copyWith(
-          fontSize: widget.loginTheme.beforeHeroFontSize,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-      maxLines: 1,
-    );
-
-    renderParagraph.layout(BoxConstraints());
-
-    return renderParagraph.getMinIntrinsicHeight(widget.loginTheme.beforeHeroFontSize).ceilToDouble();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _titleHeight = getEstimatedTitleHeight();
-  }
-
-  @override
-  void didUpdateWidget(_Header oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (widget.title != oldWidget.title) {
-      _titleHeight = getEstimatedTitleHeight();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    const gap = 0.0;
-    final logoHeight = min(widget.height - _titleHeight - gap, kMaxLogoHeight);
-    final displayLogo = widget.logoPath != null && logoHeight >= kMinLogoHeight;
-
-    Widget logo = displayLogo
-        ? Image.asset(
-            widget.logoPath,
-            filterQuality: FilterQuality.high,
-            height: logoHeight,
-          )
-        : NullWidget();
-
-    if (widget.logoTag != null) {
-      logo = Hero(
-        tag: widget.logoTag,
-        child: logo,
-      );
-    }
-
-    Widget title;
-    var headerStyle = (theme.textTheme.headline3.copyWith(
-      color: Colors.white,
-      shadows: [
-        Shadow(
-          color: Colors.black,
-          blurRadius: 2.5,
-          offset: Offset(1, 1.5),
-        )
-      ],
-      fontWeight: FontWeight.w600,
-    ));
-
-    if (widget.titleTag != null && !DartHelper.isNullOrEmpty(widget.title)) {
-      title = HeroText(
-        widget.title,
-        key: kTitleKey,
-        tag: widget.titleTag,
-        largeFontSize: widget.loginTheme.beforeHeroFontSize,
-        smallFontSize: widget.loginTheme.afterHeroFontSize,
-        style: headerStyle,
-        viewState: ViewState.enlarged,
-      );
-    } else if (!DartHelper.isNullOrEmpty(widget.title)) {
-      title = Text(
-        widget.title,
-        key: kTitleKey,
-        style: headerStyle,
-      );
-    } else {
-      title = null;
-    }
-
-    return SizedBox(
-      height: widget.height,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          FadeIn(
-            controller: widget.titleController,
-            offset: .5,
-            fadeDirection: FadeDirection.topToBottom,
-            child: title,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class FlutterLogin extends StatefulWidget {
   FlutterLogin({
     Key key,
     @required this.onSignup,
     @required this.onLogin,
+    @required this.onVerifyEmail,
     @required this.onRecoverPassword,
     this.title = 'LOGIN',
     this.logo,
@@ -224,6 +81,9 @@ class FlutterLogin extends StatefulWidget {
 
   /// Called when the user hit the submit button when in sign up mode
   final AuthCallback onSignup;
+
+  /// Called when the user hit the submit button when in verify email mode
+  final AuthCallback onVerifyEmail;
 
   /// Called when the user hit the submit button when in login mode
   final AuthCallback onLogin;
@@ -291,6 +151,7 @@ class FlutterLogin extends StatefulWidget {
 
 class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMixin {
   final GlobalKey<AuthCardState> authCardKey = GlobalKey();
+
   static const loadingDuration = const Duration(milliseconds: 275);
   AnimationController _loadingController;
   AnimationController _logoController;
@@ -300,7 +161,6 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-
     _loadingController = AnimationController(
       vsync: this,
       duration: loadingDuration,
@@ -345,6 +205,7 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
     }
   }
 
+//region Debug Buttons
   Widget _buildDebugAnimationButtons(BuildContext context) {
     const textStyle = TextStyle(fontSize: 12, color: Colors.white);
 
@@ -401,6 +262,8 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
       ),
     );
   }
+
+//endregion
 
   ThemeData _mergeTheme({ThemeData theme, LoginTheme loginTheme}) {
     final originalPrimaryColor = loginTheme.primaryColor ?? theme.primaryColor;
@@ -512,6 +375,7 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
           create: (context) => AuthState(
             onLogin: widget.onLogin,
             onSignup: widget.onSignup,
+            onVerifyEmail: widget.onVerifyEmail,
             onRecoverPassword: widget.onRecoverPassword,
           ),
         ),

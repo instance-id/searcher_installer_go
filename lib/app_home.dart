@@ -1,34 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
 import 'package:simple_animations/simple_animations.dart';
 
 import 'data/events/messages_event.dart';
-import 'data/events/requestlogin_event.dart';
+import 'data/events/request_login_event.dart';
 import 'helpers/background.dart';
 import 'routes/about.dart';
 import 'routes/app_bar.dart';
 import 'routes/home.dart';
 import 'routes/news.dart';
 import 'routes/tab_menu.dart';
+import 'services/service_locator.dart';
 import 'update_home.dart';
 import 'widgets/login/src/widget_helper.dart';
 
 class AppHome extends StatefulWidget {
+  static const routeName = '/appHome';
+
   @override
   _AppHomeState createState() => _AppHomeState();
 }
-
-GetIt sl = GetIt.instance;
 
 class _AppHomeState extends State<AppHome> with AnimationMixin {
   final GlobalKey<TabMenuState> _keyNavigator = GlobalKey<TabMenuState>();
   final log = sl<Logger>();
   final msg = sl<Message>();
   final login = sl<RequestLogin>();
+  final background = sl<Background>();
+  final draggebleAppBar = sl<DraggebleAppBar>();
 
-  GlobalConfiguration data = GlobalConfiguration();
   List<String> title = ["Searcher : News", "Searcher : Installer", "Searcher : Account", "Searcher : Change Log"];
 
   @override
@@ -40,9 +40,27 @@ class _AppHomeState extends State<AppHome> with AnimationMixin {
   @override
   void initState() {
     msg.valueChangedEvent + (args) => Future.microtask(() => _showMessage(msg));
-    login.event + (args) =>  _loginMenu();
+    login.event + (args) => _loginMenu();
 
     super.initState();
+  }
+
+  // @formatter:off
+  Future<bool> _showMessage(Message msg) async {
+    if (data.getBool("debug")) log.d('MESSAGE: ${msg.payload['message']}');
+    switch (msg.payload['type']) {
+      case MsgType.success:
+        showSuccessToast(context, msg.payload['message'], msg.payload['title'], msg.payload['duration']);
+        break;
+      case MsgType.error:
+        showErrorToast(context, msg.payload['message'], msg.payload['title'], msg.payload['duration']);
+        break;
+      case MsgType.info:
+        showInfoToast(context, msg.payload['message'], msg.payload['title'], msg.payload['duration']);
+        break;
+    }
+
+    return true;
   }
 
   final List<Widget> pages = [];
@@ -65,15 +83,6 @@ class _AppHomeState extends State<AppHome> with AnimationMixin {
     );
   }
 
-  // @formatter:off
-  Future<bool> _showMessage(Message msg) async {
-    if (data.getBool("debug")) log.i('MESSAGE: ${msg.payload['message']}');
-    (msg.payload['type'] == MsgType.info)
-        ? showSuccessToast(context, msg.payload['message'], msg.payload['title'], msg.payload['duration'])
-        : showErrorToast(context, msg.payload['message'], msg.payload['title'], msg.payload['duration']);
-    return true;
-  }
-
   Future<bool> _loginMenu() async {
     onChanged(2);
     _keyNavigator.currentState.move(2);
@@ -89,19 +98,18 @@ class _AppHomeState extends State<AppHome> with AnimationMixin {
 
     return Scaffold(
         primary: true,
-        appBar: DraggebleAppBar(appBar: MainAppBar(context)),
+        appBar: (draggebleAppBar),
         drawer: Drawer(child: AboutRoute(context)),
         body: Container(
           child: Stack(
             children: <Widget>[
-              Background(assetName: 'assets/images/main0.png'),
+              background,
               PageView(
                 onPageChanged: (i) {
                   setState(() {
                     pageIx = i;
-                    GlobalConfiguration().updateValue("title", title[pageIx]);
+                    data.updateValue("title", title[pageIx]);
                   });
-
                   if (_propagateAnimations == true) {
                     _keyNavigator.currentState.move(i);
                   }

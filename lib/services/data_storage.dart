@@ -1,16 +1,11 @@
 import 'dart:convert';
 
 import 'package:cross_local_storage/cross_local_storage.dart';
-import 'package:faui/faui.dart';
-import 'package:faui/faui_api.dart';
-import 'package:faui/src/10_auth/auth_state_user.dart';
-import 'package:get_it/get_it.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:logger/logger.dart';
-import '../data/events/messages_event.dart';
 
-final _log = GetIt.instance<Logger>();
-final _data = GlobalConfiguration();
+import 'service_locator.dart';
+
+final _log = sl<Logger>();
 
 class DataStorage {
   static const String _LocalKey = "user";
@@ -25,15 +20,40 @@ class DataStorage {
         v = await _getLocalValue(_PrefKey);
       }
       Map<String, dynamic> prefs = jsonDecode(v);
-      _data.updateValue("debug", prefs['debug']);
-      log.d('Debug Enabled: ${_data.getBool('debug')}');
+      data.updateValue("debug", prefs['debug']);
+      _log.d('Debug Enabled: ${data.getBool('debug')}');
       return;
     } catch (ex) {
       _log.e("Preference file cannot be created. Please contact the developer: http://github.com/instance-id/", ex);
     }
   }
 
-  static void saveUserLocallyForSilentSignIn() {
+  static Future<String> _getLocalValue(String key) async {
+    LocalStorageInterface prefs;
+    try {
+      prefs = await LocalStorage.getInstance();
+      return prefs.getString(key);
+    } catch (ex) {
+      _log.e("sso: Error retrieving from SharedPreferences Instance : " + ex);
+      return null;
+    }
+  }
+
+  static _storeLocally(String key, String value) async {
+    LocalStorageInterface prefs;
+    try {
+      if (key == null) throw ("sso: Error - Key is null");
+      if (value == null) throw ("sso: Error - User Value is null");
+      prefs = await LocalStorage.getInstance();
+      if (prefs == null) throw ("sso: Error - Cannot retrieve Shared Preferences Instance");
+      prefs.setString(key, value);
+      if (prefs.getString(key) != value) throw ("sso: Error - Unable to verify data stored correctly");
+    } catch (ex) {
+      _log.e(ex);
+    }
+  }
+
+/*  static void saveUserLocallyForSilentSignIn() {
     _storeLocally(_LocalKey, jsonEncode(FauiAuthState.user));
     _log.d("sso: saved locally");
   }
@@ -43,11 +63,8 @@ class DataStorage {
     _log.d("sso: deleted locally");
   }
 
-
-
   static trySignInSilently(String apiKey) async {
-    GetIt getIt = GetIt.instance;
-    var msg = getIt.get<Message>();
+    var msg = Get.find<Message>();
 
     _log.d("sso: started silent sign-in");
     try {
@@ -82,34 +99,10 @@ class DataStorage {
     try {
       prefs = await LocalStorage.getInstance();
       prefs.setString(key, 'null');
-      _data.updateValue('loginOk', false);
+      data.updateValue('loginOk', false);
     } catch (ex) {
       _log.e("sso: Error deleting from SharedPreferences Instance");
     }
-  }
+  }*/
 
-  static Future<String> _getLocalValue(String key) async {
-    LocalStorageInterface prefs;
-    try {
-      prefs = await LocalStorage.getInstance();
-      return prefs.getString(key);
-    } catch (ex) {
-      _log.e("sso: Error retrieving from SharedPreferences Instance : " + ex);
-      return null;
-    }
-  }
-
-  static _storeLocally(String key, String value) async {
-    LocalStorageInterface prefs;
-    try {
-      if (key == null) throw ("sso: Error - Key is null");
-      if (value == null) throw ("sso: Error - User Value is null");
-      prefs = await LocalStorage.getInstance();
-      if (prefs == null) throw ("sso: Error - Cannot retrieve Shared Preferences Instance");
-      prefs.setString(key, value);
-      if (prefs.getString(key) != value) throw ("sso: Error - Unable to verify data stored correctly");
-    } catch (ex) {
-      _log.e(ex);
-    }
-  }
 }

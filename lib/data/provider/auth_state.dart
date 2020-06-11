@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cross_local_storage/cross_local_storage.dart';
 import '../../data/models/login_data.dart';
 
-enum AuthMode { Signup, Login }
+enum AuthMode { Signup, Login, Verify }
 
 /// The result is an error message, callback successes if message is null
 typedef AuthCallback = Future<String> Function(LoginData);
@@ -12,15 +11,11 @@ typedef RecoverCallback = Future<String> Function(String);
 
 class AuthState with ChangeNotifier {
   var _key = 'app_state';
-  LocalStorageInterface _storage;
-
-  void init() async {
-     _storage = await LocalStorage.getInstance();
-  }
 
   AuthState({
     this.onLogin,
     this.onSignup,
+    this.onVerifyEmail,
     this.onRecoverPassword,
     String email = '',
     String password = '',
@@ -31,11 +26,12 @@ class AuthState with ChangeNotifier {
 
   final AuthCallback onLogin;
   final AuthCallback onSignup;
+  final AuthCallback onVerifyEmail;
   final RecoverCallback onRecoverPassword;
 
   AuthMode _mode = AuthMode.Login;
-
   AuthMode get mode => _mode;
+
   set mode(AuthMode value) {
     _mode = value;
     notifyListeners();
@@ -43,17 +39,22 @@ class AuthState with ChangeNotifier {
 
   bool get isLogin => _mode == AuthMode.Login;
   bool get isSignup => _mode == AuthMode.Signup;
+  bool get isVerify => _mode == AuthMode.Verify;
   bool isRecover = false;
 
   AuthMode opposite() {
     return _mode == AuthMode.Login ? AuthMode.Signup : AuthMode.Login;
   }
 
-  AuthMode switchAuth() {
+  AuthMode switchAuth({bool verify}) {
     if (mode == AuthMode.Login) {
-      mode = AuthMode.Signup;
+      (verify)
+          ? mode = AuthMode.Verify
+          : mode = AuthMode.Signup;
     } else if (mode == AuthMode.Signup) {
-      mode = AuthMode.Login;
+      (verify)
+          ? mode = AuthMode.Verify
+          : mode = AuthMode.Login;
     }
     return mode;
   }
