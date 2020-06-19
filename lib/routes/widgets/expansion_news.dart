@@ -1,10 +1,11 @@
 import 'package:dynamic_widget/dynamic_widget/icons_helper.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:searcher_installer_go/data/models/news_data.dart';
-import 'package:searcher_installer_go/helpers/custom_card.dart';
-import 'package:searcher_installer_go/helpers/custom_color.dart';
 import 'package:supercharged/supercharged.dart';
+
+import '../../data/models/news_data.dart';
+import '../../helpers/custom_card.dart';
+import '../../helpers/custom_color.dart';
 
 var iconList = [
   getIconGuessFavorFA(name: "bug"),
@@ -63,24 +64,31 @@ class ExpansionNews extends StatelessWidget {
                                 : Icon(iconList[index])),
                         Spacer(flex: 5),
                         Text('${news.title}',
-                            style: Theme.of(context).textTheme.bodyText2.copyWith(
+                            style:
+                                Theme.of(context).textTheme.bodyText2.copyWith(
                               fontSize: 16,
                               color: Color(0xFF607FAE),
-                              shadows: [Shadow(color: AppColors.BG_DARK, blurRadius: 1)],
+                              shadows: [
+                                Shadow(color: AppColors.BG_DARK, blurRadius: 1)
+                              ],
                             )),
                         Spacer(flex: 95),
                         Text('${news.dateposted}',
-                            style: Theme.of(context).textTheme.bodyText2.copyWith(
+                            style:
+                                Theme.of(context).textTheme.bodyText2.copyWith(
                               fontSize: 16,
                               color: Color(0xFF607FAE),
-                              shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
+                              shadows: [
+                                Shadow(
+                                    color: AppColors.DARK_DARK, blurRadius: 1)
+                              ],
                             )),
                       ],
                     ),
                   ),
                   collapsed: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget> [
+                    children: <Widget>[
                       Divider(
                         color: Color.fromRGBO(210, 160, 12, 0.1),
                         thickness: 3.0,
@@ -98,7 +106,9 @@ class ExpansionNews extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.subtitle2.copyWith(
                             fontSize: 13,
-                            shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
+                            shadows: [
+                              Shadow(color: AppColors.DARK_DARK, blurRadius: 1)
+                            ],
                           ),
                         ),
                       ),
@@ -122,9 +132,15 @@ class ExpansionNews extends StatelessWidget {
                               '${news.details.trimLeft()}',
                               softWrap: true,
                               overflow: TextOverflow.fade,
-                              style: Theme.of(context).textTheme.subtitle2.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  .copyWith(
                                 fontSize: 13,
-                                shadows: [Shadow(color: AppColors.DARK_DARK, blurRadius: 1)],
+                                shadows: [
+                                  Shadow(
+                                      color: AppColors.DARK_DARK, blurRadius: 1)
+                                ],
                               ),
                             )),
                     ],

@@ -3,10 +3,10 @@ import 'dart:io' as io;
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/data/models/fbapp.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 import 'app_home.dart';
+import 'data/models/fbapp.dart';
 import 'data/provider/changelog_provider.dart';
 import 'data/provider/fb_auth_provider.dart';
 import 'data/provider/news_provider.dart';
@@ -33,8 +33,11 @@ Future<void> main() async {
       var logMsg = ('Something went wrong! You may have discovered a bug in `Searcher_Installer`.\n'
           'Please file an issue at '
           'https://github.com/instance-id/searcher_installer_go/issues/new?labels=package%3Asearcher_installer');
+
       log.w(logMsg, error, chain.terse);
-      io.exitCode = 1;
+//              io.exitCode = 1;
+
+      ;
     }
   });
 }

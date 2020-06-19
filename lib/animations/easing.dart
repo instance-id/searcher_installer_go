@@ -5,8 +5,7 @@ class EasingAnimationWidget extends StatefulWidget {
   EasingAnimationWidgetState createState() => EasingAnimationWidgetState();
 }
 
-class EasingAnimationWidgetState extends State<EasingAnimationWidget>
-    with TickerProviderStateMixin {
+class EasingAnimationWidgetState extends State<EasingAnimationWidget> with TickerProviderStateMixin {
   AnimationController _controller;
   Animation _animation;
 
@@ -14,8 +13,7 @@ class EasingAnimationWidgetState extends State<EasingAnimationWidget>
   void initState() {
     super.initState();
 
-    _controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 2));
+    _controller = AnimationController(vsync: this, duration: Duration(seconds: 2));
 
     _animation = Tween(begin: -1.0, end: 0.0).animate(CurvedAnimation(
       parent: _controller,
@@ -35,8 +33,7 @@ class EasingAnimationWidgetState extends State<EasingAnimationWidget>
               Navigator.pop(context);
             }
           });
-        _controller.forward()
-            .orCancel;
+        _controller.forward();
       }
     }
 
@@ -55,8 +52,7 @@ class EasingAnimationWidgetState extends State<EasingAnimationWidget>
         builder: (BuildContext context, Widget child) {
           return Scaffold(
               body: Transform(
-            transform:
-                Matrix4.translationValues(_animation.value * width, 0.0, 0.0),
+            transform: Matrix4.translationValues(_animation.value * width, 0.0, 0.0),
             child: new Center(
                 child: Container(
               width: 200.0,

@@ -157,3 +157,5 @@ local.properties
 web/
 windows/runner/utils.cpp
 windows/runner/utils.h
+
+*.ttf

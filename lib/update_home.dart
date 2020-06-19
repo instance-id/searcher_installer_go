@@ -1,33 +1,53 @@
+import 'package:eventsubscriber/eventsubscriber.dart';
+import 'package:fluid_layout/fluid_layout.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'data/events/authstatus_event.dart';
-import 'data/provider/fb_auth_provider.dart';
-import 'data/provider/theme_data.dart';
+import 'data/events/auth_status_event.dart';
+import 'data/events/show_dash_event.dart';
 import 'routes/dashboard_screen.dart';
 import 'routes/login_screen.dart';
 import 'services/service_locator.dart';
-import 'widgets/transition_route_observer.dart';
 
-class UpdateHome extends StatelessWidget {
-  final status = sl<AuthStatusListener>();
-  final loginScreen = sl<LoginScreen>();
-  final dashboardScreen = sl<DashboardScreen>();
+class UpdateHome extends StatefulWidget {
   static const routeName = '/update';
 
   @override
-  Widget build(BuildContext context) {
-    final auth = Provider.of<FBAuthProvider>(context);
+  _UpdateHomeState createState() => _UpdateHomeState();
+}
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: themeData,
-      navigatorObservers: [TransitionRouteObserver()],
-      home: (auth.status == AuthStatus.signedIn && auth.user != null) ? dashboardScreen : loginScreen,
-      routes: {
-        LoginScreen.routeName: (context) => loginScreen,
-        DashboardScreen.routeName: (context) => dashboardScreen,
-      },
+class _UpdateHomeState extends State<UpdateHome> {
+  final status = sl<AuthStatusListener>();
+  final loginScreen = sl<LoginScreen>();
+  final dashboardScreen = sl<DashboardScreen>();
+  final dashEvent = sl<ShowDashListener>();
+
+  bool userExists = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final GlobalKey<NavigatorState> subNavKey = GlobalKey<NavigatorState>();
+
+    return FluidLayout(
+      horizontalPadding: FluidValue((_) => 0),
+      child: Fluid(
+        child: EventSubscriber(
+          event: dashEvent.event,
+          handler: (context, args) => (dashEvent.showDash) ? dashboardScreen : loginScreen,
+//              MaterialApp(
+//                key: subNavKey,
+//                debugShowCheckedModeBanner: false,
+//                theme: themeData,
+//                navigatorObservers: [TransitionRouteObserver()],
+//                home: (dashEvent.showDash) ? dashboardScreen : loginScreen,
+//                routes: {
+//                  LoginScreen.routeName: (context) => loginScreen,
+//                  DashboardScreen.routeName: (context) => dashboardScreen,
+//                },
+//              ),
+
+
+        ),
+      ),
     );
   }
 }

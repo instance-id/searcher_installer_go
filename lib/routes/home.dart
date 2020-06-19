@@ -3,12 +3,13 @@ import 'package:fluid_layout/fluid_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import '../services/service_locator.dart';
+
 import '../animations/anim_flex.dart';
-import '../data/provider/changelog_provider.dart';
 import '../data/events/expansion_event.dart';
+import '../data/provider/changelog_provider.dart';
 import '../routes/widgets/change_log_list.dart';
 import '../routes/widgets/news_main_home.dart';
+import '../services/service_locator.dart';
 
 const appTitle = "Searcher : Installer";
 bool startCompleted = false;
@@ -80,7 +81,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   }
 
   AnimateSize(ChangeLogDataProvider changeLogData) {
-    if (!_controller.isAnimating) (changeLogData.getWidth) ? _controller.forward().orCancel : _controller.reverse().orCancel;
+    if (!_controller.isAnimating) (changeLogData.getWidth) ? _controller.forward() : _controller.reverse();
     changeLogData.setNeedsExpand(false);
   }
 

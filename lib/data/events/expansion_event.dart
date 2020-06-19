@@ -1,5 +1,6 @@
 import 'package:event/event.dart';
-import 'package:searcher_installer_go/routes/home.dart';
+
+import '../../routes/home.dart';
 
 class ExpansionListener {
   bool value = false;

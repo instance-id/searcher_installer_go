@@ -1,19 +1,21 @@
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logger/logger.dart';
+import 'package:null_widget/null_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:searcher_installer_go/widgets/custom_route.dart';
 import 'package:transformer_page_view/transformer_page_view.dart';
 
-import '../data/events/authstatus_event.dart';
+import '../data/events/auth_status_event.dart';
 import '../data/models/login_data.dart';
 import '../data/provider/auth_state.dart';
 import '../data/provider/fb_auth_provider.dart';
 import '../data/provider/login_messages.dart';
+import '../extensions.dart'; // ignore: unused_import
 import '../helpers/custom_color.dart';
 import '../services/service_locator.dart';
 import '../widgets/login/src/constants.dart';
@@ -29,6 +31,8 @@ import '../widgets/login/src/widgets/expandable_container.dart';
 import '../widgets/widgets/fade_in.dart';
 import 'dashboard_screen.dart';
 
+//part 'auth_card.g.dart';
+
 class AuthCard extends StatefulWidget {
   AuthCard({
     Key key,
@@ -36,7 +40,6 @@ class AuthCard extends StatefulWidget {
     this.loadingController,
     this.emailValidator,
     this.passwordValidator,
-    this.onSubmit,
     this.onSubmitCompleted,
   }) : super(key: key);
 
@@ -44,7 +47,8 @@ class AuthCard extends StatefulWidget {
   final AnimationController loadingController;
   final FormFieldValidator<String> emailValidator;
   final FormFieldValidator<String> passwordValidator;
-  final Function onSubmit;
+
+//  final Function onSubmit;
   final Function onSubmitCompleted;
 
   @override
@@ -83,7 +87,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
     widget.loadingController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _isLoadingFirstTime = false;
-        _formLoadingController?.forward();
+        _formLoadingController.forward();
       }
     });
 
@@ -110,7 +114,6 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
       parent: _routeTransitionController,
       curve: Interval(0, .27272727 /* ~300ms */, curve: Curves.easeInOutCirc),
     ));
-    // replace 0 with minPositive to pass the test1
     // https://github.com/flutter/flutter/issues/42527#issuecomment-575131275
     _cardOverlayHeightFactorAnimation = Tween<double>(begin: double.minPositive, end: 1.0).animate(CurvedAnimation(
       parent: _routeTransitionController,
@@ -126,29 +129,11 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
       parent: _routeTransitionController,
       curve: Interval(.72727272, 1 /* ~300ms */, curve: Curves.easeInOutCubic),
     ));
-
-    handler = buildHandler(authStatus, context);
-    authStatus.event.subscribe(handler);
-  }
-
-  buildHandler(AuthStatusListener listener, BuildContext context) {
-    return (args) => () {
-          if (authStatus.isSignIn) {
-            setState(() {});
-            Future.microtask(() => _routeTransitionController.forward()).then((value) {
-              Navigator.of(context).pushReplacement(FadePageRoute(
-                builder: (context) => dashboardScreen,
-              ));
-              authStatus.setStatus(AuthStatus.signedIn);
-            });
-          }
-        }();
   }
 
   @override
   void dispose() {
     if (!_isDisposed) {
-      authStatus.event.unsubscribe(handler);
       _formLoadingController?.dispose();
       _pageController?.dispose();
       _routeTransitionController?.dispose();
@@ -180,16 +165,18 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
     if (widget.loadingController.isDismissed) {
       return widget.loadingController.forward().then((_) {
         if (!_isLoadingFirstTime) {
-          _formLoadingController?.forward();
+          _formLoadingController.forward().orCancel;
         }
       });
     } else if (widget.loadingController.isCompleted) {
-      return _formLoadingController?.reverse()?.then((_) => widget.loadingController?.reverse());
+      return _formLoadingController.reverse().then((_) => widget.loadingController.reverse());
     }
     return Future(null);
   }
 
   Future<void> _forwardChangeRouteAnimation() {
+    log.d('----------- _forwardChangeRouteAnimation 1');
+
     final isLogin = Provider.of<AuthState>(context, listen: false).isLogin;
     final isVerify = Provider.of<AuthState>(context, listen: false).isVerify;
     final deviceSize = MediaQuery.of(context).size;
@@ -207,18 +194,20 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
       curve: Interval(.72727272, 1, curve: Curves.easeInOutCubic),
     ));
 
-    widget?.onSubmit();
+    log.d('----------- _forwardChangeRouteAnimation 2');
 
-    return _formLoadingController?.reverse()?.then((_) => _routeTransitionController?.forward());
+//    widget?.onSubmit();
+
+    return _formLoadingController.reverse().then((_) => _routeTransitionController.forward());
   }
 
   void _reverseChangeRouteAnimation() {
-    _routeTransitionController?.reverse()?.then((_) => _formLoadingController?.forward());
+    _routeTransitionController.reverse().then((_) => _formLoadingController.forward());
   }
 
   void doChangeRouteAnimation() {
     _forwardChangeRouteAnimation().then((_) {
-      widget?.onSubmitCompleted();
+      widget.onSubmitCompleted();
     });
   }
 
@@ -313,9 +302,8 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                     passwordValidator: widget.passwordValidator,
                     onSwitchRecoveryPassword: () => _switchRecovery(true),
                     onSubmitCompleted: () {
-                      _forwardChangeRouteAnimation().then((_) {
-                        widget?.onSubmitCompleted();
-                      });
+                      log.d('----------- onSubmitCompleted');
+                      _forwardChangeRouteAnimation().then((_) => widget.onSubmitCompleted());
                     },
                   ),
                 )
@@ -398,6 +386,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
   Animation<double> _buttonScaleAnimation;
 
   bool get buttonEnabled => !_isLoading && !_isSubmitting;
+  bool _isDisposed = false;
 
   dynamic handler;
 
@@ -406,19 +395,16 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     super.initState();
     final auth = Provider.of<AuthState>(context, listen: false);
 
+    handler = buildHandler(authStatus, context);
+    authStatus.event.subscribe(handler);
+
     if (authStatus.status == AuthStatus.notVerified) Future.microtask(() => _switchAuthMode(verify: true));
 
     _nameController = TextEditingController(text: auth.email);
     _passController = TextEditingController(text: auth.password);
     _confirmPassController = TextEditingController(text: auth.confirmPassword);
 
-    _loadingController = widget.loadingController ??
-        (AnimationController(
-          vsync: this,
-          duration: Duration(milliseconds: 1150),
-          reverseDuration: Duration(milliseconds: 300),
-        )..value = 1.0);
-
+    _loadingController = widget.loadingController;
     _loadingController?.addStatusListener(handleLoadingAnimationStatus);
 
     _switchAuthController = AnimationController(
@@ -441,9 +427,6 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       parent: _loadingController,
       curve: Interval(.4, 1.0, curve: Curves.easeOutBack),
     ));
-
-    handler = buildHandler(authStatus, context);
-    authStatus.event.subscribe(handler);
   }
 
   buildHandler(AuthStatusListener listener, BuildContext context) {
@@ -474,14 +457,17 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    authStatus.event.unsubscribe(handler);
-    _loadingController?.removeStatusListener(handleLoadingAnimationStatus);
-    _passwordFocusNode.dispose();
-    _confirmPasswordFocusNode.dispose();
+    if(!_isDisposed) {
+      authStatus.event.unsubscribe(handler);
+      _loadingController.removeStatusListener(handleLoadingAnimationStatus);
+      _passwordFocusNode.dispose();
+      _confirmPasswordFocusNode.dispose();
 
-    _switchAuthController.dispose();
-    _postSwitchAuthController.dispose();
-    _submitController.dispose();
+      _switchAuthController.dispose();
+      _postSwitchAuthController.dispose();
+      _submitController.dispose();
+      _isDisposed = true;
+    }
     super.dispose();
   }
 
@@ -490,16 +476,13 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     final newAuthMode = auth.switchAuth(verify: verify);
 
     if (newAuthMode == AuthMode.Signup) {
-      _switchAuthController.forward().orCancel;
+      _switchAuthController.forward();
     } else {
-      _switchAuthController.reverse().orCancel;
+      _switchAuthController.reverse();
     }
   }
 
   Future<bool> _submit() async {
-    // a hack to force unfocus the soft keyboard. If not, after change-route
-    // animation completes, it will trigger rebuilding this widget and show all
-    // textfields and buttons again before going to new route
     FocusScope.of(context).requestFocus(FocusNode());
 
     if (!_formKey.currentState.validate()) {
@@ -510,16 +493,13 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     _submitController.forward();
     setState(() => _isSubmitting = true);
     final auth = Provider.of<AuthState>(context, listen: false);
-    final fbAuth = Provider.of<FBAuthProvider>(context, listen: false);
-
-    String result;
+    var result;
 
     if (auth.isLogin) {
       result = await auth.onLogin(LoginData(
         email: auth.email,
         password: auth.password,
       ));
-      log.d('Login Result: $result');
     } else if (auth.isVerify) {
       result = await auth.onVerifyEmail(LoginData(
         email: auth.email,
@@ -553,19 +533,17 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       setState(() => _isSubmitting = false);
       return false;
     }
-    log.d('Running onSubmitComplete?');
-    if (!authStatus.notVerified) authStatus.setStatus(AuthStatus.signIn);
     widget.onSubmitCompleted();
-
     return true;
   }
 
   Widget _buildVerifyEmailText(BuildContext context, double width, LoginMessages messages, AuthState auth) {
-    final fbAuth = context.watch<FBAuthProvider>();
-    _nameController.text = fbAuth?.cacheEmail;
+    final cacheEmail = context.read<FBAuthProvider>().cacheEmail;
+    _nameController.text = cacheEmail;
 
     return AnimatedTextFormField(
       controller: _nameController,
+      enabled: false,
       width: width,
       loadingController: _loadingController,
       interval: _nameTextFieldLoadingAnimationInterval,
@@ -579,12 +557,6 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       onFieldSubmitted: (value) {
         _submit();
       },
-      validator: widget.emailValidator,
-      onSaved: (value) => auth.email = value,
-      formatter: [
-        WhitelistingTextInputFormatter(RegExp(r"([a-zA-Z0-9\-\._@])")),
-        BlacklistingTextInputFormatter(RegExp(r"[\r\t+]")),
-      ],
     );
   }
 
@@ -710,7 +682,9 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
         ),
         onPressed: buttonEnabled
             ? () {
-                fbAuth.auth.requestEmailVerification().then((value) => showInfoToast(context, "Email verification message sent", "Status:", 4000));
+                fbAuth.auth.requestEmailVerification().then(
+                      (value) => showInfoToast(context, "Email verification message sent", "Status:", 4000),
+                    );
               }
             : null,
       ),
@@ -809,7 +783,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
               horizontal: cardPadding,
               vertical: 10,
             ),
-            onExpandCompleted: () => _postSwitchAuthController.forward().orCancel,
+            onExpandCompleted: () => _postSwitchAuthController.forward(),
             child: _buildConfirmPasswordField(textFieldWidth, messages, auth),
           ),
           Container(
@@ -819,7 +793,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 (isVerify)
-                    ? Container(width: 130, child: Container())
+                    ? Container(width: 130, child: NullWidget())
                     : Container(
                         width: 130,
                         child: _buildSwitchAuthButton(theme, messages, auth),
@@ -901,19 +875,19 @@ class _RecoverCardState extends State<_RecoverCard> with SingleTickerProviderSta
     final messages = Provider.of<LoginMessages>(context, listen: false);
 
     _formRecoverKey.currentState.save();
-    _submitController.forward().orCancel;
+    _submitController.forward();
     setState(() => _isSubmitting = true);
     final error = await auth.onRecoverPassword(auth.email);
 
     if (error != null) {
       showErrorToast(context, error, "Error", 4000);
       setState(() => _isSubmitting = false);
-      _submitController.reverse().orCancel;
+      _submitController.reverse();
       return false;
     } else {
       showSuccessToast(context, messages.recoverPasswordSuccess, "Success:", 4000);
       setState(() => _isSubmitting = false);
-      _submitController.reverse().orCancel;
+      _submitController.reverse();
       return true;
     }
   }

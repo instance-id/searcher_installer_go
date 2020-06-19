@@ -1,6 +1,8 @@
 import 'package:dynamic_widget/dynamic_widget/icons_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:null_widget/null_widget.dart';
+
 import '../../data/models/changelog_data.dart';
 import '../../helpers/custom_color.dart';
 
@@ -42,7 +44,7 @@ class ChangelogHeader extends StatelessWidget {
           ),
           Flexible(
             flex: 0,
-            child: Container(),
+            child: NullWidget(),
           ),
           Flexible(
             flex: 10,

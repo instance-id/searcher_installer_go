@@ -4,6 +4,7 @@ library expandable;
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:null_widget/null_widget.dart';
 
 import '../../data/events/expansion_event.dart';
 import '../../services/service_locator.dart';
@@ -424,8 +425,8 @@ class Expandable extends StatelessWidget {
 
     return AnimatedCrossFade(
       alignment: theme.alignment,
-      firstChild: collapsed ?? Container(),
-      secondChild: expanded ?? Container(),
+      firstChild: collapsed ?? NullWidget(),
+      secondChild: expanded ?? NullWidget(),
       firstCurve: Interval(theme.collapsedFadeStart, theme.collapsedFadeEnd, curve: theme.fadeCurve),
       secondCurve: Interval(theme.expandedFadeStart, theme.expandedFadeEnd, curve: theme.fadeCurve),
       sizeCurve: theme.sizeCurve,

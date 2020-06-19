@@ -1,7 +1,8 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:searcher_installer_go/helpers/custom_color.dart';
+
+import '../../../helpers/custom_color.dart';
 
 Size getWidgetSize(GlobalKey key) {
   final RenderBox renderBox = key.currentContext?.findRenderObject();
@@ -16,7 +17,7 @@ Flushbar showSuccessToast(BuildContext context, String message, String title, in
     flushbarPosition: FlushbarPosition.TOP,
     flushbarStyle: FlushbarStyle.FLOATING,
     messageText: Row(
-      children: <Widget> [
+      children: <Widget>[
         Text(title, style: TextStyle(color: AppColors.LIGHT_TEXT, fontWeight: FontWeight.w600)),
         SizedBox(width: 5),
         Text(message, style: TextStyle(color: AppColors.LIGHT_TEXT, fontWeight: FontWeight.w400)),
@@ -38,14 +39,14 @@ Flushbar showSuccessToast(BuildContext context, String message, String title, in
 
 Flushbar showErrorToast(BuildContext context, String message, String title, int duration) {
   return Flushbar(
-    margin: EdgeInsets.fromLTRB(0, 0,0, 40),
+    margin: EdgeInsets.fromLTRB(0, 0, 0, 40),
     padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
     maxHeight: 35,
     flushbarPosition: FlushbarPosition.TOP,
     flushbarStyle: FlushbarStyle.FLOATING,
     borderRadius: 0,
     messageText: Row(
-      children: <Widget> [
+      children: <Widget>[
         Text(title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
         SizedBox(width: 5),
         Text(message, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400)),
@@ -91,6 +92,5 @@ Flushbar showInfoToast(BuildContext context, String message, String title, int d
       ],
     ),
     onTap: (flushbar) => flushbar.dismiss(),
-  )
-    ..show(context);
+  )..show(context);
 }

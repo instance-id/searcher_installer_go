@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:searcher_installer_go/helpers/custom_color.dart';
 import 'package:sized_context/sized_context.dart';
+
+import '../../helpers/custom_color.dart';
 
 class RoundButton extends StatefulWidget {
   RoundButton({
@@ -60,8 +61,8 @@ class _RoundButtonState extends State<RoundButton> with SingleTickerProviderStat
   }
 
   void SendPress() {
-    _pressController.forward().orCancel.then((_) {
-      _pressController.reverse().orCancel;
+    _pressController.forward().then((_) {
+      _pressController.reverse();
     });
   }
 
@@ -89,8 +90,8 @@ class _RoundButtonState extends State<RoundButton> with SingleTickerProviderStat
                   elevation: 0.0,
                   child: widget.icon,
                   onPressed: () {
-                    _pressController.forward().orCancel.then((_) {
-                      _pressController.reverse().orCancel;
+                    _pressController.forward().then((_) {
+                      _pressController.reverse();
                     });
                     widget.onPressed();
                   },

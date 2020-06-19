@@ -1,6 +1,13 @@
 import 'package:firedart/auth/user_gateway.dart';
 
-class FBUserData{
+// region String Extension
+extension StringNullCheck on String {
+  bool get isNullOrEmpty => this == '' || this == null;
+}
+// endregion
+
+// region Firebase User class
+class FBUserData {
   String _fname;
   String _lname;
   String _serialNum;
@@ -8,13 +15,17 @@ class FBUserData{
   String _verified;
 }
 
-extension FBUser on User{
+extension FBUser on User {
   static FBUserData u = FBUserData();
 
   String get fname => u._fname;
+
   String get lname => u._lname;
+
   String get serialNum => u._serialNum;
+
   String get contactEmail => u._contactEmail;
+
   dynamic get verified => getBool(u._verified);
 
   bool getBool(String value) {
@@ -41,3 +52,4 @@ extension FBUser on User{
     u._verified = value.toString();
   }
 }
+// endregion

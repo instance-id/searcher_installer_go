@@ -12,15 +12,14 @@ import 'package:sized_context/sized_context.dart';
 
 import '../animations/anim_FadeInHZ.dart';
 import '../animations/anim_FadeInVT.dart';
-import '../data/events/authstatus_event.dart';
-import '../data/extension/extensions.dart';
+import '../data/events/auth_status_event.dart';
+import '../data/events/show_dash_event.dart';
+import '../data/models/dashboard_data.dart';
 import '../data/provider/fb_auth_provider.dart';
+import '../extensions.dart'; // ignore: unused_import
 import '../helpers/custom_card.dart';
-import '../helpers/custom_color.dart';
 import '../routes/login_screen.dart';
 import '../services/service_locator.dart';
-import '../widgets/constants.dart';
-import '../widgets/login/widgets.dart';
 import '../widgets/transition_route_observer.dart';
 import '../widgets/widgets/fade_in.dart';
 import '../widgets/widgets/round_button.dart';
@@ -36,37 +35,58 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   final log = sl<Logger>();
   final authStatus = sl<AuthStatusListener>();
   final loginScreen = sl<LoginScreen>();
+  final dashData = sl<DashboardData>();
+  final dashEvent = sl<ShowDashListener>();
   bool updateData;
   AuthStatus currentStatus;
 
   final routeObserver = TransitionRouteObserver<PageRoute>();
   static const headerAniInterval = const Interval(.1, .3, curve: Curves.easeOut);
   AnimationController _loadingController;
-  TextEditingController _firstCtrl = TextEditingController();
-  TextEditingController _lastCtrl = TextEditingController();
-  TextEditingController _serialNum = TextEditingController();
-  TextEditingController _contactEmail = TextEditingController();
+  TextEditingController _firstCtrl;
+  TextEditingController _lastCtrl;
+  TextEditingController _serialNum;
+  TextEditingController _contactEmail;
   dynamic _doc;
   bool _debug = false;
 
   double parentHeight;
-  double parentwidth;
+  double parentWidth;
   TabController tabController;
-  bool isDisposed = false;
-  User user;
+  bool _isDisposed = false;
+  User _user;
+
+  User get user => dashData.user;
+
+  set user(User value) {
+    dashData.user = value;
+  }
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        if (!dashEvent.showDash && authStatus.isSignedIn) {
+          dashEvent.setStatus(true);
+        }
+      });
+    });
+
     _debug = data.getBool("debug");
-    user = context.read<FBAuthProvider>().user;
 
-    if (user != null && data.getBool("updateData")) {
-      data.updateValue("updateData", false);
+    user = dashData.user;
+    log.d('DASH: User Created: ${user}');
 
-      _loadData();
+    if (dashData.user != null) {
+      dashData.loadData();
+      _firstCtrl = dashData.firstCtrl;
+      _lastCtrl = dashData.lastCtrl;
+      _serialNum = dashData.serialNum;
+      _contactEmail = dashData.contactEmail;
+      setState(() {});
     }
 
-    if (!isDisposed) {
+    if (!_isDisposed && authStatus.isSignedIn) {
       tabController = TabController(length: 3, vsync: this);
       _loadingController = AnimationController(
         vsync: this,
@@ -86,11 +106,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   @override
   void dispose() {
-    if (!isDisposed) {
+    if (!_isDisposed) {
+      _isDisposed = true;
       routeObserver.unsubscribe(this);
       tabController.dispose();
       _loadingController.dispose();
-      isDisposed = true;
     }
     super.dispose();
   }
@@ -98,43 +118,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   // 'Welcome ${guard(() => user?.displayName, 'Guest')}, ',
   Future<bool> _signOut({BuildContext context, User user}) async {
     if (data.getBool("debug")) log.d("Logging Out");
-    _doc = null;
-    return Navigator.of(context).pushReplacementNamed(LoginScreen.routeName).then((_) => false);
-  }
-
-  Future<void> _loadData() async {
-    if (data.getBool("updateData")) {
-      data.updateValue("updateData", false);
-      _doc = await context.read<FBAuthProvider>().document ??
-          {
-            "first": "",
-            "last": "",
-            "serialNum": "",
-            "contactEmail": user.email,
-          };
-
-      _firstCtrl.text = user.fname = _doc["first"];
-      _lastCtrl.text = user.lname = _doc["last"];
-      _serialNum.text = user.serialNum = _doc["serialNum"];
-      user.verified = _doc["verified"];
-
-      // @formatter:off
-      (_doc["contactEmail"] == null || _doc["contactEmail"] == "") ? _contactEmail.text = user.contactEmail = user.email : _contactEmail.text = user.contactEmail = _doc["contactEmail"];
-
-      if (data.getBool("debug")) log.d('Data Loaded : Firebase;');
-
-      data.updateValue("verified", verificationCheck(user));
-      if (mounted) {
-        setState(() {});
-      }
-    } else {
-      _firstCtrl.text = user.fname ?? "";
-      _lastCtrl.text = user.lname ?? "";
-      _serialNum.text = user.serialNum ?? "";
-      _contactEmail.text = user.contactEmail ?? user.email;
-
-      if (data.getBool("debug")) log.d('Data Loaded : Local;');
-    }
+    Future.microtask(() => context.read<FBAuthProvider>().logOutComplete());
+    return false;
   }
 
   Future<void> _saveData() async {
@@ -154,49 +139,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   @override
-  void didPushAfterTransition() => _loadingController.forward();
-
-  String verificationCheck(User user) {
-    bool v = user.verified;
-    if (data.getBool("debug")) log.d('Verified? ${v}');
-    return (v) ? "Verified" : "Not Verified";
-  }
-
-  Widget headerType(ThemeData theme) {
-    final accentColor = AppColors.GOLD;
-    var loginOk = data.getBool('loginOk');
-    if (!loginOk)
-      return HeroText(
-        "${Constants.appName}",
-        tag: Constants.titleTag,
-        smallFontSize: 30,
-        textAlign: TextAlign.center,
-        viewState: ViewState.shrunk,
-        style: theme.textTheme.headline2.copyWith(
-          shadows: [Shadow(color: AppColors.BG_DARK, blurRadius: 3)],
-          fontWeight: FontWeight.w400,
-          color: accentColor,
-          fontSize: 30,
-        ),
-      );
-    if (loginOk)
-      return Text(
-        "${Constants.appName}",
-        style: theme.textTheme.headline2.copyWith(
-          shadows: [Shadow(color: AppColors.BG_DARK, blurRadius: 3)],
-          fontWeight: FontWeight.w400,
-          color: accentColor,
-          fontSize: 30,
-        ),
-      );
-    return Text(
-      "${Constants.appName}",
-      style: theme.textTheme.headline2.copyWith(
-        fontWeight: FontWeight.w300,
-        color: accentColor,
-        fontSize: 26,
-      ),
-    );
+  void didPushAfterTransition() {
+    if (authStatus.isSignedIn) {
+      _loadingController?.forward()?.orCancel;
+    }
   }
 
   Widget buildButton({Widget icon, String label, Interval interval, double size, AnimationController loadingController, onPressed}) {
@@ -328,7 +274,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   Widget _buildDashboardGrid(BuildContext context, User user) {
     parentHeight = context.heightPx;
-    parentwidth = context.widthPx;
+    parentWidth = context.widthPx;
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -508,7 +454,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             color: Colors.red,
             child: Text('loading', style: textStyle),
-            onPressed: () => _loadingController.value == 0 ? _loadingController.forward().orCancel : _loadingController.reverse().orCancel,
+            onPressed: () => _loadingController.value == 0 ? _loadingController.forward() : _loadingController.reverse(),
           ),
         ],
       ),
@@ -519,6 +465,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final auth = context.watch<FBAuthProvider>();
 
     return WillPopScope(
       onWillPop: () => _signOut(context: context, user: user),
@@ -535,25 +482,20 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 Column(
                   children: <Widget>[
                     SizedBox(height: 22),
-                    Container(
-                      child: _getSettingsPage(context, user, theme),
-                    ),
-                    Expanded(
-                      flex: 19,
-                      child: _buildDashboardGrid(context, user),
-                    ),
-                    SizedBox(height: 0)
+                    Container(child: _getSettingsPage(context, user, theme)),
+                    Expanded(flex: 19, child: _buildDashboardGrid(context, user)),
+                    SizedBox(height: 0),
                   ],
                 ),
                 if (!kReleaseMode && _debug) _buildDebugButtons(),
                 EventSubscriber(
                   event: authStatus.event,
                   handler: (context, args) {
-                    if (authStatus.isSignOut && runOnce) {
-                      runOnce = false;
-                      _signOut(context: context, user: user).then(
-                        (value) => authStatus.setStatus(AuthStatus.signedOut),
-                      );
+                    if (authStatus.isSignOut) {
+                      if (runOnce) {
+                        runOnce = false;
+                        Future.microtask(() => _signOut(context: context, user: user));
+                      }
                     }
                     return Container();
                   },

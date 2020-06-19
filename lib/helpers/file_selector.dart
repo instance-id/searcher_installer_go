@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:null_widget/null_widget.dart';
 
 class FileSelector extends StatefulWidget {
   @override
@@ -116,7 +117,7 @@ class _FileSelectorState extends State<FileSelector> {
                           return null;
                         },
                       )
-                    : new Container(),
+                    : new NullWidget(),
               ),
               new ConstrainedBox(
                 constraints: BoxConstraints.tightFor(width: 200.0),
@@ -168,7 +169,7 @@ class _FileSelectorState extends State<FileSelector> {
                                       new Divider(),
                             )),
                           )
-                        : new Container(),
+                        : NullWidget(),
               ),
             ],
           ),

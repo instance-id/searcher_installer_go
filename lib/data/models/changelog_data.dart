@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:searcher_installer_go/services/service_locator.dart';
+
+import '../../services/service_locator.dart';
 
 class ChangeLogData {
   final String id;
@@ -21,16 +22,30 @@ class ChangeLogData {
   bool get useMarkdown => getMarkdown(_markdownString);
 
   bool getBool(String value) {
-    return (_dynamicString != null) ? _dynamicString.toLowerCase() == 'true' : false;
+    return (_dynamicString != null)
+        ? _dynamicString.toLowerCase() == 'true'
+        : false;
   }
 
   bool getMarkdown(String value) {
-    return (_markdownString != null) ? _markdownString.toLowerCase() == 'true' : false;
+    return (_markdownString != null)
+        ? _markdownString.toLowerCase() == 'true'
+        : false;
   }
 
   String address = data.getString("address");
 
-  ChangeLogData({this.description, this.details, this.version, this.title, this.id, this.dateposted, this.project, this.image, this.image_small, this.icon});
+  ChangeLogData(
+      {this.description,
+      this.details,
+      this.version,
+      this.title,
+      this.id,
+      this.dateposted,
+      this.project,
+      this.image,
+      this.image_small,
+      this.icon});
 
   ChangeLogData.fromJson(Map<String, dynamic> parsedJson)
       : id = parsedJson['id'],

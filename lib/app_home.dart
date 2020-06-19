@@ -28,19 +28,26 @@ class _AppHomeState extends State<AppHome> with AnimationMixin {
   final login = sl<RequestLogin>();
   final background = sl<Background>();
   final draggebleAppBar = sl<DraggebleAppBar>();
+  dynamic msgHandler;
+  dynamic loginPageHandler;
 
   List<String> title = ["Searcher : News", "Searcher : Installer", "Searcher : Account", "Searcher : Change Log"];
 
   @override
   void dispose() {
+    msg.valueChangedEvent.unsubscribe(msgHandler);
+    login.event.unsubscribe(loginPageHandler);
     pageController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
-    msg.valueChangedEvent + (args) => Future.microtask(() => _showMessage(msg));
-    login.event + (args) => _loginMenu();
+    msgHandler = (args) => Future.microtask(() => _showMessage(msg));
+    loginPageHandler = (args) => _loginMenu();
+
+    msg.valueChangedEvent.subscribe(msgHandler);
+    login.event.subscribe(loginPageHandler);
 
     super.initState();
   }

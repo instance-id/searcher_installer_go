@@ -4,7 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:searcher_installer_go/helpers/custom_color.dart';
+
+import '../../../../helpers/custom_color.dart';
 
 enum TextFieldInertiaDirection {
   left,
@@ -164,7 +165,7 @@ class _AnimatedTextFormFieldState extends State<AnimatedTextFormField> {
 
   void handleAnimationStatus(status) {
     if (status == AnimationStatus.completed) {
-      widget.inertiaController?.reverse()?.orCancel;
+      widget.inertiaController.reverse();
     }
   }
 

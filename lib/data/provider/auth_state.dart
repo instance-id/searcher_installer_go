@@ -10,8 +10,6 @@ typedef AuthCallback = Future<String> Function(LoginData);
 typedef RecoverCallback = Future<String> Function(String);
 
 class AuthState with ChangeNotifier {
-  var _key = 'app_state';
-
   AuthState({
     this.onLogin,
     this.onSignup,

@@ -10,84 +10,89 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.12.1
-  google_fonts: ^1.1.0
   flutter_hooks: ^0.9.0
+  functional_widget_annotation: ^0.5.1
+  google_fonts: ^1.1.0
   hive: ^1.4.1+1
   hive_flutter: ^0.3.0+2
+  http: ^0.12.1
 
-  # -- Data ------------------------
-  logger: ^0.9.1
-  global_configuration: ^1.5.0
-  provider:
+  # -- Data ---------------------------
   dynamic_widget: ^2.0.2
-  expansion_tile_card: ^1.0.3
   expandable: ^4.1.4
+  expansion_tile_card: ^1.0.3
+  global_configuration: ^1.5.0
+  injectable: ^0.4.0+1
+  logger: ^0.9.1
+  provider:
   #  basic_utils: ^2.5.3
-  #  injectable: ^0.4.0+1
 
-  # --- Helper fucnctions -----------
-  uuid:
-  event: ^1.1.4
-  eventsubscriber: ^1.2.0
-  stack_trace:
-  event_bus: ^1.1.1
-  flutter_markdown: ^0.4.1
-  supercharged: ^1.6.0
+  # --- Helper fucnctions -------------
   cross_local_storage: ^1.1.1
+  draggable_scrollbar: ^0.0.4
+  event: ^1.1.4
+  event_bus: ^1.1.1
+  eventsubscriber: ^1.2.0
+  file_picker: ^1.11.0+2
+  flutter_markdown: ^0.4.1
+  get_it: ^4.0.2
   guard: ^1.0.4
-  shared_preferences: ^0.5.7+3
+  intl: ^0.16.1
   localstorage: ^3.0.2+5
   path_provider: ^1.6.10
   sa_v1_migration: ^1.1.2
-  intl: ^0.16.1
-  file_picker: ^1.10.0
+  shared_preferences: ^0.5.7+3
+  stack_trace:
+  supercharged: ^1.6.0
   url_launcher: ^5.4.10
-  url_launcher_fde:
-    git:
-      url: https://github.com/google/flutter-desktop-embedding.git
-      path: plugins/flutter_plugins/url_launcher_fde
-  draggable_scrollbar: ^0.0.4
-  get_it: ^4.0.2
+  uuid:
+  null_widget: ^1.0.0
 
-  # -- Visual -----------------------
-  transparent_image: ^1.0.0
-  list_tile_more_customizable: ^1.3.0
+  # -- Visual -------------------------
+
   #  cupertino_icons: ^0.1.3
   #  expansion_card: ^0.1.0
   #  icon_shadow: ^1.0.1
 
-  # -- UI ---------------------------
-  flushbar: ^1.10.4
-  fluid_layout: ^0.1.0
-  sized_context: ^0.2.1+1
-  getflutter: ^1.0.11
-  font_awesome_flutter: ^8.8.1
-  flutter_icons: ^1.1.0
-  quiver:
-  transformer_page_view: ^0.1.6
+  # -- UI -----------------------------
   dynamic_properties: ^1.0.0
+  fluid_layout: ^0.1.0
+  flushbar: ^1.10.4
+  flutter_icons: ^1.1.0
+  font_awesome_flutter: ^8.8.1
+  getflutter: ^1.0.11
+  list_tile_more_customizable: ^1.3.0
+  quiver:
+  sized_context: ^0.2.1+1
+  transformer_page_view: ^0.1.6
+  transparent_image: ^1.0.0
   #  flutter_form_builder: ^3.10.1
 
-  # -- Animations -------------------
-  simple_animations: ^2.2.1
+  # -- Animations ---------------------
   sa_anicoto: ^1.0.2
+  simple_animations: ^2.2.1
   #  animations: ^1.1.0
 
-  # --- Imports ---------------------
+  # --- Imports -----------------------
   #  faui:
   #    path: E:/Github/flutter-auth-ui
-  firedart: ^0.8.0+1
-#    path: E:/Github/firedart
+  firedart: #^0.8.1
+    path: E:/Github/firedart
+  url_launcher_fde:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding.git
+      path: plugins/flutter_plugins/url_launcher_fde
 
+builders:
 
 dev_dependencies:
   #  flutter_test:
   #    sdk: flutter
+  functional_widget: ^0.7.3
+  build_runner: ^1.10.0
   dependency_validator: ^1.5.0
   hive_generator: ^0.7.0+2
-  build_runner: ^1.10.0
-#  injectable_generator: ^0.4.1
+  injectable_generator: ^0.4.1
 
 flutter:
   uses-material-design: true

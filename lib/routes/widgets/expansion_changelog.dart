@@ -4,12 +4,12 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:logger/logger.dart';
 import 'package:supercharged/supercharged.dart';
 
-import '../../services/service_locator.dart';
-import '../../data/models/changelog_data.dart';
 import '../../data/events/expansion_event.dart';
+import '../../data/models/changelog_data.dart';
 import '../../helpers/custom_card.dart';
 import '../../helpers/custom_color.dart';
 import '../../packages/expandable_news/expandable.dart';
+import '../../services/service_locator.dart';
 import 'changelog_header.dart';
 
 

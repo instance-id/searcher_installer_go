@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:searcher_installer_go/data/app_data.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../data/app_data.dart';
 
 class AboutRoute extends StatefulWidget {
   AboutRoute(BuildContext context);

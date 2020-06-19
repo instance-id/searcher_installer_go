@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:searcher_installer_go/data/models/dashboard_data.dart';
 
 import '../data/errors/errors.dart';
-import '../data/events/authstatus_event.dart';
-import '../data/extension/extensions.dart';
+import '../data/events/auth_status_event.dart';
+import '../data/events/show_dash_event.dart';
 import '../data/provider/fb_auth_provider.dart';
 import '../data/provider/message_text.dart';
+import '../extensions.dart';
 import '../helpers/custom_color.dart';
 import '../services/service_locator.dart';
 import '../widgets/constants.dart';
@@ -24,44 +26,40 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreen extends State<LoginScreen> {
   final log = sl<Logger>();
   final messageText = sl<MessageText>();
-  final status = sl<AuthStatusListener>();
+  final authStatus = sl<AuthStatusListener>();
   final dashboardScreen = sl<DashboardScreen>();
+  final dashEvent = sl<ShowDashListener>();
+  final dashData = sl<DashboardData>();
 
   Future<String> doLogin(LoginData loginData, BuildContext context, bool mounted) async {
+    log.d('doLogin Start');
     try {
-      var result = await context.read<FBAuthProvider>().signIn(loginData);
-      await this.afterAuthorized(context);
-      if (result == "notVerified") return result;
+      return await context.read<FBAuthProvider>().signIn(loginData);
     } catch (e) {
-      return FBError.exceptionToUiMessage(e);
+      return FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
     }
-    return null;
   }
 
   Future<String> doSignup(LoginData loginData, BuildContext context, bool mounted) async {
     try {
-      var result = await context.read<FBAuthProvider>().signUp(loginData);
-      this.afterAuthorized(context);
-      if (result == "notVerified") return result;
+      return await context.read<FBAuthProvider>().signUp(loginData);
     } catch (e) {
-      this.setState(() {
-        return FBError.exceptionToUiMessage(e);
-      });
+      return FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
     }
-    return null;
   }
 
   Future<String> doVerifyEmail(BuildContext context, bool mounted) async {
-    String result;
     try {
-      result = await context.read<FBAuthProvider>().checkEmailVerification();
-      this.afterAuthorized(context);
+      return await context.read<FBAuthProvider>().checkEmailVerification();
     } catch (e) {
-      this.setState(() {
-        return FBError.exceptionToUiMessage(e);
-      });
+        return FBError.exceptionToUiMessage(
+          FBError(e.toString(), FBFailures.dependency),
+        );
     }
-    return result;
   }
 
   Future<String> _recoverPassword(String _email, BuildContext context, bool mounted) async {
@@ -69,20 +67,27 @@ class _LoginScreen extends State<LoginScreen> {
       await context.read<FBAuthProvider>().recoverPassword(_email);
     } catch (e) {
       this.setState(() {
-        return FBError.exceptionToUiMessage(e);
+        return FBError.exceptionToUiMessage(
+          FBError(e.toString(), FBFailures.dependency),
+        );
       });
     }
     return null;
   }
 
   Future<String> afterAuthorized(BuildContext context) async {
-    var user = await context.read<FBAuthProvider>().user;
-    if (user != null) {
-      if (user.contactEmail == null || user.contactEmail == "") {
-        user.contactEmail = user.email;
+    log.d('doLogin After Auth Start');
+
+    if (dashData.user != null) {
+      if (dashData.user.contactEmail == null || dashData.user.contactEmail == "") {
+        dashData.user.contactEmail = dashData.user.email;
       }
-      data.updateValue("updateData", true);
+      dashData.ref ??= await context.read<FBAuthProvider>().getDocument();
+    } else {
+      throw Exception('User Null');
     }
+    data.updateValue("updateData", true);
+    log.d('doLogin After Auth Return');
     return null;
   }
 
@@ -97,9 +102,6 @@ class _LoginScreen extends State<LoginScreen> {
 
     return FlutterLogin(
       title: Constants.appName,
-      logo: null,
-      logoTag: Constants.logoTag,
-      titleTag: Constants.titleTag,
       messages: messageText.messages,
       theme: LoginTheme(
         primaryColor: AppColors.LIGHT_TEXT,
@@ -198,33 +200,31 @@ class _LoginScreen extends State<LoginScreen> {
         }
         return null;
       },
-      onLogin: (loginData) async {
+      onLogin: (loginData) {
         print('Login info');
         print('Name: ${loginData.email}');
         print('Password: ${loginData.password}');
-        return doLogin(loginData, context, mounted);
+        return context.read<FBAuthProvider>().signIn(loginData);
       },
-      onSignup: (loginData) {
+      onSignup: (loginData) async {
         print('Signup info');
         print('Name: ${loginData.email}');
         print('Password: ${loginData.password}');
-        return doSignup(loginData, context, mounted);
+        return await doSignup(loginData, context, mounted);
       },
-      onVerifyEmail: (loginData) {
+      onVerifyEmail: (loginData) async {
         print('ONVERIFYEMAIL CALLBACK');
-        return doVerifyEmail(context, mounted);
+        return await doVerifyEmail(context, mounted);
       },
       onSubmitAnimationCompleted: () {
         print('ON SUBMIT ANIMATION COMPLETE?');
-        Navigator.of(context).pushReplacement(FadePageRoute(
-          builder: (context) => dashboardScreen,
-        ));
+        authStatus.setStatus(AuthStatus.signedIn);
+        dashEvent.setStatus(true);
       },
       onRecoverPassword: (_email) {
         print('Recover password info');
         print('Name: ${_email}');
         return _recoverPassword(_email, context, mounted);
-        // Show new password dialog
       },
       showDebugButtons: false,
     );

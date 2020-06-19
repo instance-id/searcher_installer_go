@@ -3,62 +3,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart' show timeDilation;
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
+import '../data/events/auth_status_event.dart';
 import '../data/provider/auth_state.dart';
 import '../data/provider/login_messages.dart';
 import '../data/provider/login_theme.dart';
+import '../extensions.dart'; // ignore: unused_import
+import '../services/service_locator.dart';
 import '../widgets/login/src/color_helper.dart';
 import '../widgets/login/src/constants.dart';
 import '../widgets/login/src/regex.dart';
 import '../widgets/login/theme.dart';
 import 'auth_card.dart';
+import 'dashboard_screen.dart';
 
 export '../data/models/login_data.dart';
 export '../data/provider/login_theme.dart';
-
-class _AnimationTimeDilationDropdown extends StatelessWidget {
-  _AnimationTimeDilationDropdown({
-    @required this.onChanged,
-    this.initialValue = 1.0,
-  });
-
-  final Function onChanged;
-  final double initialValue;
-  static const animationSpeeds = const [1, 2, 5, 10];
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Text(
-              'x1 is normal time, x5 means the animation is 5x times slower for debugging purpose',
-              textAlign: TextAlign.center,
-            ),
-          ),
-          SizedBox(
-            height: 125,
-            child: CupertinoPicker(
-              scrollController: FixedExtentScrollController(
-                initialItem: animationSpeeds.indexOf(initialValue.toInt()),
-              ),
-              itemExtent: 30.0,
-              backgroundColor: Colors.white,
-              onSelectedItemChanged: onChanged,
-              children: animationSpeeds.map((x) => Text('x$x')).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class FlutterLogin extends StatefulWidget {
   FlutterLogin({
@@ -74,8 +36,8 @@ class FlutterLogin extends StatefulWidget {
     this.emailValidator,
     this.passwordValidator,
     this.onSubmitAnimationCompleted,
-    this.logoTag,
-    this.titleTag,
+//    this.logoTag,
+//    this.titleTag,
     this.showDebugButtons = false,
   }) : super(key: key);
 
@@ -117,15 +79,6 @@ class FlutterLogin extends StatefulWidget {
   /// logic here. Recommend to use with [logoTag] and [titleTag]
   final Function onSubmitAnimationCompleted;
 
-  /// Hero tag for logo image. If not specified, it will simply fade out when
-  /// changing route
-  final String logoTag;
-
-  /// Hero tag for title text. Need to specify `LoginTheme.beforeHeroFontSize`
-  /// and `LoginTheme.afterHeroFontSize` if you want different font size before
-  /// and after hero animation
-  final String titleTag;
-
   /// Display the debug buttons to quickly forward/reverse login animations. In
   /// release mode, this will be overrided to false regardless of the value
   /// passed in
@@ -151,119 +104,36 @@ class FlutterLogin extends StatefulWidget {
 
 class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMixin {
   final GlobalKey<AuthCardState> authCardKey = GlobalKey();
+  final authStatus = sl<AuthStatusListener>();
+  final dashboardScreen = sl<DashboardScreen>();
+  final log = sl<Logger>();
+  bool _isDisposted = false;
 
   static const loadingDuration = const Duration(milliseconds: 275);
   AnimationController _loadingController;
-  AnimationController _logoController;
-  AnimationController _titleController;
-  double _selectTimeDilation = 1.0;
+  bool runOnce = true;
 
   @override
   void initState() {
     super.initState();
+
     _loadingController = AnimationController(
-      vsync: this,
-      duration: loadingDuration,
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.forward) {
-          _logoController?.forward()?.orCancel;
-          _titleController?.forward()?.orCancel;
-        }
-        if (status == AnimationStatus.reverse) {
-          _logoController?.reverse()?.orCancel;
-          _titleController?.reverse()?.orCancel;
-        }
-      });
-    _logoController = AnimationController(
-      vsync: this,
-      duration: loadingDuration,
-    );
-    _titleController = AnimationController(
       vsync: this,
       duration: loadingDuration,
     );
 
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _loadingController?.forward();
-    });
+    if (!_isDisposted)
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (!_isDisposted) _loadingController.forward().orCancel;
+      });
   }
 
   @override
   void dispose() {
-    _loadingController?.dispose();
-    _logoController?.dispose();
-    _titleController?.dispose();
+    if (!_isDisposted) _loadingController.dispose();
+    _isDisposted = true;
     super.dispose();
   }
-
-  void _reverseHeaderAnimation() {
-    if (widget.logoTag == null) {
-      _logoController?.reverse()?.orCancel;
-    }
-    if (widget.titleTag == null) {
-      _titleController?.reverse()?.orCancel;
-    }
-  }
-
-//region Debug Buttons
-  Widget _buildDebugAnimationButtons(BuildContext context) {
-    const textStyle = TextStyle(fontSize: 12, color: Colors.white);
-
-    return Positioned(
-      top: 0,
-      right: 0,
-      child: Row(
-        key: kDebugToolbarKey,
-        children: <Widget>[
-          RaisedButton(
-            color: Colors.green,
-            child: Text('OPTIONS', style: textStyle),
-            onPressed: () {
-              timeDilation = 1.0;
-              showModalBottomSheet(
-                  context: context,
-                  builder: (_) {
-                    return _AnimationTimeDilationDropdown(
-                      initialValue: _selectTimeDilation,
-                      onChanged: (int index) {
-                        setState(() {
-                          _selectTimeDilation = _AnimationTimeDilationDropdown.animationSpeeds[index].toDouble();
-                        });
-                      },
-                    );
-                  }).then((_) {
-                // wait until the BottomSheet close animation finishing before
-                // assigning or you will have to watch x100 time slower animation
-                Future.delayed(const Duration(milliseconds: 300), () {
-                  timeDilation = _selectTimeDilation;
-                });
-              });
-            },
-          ),
-          RaisedButton(
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            color: Colors.blue,
-            child: Text('LOADING', style: textStyle),
-            onPressed: () => authCardKey.currentState.runLoadingAnimation(),
-          ),
-          RaisedButton(
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            color: Colors.orange,
-            child: Text('PAGE', style: textStyle),
-            onPressed: () => authCardKey.currentState.runChangePageAnimation(),
-          ),
-          RaisedButton(
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            color: Colors.red,
-            child: Text('NAV', style: textStyle),
-            onPressed: () => authCardKey.currentState.runChangeRouteAnimation(),
-          ),
-        ],
-      ),
-    );
-  }
-
-//endregion
 
   ThemeData _mergeTheme({ThemeData theme, LoginTheme loginTheme}) {
     final originalPrimaryColor = loginTheme.primaryColor ?? theme.primaryColor;
@@ -359,6 +229,45 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
     );
   }
 
+  //region Debug Buttons
+  Widget _buildDebugAnimationButtons(BuildContext context) {
+    const textStyle = TextStyle(fontSize: 12, color: Colors.white);
+
+    return Stack(
+      children: <Widget>[
+        Positioned(
+          top: 0,
+          right: 0,
+          child: Row(
+            key: kDebugToolbarKey,
+            children: <Widget>[
+              RaisedButton(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                color: Colors.blue,
+                child: Text('LOADING', style: textStyle),
+                onPressed: () => authCardKey.currentState.runLoadingAnimation(),
+              ),
+              RaisedButton(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                color: Colors.orange,
+                child: Text('PAGE', style: textStyle),
+                onPressed: () => authCardKey.currentState.runChangePageAnimation(),
+              ),
+              RaisedButton(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                color: Colors.red,
+                child: Text('NAV', style: textStyle),
+                onPressed: () => authCardKey.currentState.runChangeRouteAnimation(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+//endregion
+
   @override
   Widget build(BuildContext context) {
     final loginTheme = widget.theme ?? LoginTheme();
@@ -400,21 +309,17 @@ class _FlutterLoginState extends State<FlutterLogin> with TickerProviderStateMix
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Flexible(
-                          flex: 1,
+                          flex: 20,
                           child: AuthCard(
                             key: authCardKey,
                             loadingController: _loadingController,
                             emailValidator: emailValidator,
                             passwordValidator: passwordValidator,
-                            onSubmit: _reverseHeaderAnimation,
                             onSubmitCompleted: widget.onSubmitAnimationCompleted,
                           ),
                         ),
-                        if (kDebugMode && widget.showDebugButtons)
-                          Flexible(
-                            child: _buildDebugAnimationButtons(context),
-                            flex: 1,
-                          ),
+                        if (!kReleaseMode && widget.showDebugButtons)
+                          Flexible(flex: 1, child: _buildDebugAnimationButtons(context)),
                       ],
                     ),
                   ),

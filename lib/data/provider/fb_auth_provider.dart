@@ -7,12 +7,14 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
 import '../../data/errors/errors.dart';
-import '../../data/events/authstatus_event.dart';
+import '../../data/events/auth_status_event.dart';
 import '../../data/events/messages_event.dart';
-import '../../data/extension/extensions.dart'; // ignore: unused_import
+import '../../data/events/show_dash_event.dart';
 import '../../data/models/hive_store.dart';
 import '../../data/models/login_data.dart';
+import '../../extensions.dart'; // ignore: unused_import
 import '../../services/service_locator.dart';
+import '../models/dashboard_data.dart';
 
 enum AuthStatus { signIn, signedIn, signedOut, signOut, notVerified, verified }
 
@@ -20,84 +22,104 @@ class FBAuthProvider with ChangeNotifier {
   final log = sl<Logger>();
   final msg = sl<Message>();
   final authStatus = sl<AuthStatusListener>();
+  final dashEvent = sl<ShowDashListener>();
+  final dashData = sl<DashboardData>();
 
-  User _user;
-  FirebaseAuth auth;
-  Document document;
-  http.Client client;
-  HiveStore hiveStore;
-  DocumentReference ref;
-  String cacheEmail = "";
-  AuthStatus _status = AuthStatus.signedOut;
-  bool _processing;
+  bool _processing = false;
+
   dynamic handler;
+  FirebaseAuth auth;
+  HiveStore hiveStore;
+  http.Client client;
+  String cacheEmail = "";
 
   // @formatter:off
-  User get user => _user;
-  get status => _status;
+  get document => dashData.document;
   get isLoggedIn => guard(() => auth.isSignedIn, false);
-  get isVerified => _status == AuthStatus.verified;
-  get notVerified => _status == AuthStatus.notVerified;
+  get isVerified => authStatus.isVerified;
+  get notVerified => authStatus.isNotVerified;
+  get ref => dashData.ref;
+  User get user => dashData.user;
 
-  set status(AuthStatus value) {
-    _status = value;
+  set document(Document value) {
+    dashData.document = value;
     notifyListeners();
   }
+
+  set ref(DocumentReference value) => dashData.ref = value;
 
   set user(User value) {
-    _user = value;
+    dashData.user = value;
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    authStatus.event.unsubscribe(handler);
-    ref.stream.listen((event) {}).cancel();
-    auth.signInState.listen((event) {}).cancel();
-    super.dispose();
+  void initFireBase() async {
+    client = !kReleaseMode ? VerboseClient() : http.Client();
+    FirebaseAuth.initialize(data.getString('apiKey'), hiveStore);
+    Firestore.initialize(data.getString('projectId'));
   }
 
   void init() async {
-    handler = (args) => this.status = authStatus.status;
-    authStatus.event.subscribe(handler);
-    client = !kReleaseMode ? VerboseClient() : http.Client();
+    log.d('FBAuthProvider Init');
+    dashData.fbAuthProvider = this;
+    dashEvent.setStatus(false);
     hiveStore = await HiveStore.create();
 
-    FirebaseAuth.initialize(data.getString('apiKey'), hiveStore);
-    Firestore.initialize(data.getString('projectId'));
+    await initFireBase();
 
     auth = FirebaseAuth.instance;
     auth.httpClient = client;
 
-    // @formatter:off
     (auth.isSignedIn) ? silentLoginEvent() : log.i('Firebase instance created. Not logged in.');
 
     auth.signInState.listen((state) => statusChange(state));
   }
 
+  @override
+  void dispose() {
+    log.d('FBAuthProvider Dispose');
+    ref.stream.listen((event) {}).cancel();
+    auth.signInState.listen((event) {}).cancel();
+    super.dispose();
+  }
+
   void statusChange(bool state) {
     log.i('Login state: ${isLoggedIn}');
+    (state) ? null /*loginEvent()*/ : logoutEvent();
+  }
 
-    // @formatter:off
-    (state)
-        ? null /*((user == null) ? loginEvent() : null)*/
-        : logoutEvent();
+  // --------------------------------------------------------------------------------------- Events
+  // Events ---------------------------------------------------------------------------------------
+/*  void loginEvent() {
+//    if (!authStatus.isNotVerified) authStatus.setStatus(AuthStatus.signedIn);
+  }*/
+
+  void logoutEvent() async {
+    authStatus.setStatus(AuthStatus.signOut);
+    logOutComplete();
+  }
+
+  void logOutComplete() {
+    authStatus.setStatus(AuthStatus.signedOut);
+    dashEvent.setStatus(false);
+    dashData.clearData();
+    log.d('SIGNED OUT: ${authStatus.status}');
+    msg.sendMessage({
+      'type': MsgType.success,
+      'message': "Logout Successful",
+      'title': "Status:",
+      'duration': 3500,
+    });
   }
 
   // -------------------------------------------------------------------------------------- GetData
   // GetData --------------------------------------------------------------------------------------
   Future<User> getUserInfo() async {
     var u;
-    try {
-      u = await auth.getUser();
-    } on Exception catch (e) {
-      FBError.exceptionToUiMessage(e);
-      return null;
-    }
+    u = await auth.getUser();
     if (u != null) cacheEmail = u.email;
 
-    // @formatter:off
-    (u.emailVerified) ? ((notVerified) ? (await authStatus.setStatus(AuthStatus.verified)) : null) : await authStatus.setStatus(AuthStatus.notVerified);
+    (u.emailVerified) ? ((notVerified) ? (authStatus.setStatus(AuthStatus.verified)) : null) : authStatus.setStatus(AuthStatus.notVerified);
 
     log.d('EMAIL VERIFICATION STATUS: ${u.emailVerified} : ${authStatus.status}');
     return u;
@@ -106,7 +128,10 @@ class FBAuthProvider with ChangeNotifier {
   Future<DocumentReference> getDocument() async {
     var docRef;
     if (ref == null) {
+      log.d('REF NULL: GETTING FOR USER: ${auth.userId}');
       docRef = Firestore.instance.collection(data.getString('collection')).document(auth.userId);
+      log.d('REF NULL: GETTING: ${docRef}');
+
       await docRef.exists
           ? docRef.stream.listen((document) => this.document = document)
           : await docRef.update({
@@ -123,46 +148,6 @@ class FBAuthProvider with ChangeNotifier {
     return docRef;
   }
 
-  // --------------------------------------------------------------------------------------- Events
-  // Events ---------------------------------------------------------------------------------------
-
-  authListener() {}
-
-  void loginEvent() async {
-    if (!_processing) {
-      try {
-        user ??= await getUserInfo();
-      } on Exception catch (e) {
-        FBError.exceptionToUiMessage(e);
-        return;
-      }
-    }
-
-    if (this.status == AuthStatus.notVerified) return;
-
-    try {
-      ref ??= await getDocument();
-      if (ref == null) return;
-      this.document = await ref.get();
-    } on Exception catch (e) {
-      FBError.exceptionToUiMessage(e);
-      return;
-    }
-  }
-
-  void logoutEvent() {
-    user = null;
-    ref = null;
-    authStatus.setStatus(AuthStatus.signOut);
-    log.d('SIGNED OUT: ${authStatus.status}');
-    msg.sendMessage({
-      'type': MsgType.success,
-      'message': "Logout Successful",
-      'title': "Status:",
-      'duration': 3500,
-    });
-  }
-
   // --------------------------------------------------------------------------------------- Signup
   // Signup ---------------------------------------------------------------------------------------
   Future<String> signUp(LoginData loginData) async {
@@ -176,7 +161,9 @@ class FBAuthProvider with ChangeNotifier {
           authStatus.setStatus(AuthStatus.notVerified);
         });
       } on Exception catch (e) {
-        return FBError.exceptionToUiMessage(e);
+        return FBError.exceptionToUiMessage(
+          FBError(e.toString(), FBFailures.dependency),
+        );
       }
     }
     _processing = false;
@@ -189,12 +176,14 @@ class FBAuthProvider with ChangeNotifier {
       try {
         user = await getUserInfo();
       } on Exception catch (e) {
-        return FBError.exceptionToUiMessage(e);
+        return FBError.exceptionToUiMessage(
+          FBError(e.toString(), FBFailures.dependency),
+        );
       }
       log.d(user);
 
       // @formatter:off
-      (this.status == AuthStatus.notVerified) ? result = "notVerified" : null;
+      (authStatus.isNotVerified) ? result = "notVerified" : result = await afterAuthorized();
     } else {
       result = "notSignedIn";
     }
@@ -207,12 +196,14 @@ class FBAuthProvider with ChangeNotifier {
     try {
       user ??= await getUserInfo();
     } on Exception catch (e) {
-      FBError.exceptionToUiMessage(e);
+      FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
       return;
     }
 
     log.d(user);
-    if (this.status == AuthStatus.notVerified) {
+    if (authStatus.isNotVerified) {
       msg.sendMessage({
         'type': MsgType.info,
         'message': "Please verify email address to continue",
@@ -227,7 +218,9 @@ class FBAuthProvider with ChangeNotifier {
       ref ??= await getDocument();
       this.document = await ref.get();
     } on Exception catch (e) {
-      FBError.exceptionToUiMessage(e);
+      FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
       return;
     }
 
@@ -238,30 +231,38 @@ class FBAuthProvider with ChangeNotifier {
       'title': "Status:",
       'duration': 3500,
     });
+
+    dashEvent.setStatus(true);
   }
 
   Future<String> signIn(LoginData loginData) async {
     _processing = true;
-    var result = null;
+    var result;
 
     if (!isLoggedIn) {
-      try {
-        await auth.signIn(loginData.email, loginData.password);
-      } on Exception catch (e) {
-        return FBError.exceptionToUiMessage(e);
-      }
+       user ??= await auth.signIn(loginData.email, loginData.password)
+           .then((u) async => u ?? await getUserInfo()
+           .then((v) => user = v));
 
-      try {
-        user ??= await getUserInfo();
-      } on Exception catch (e) {
-        return FBError.exceptionToUiMessage(e);
-      }
+      (authStatus.isNotVerified) ? result = "notVerified" : await afterAuthorized();
+       return Future.delayed(Duration(milliseconds: 2000), () {return result;});
 
-      // @formatter:off
-      (this.status == AuthStatus.notVerified) ? result = "notVerified" : result = null;
     }
     _processing = false;
-    return result;
+//    return result;
+  }
+
+  Future<Null> afterAuthorized() async {
+    if (user != null) {
+      if (user.contactEmail == null || user.contactEmail == "") {
+        user.contactEmail = user.email;
+      }
+      ref ?? getDocument().then((value) => ref = value);
+      data.updateValue("updateData", true);
+    } else {
+      throw Exception('User Null');
+    }
+    log.d('doLogin After Auth Return');
   }
 
   // -------------------------------------------------------------------------------------- SignOut
@@ -278,7 +279,9 @@ class FBAuthProvider with ChangeNotifier {
     try {
       auth.resetPassword(email);
     } on Exception catch (e) {
-      FBError.exceptionToUiMessage(e);
+      FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
       return;
     }
 

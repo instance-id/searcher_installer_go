@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
-import '../../services/service_locator.dart';
 
+import '../../extensions.dart'; // ignore: unused_import
 import '../../helpers/utils.dart';
+import '../../services/service_locator.dart';
+import '../../widgets/login/src/dart_helper.dart';
 
 final _log = sl<Logger>();
 
@@ -28,10 +30,8 @@ enum FBFailures {
 class FBError extends Error {
   final FBFailures type;
   final String message;
-  Response response;
-  dynamic map;
 
-  FBError(this.message, this.type, {this.map, this.response});
+  FBError(this.message, this.type);
 
   @override
   String toString() => '$runtimeType(this). $type. $message';
@@ -49,7 +49,7 @@ class FBError extends Error {
     throw FBError("$name should not be empty, but it is $value", failure);
   }
 
-  static String exceptionToUiMessage(dynamic exception) {
+  static String exceptionToUiMessage(dynamic exception, {String logMessage}) {
     if (exception is String) {
       if (!kReleaseMode) _log.d(exception);
       return exception;
@@ -61,20 +61,31 @@ class FBError extends Error {
     }
 
     if (exception is FBError) {
-      if (exception.toString().contains(FBErrorCodes.UserNotFoundCode)) return "User not found.";
-      if (exception.toString().contains(FBErrorCodes.EmailNotFoundCode)) return "Email address not found.";
-      if (exception.toString().contains(FBErrorCodes.TooManyAttempts)) return "Too many login attempts. Please try again later.";
-      if (exception.toString().contains(FBErrorCodes.InvalidEmailCode)) return "Invalid EMail address.";
-      if (exception.toString().contains(FBErrorCodes.InvalidPasswordCode)) return "Invalid password. Please try again.";
-      if (exception.toString().contains(FBErrorCodes.EmailExistsCode)) return "This email is already registered.";
+      if (exception.toString().contains(FBErrorCodes.UserNotFoundCode))
+        return "User not found.";
+      if (exception.toString().contains(FBErrorCodes.EmailNotFoundCode))
+        return "Email address not found.";
+      if (exception.toString().contains(FBErrorCodes.TooManyAttempts))
+        return "Too many login attempts. Please try again later.";
+      if (exception.toString().contains(FBErrorCodes.InvalidEmailCode))
+        return "Invalid EMail address.";
+      if (exception.toString().contains(FBErrorCodes.InvalidPasswordCode))
+        return "Invalid password. Please try again.";
+      if (exception.toString().contains(FBErrorCodes.EmailExistsCode))
+        return "This email is already registered.";
     }
 
     if (exception is ClientException) {
-      if (exception.message.contains("HttpRequest error")) return "Issues with internet connection.";
+      if (exception.message.contains("HttpRequest error"))
+        return "Issues with internet connection.";
     }
 
-    _log.d("Unexpected error of type ${exception.runtimeType}: ", exception.toString());
-
-    return "Unexpected error. Check console for details.";
+    if (!DartHelper.isNullOrEmpty(logMessage)) {
+      _log.w("Unexpected error of type ${exception.runtimeType}: ",
+          exception.toString());
+      return "Unexpected error. Check console for details.";
+    } else {
+      return null;
+    }
   }
 }

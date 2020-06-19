@@ -1,4 +1,4 @@
-import 'package:searcher_installer_go/services/service_locator.dart';
+import '../../services/service_locator.dart';
 
 class NewsData {
   final String id;
@@ -13,14 +13,25 @@ class NewsData {
   String _dynamicString = "false";
 
   bool getBool(String value) {
-    return (_dynamicString != null) ? _dynamicString.toLowerCase() == 'true' : false;
+    return (_dynamicString != null)
+        ? _dynamicString.toLowerCase() == 'true'
+        : false;
   }
 
   bool get isDynamic => getBool(_dynamicString);
 
   String address = data.getString("address");
 
-  NewsData({this.description, this.details, this.title, this.id, this.dateposted, this.project, this.image, this.image_small, this.icon});
+  NewsData(
+      {this.description,
+      this.details,
+      this.title,
+      this.id,
+      this.dateposted,
+      this.project,
+      this.image,
+      this.image_small,
+      this.icon});
 
   NewsData.fromJson(Map<String, dynamic> parsedJson)
       : id = parsedJson['id'].toString(),

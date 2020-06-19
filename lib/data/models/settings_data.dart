@@ -1,4 +1,4 @@
-import 'package:searcher_installer_go/services/service_locator.dart';
+import '../../services/service_locator.dart';
 
 class SettingsData {
   final String id;
@@ -10,7 +10,9 @@ class SettingsData {
   bool get useBG => getBGBool(_useBG);
 
   bool getBool(String value) {
-    return (_dynamicString != null) ? _dynamicString.toLowerCase() == 'true' : false;
+    return (_dynamicString != null)
+        ? _dynamicString.toLowerCase() == 'true'
+        : false;
   }
 
   bool getBGBool(String value) {
