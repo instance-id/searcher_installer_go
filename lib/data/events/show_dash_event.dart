@@ -14,6 +14,5 @@ class ShowDashListener {
   void setStatus(bool value) {
     _showDash = value;
     event.broadcast();
-    log.d('Show Dash? ${showDash}');
   }
 }

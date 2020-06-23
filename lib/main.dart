@@ -3,6 +3,7 @@ import 'dart:io' as io;
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 import 'app_home.dart';
@@ -33,11 +34,8 @@ Future<void> main() async {
       var logMsg = ('Something went wrong! You may have discovered a bug in `Searcher_Installer`.\n'
           'Please file an issue at '
           'https://github.com/instance-id/searcher_installer_go/issues/new?labels=package%3Asearcher_installer');
-
       log.w(logMsg, error, chain.terse);
-//              io.exitCode = 1;
-
-      ;
+      // io.exitCode = 1;
     }
   });
 }
@@ -68,10 +66,22 @@ class MyApp extends StatelessWidget {
     final settings = Provider.of<SettingsDataProvider>(context);
 
     return MaterialApp(
-      title: 'Searcher : Installer',
-      theme: settings.theme,
-      home: AppHome(),
       debugShowCheckedModeBanner: false,
+      theme: settings.theme,
+      title: 'Searcher : Installer',
+      home: AppHome(),
+      builder: (context, widget) => ResponsiveWrapper.builder(widget,
+          debugLog: true,
+          maxWidth: 3840,
+          minWidth: 300,
+          defaultScale: true,
+          breakpoints: [
+            ResponsiveBreakpoint.resize(300, name: MOBILE),
+            ResponsiveBreakpoint.resize(1000, name: DESKTOP),
+          ],
+          background: Container(
+            color: Colors.transparent,
+          )),
     );
   }
 }

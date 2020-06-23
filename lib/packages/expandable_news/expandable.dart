@@ -358,15 +358,27 @@ class ExpandableController extends ValueNotifier<bool> {
 
   final Duration _animationDuration;
   final String type;
+  dynamic handler;
+  bool skipEvent = false;
 
-  ExpandableController(
-      {bool initialExpanded,
-      this.type,
-      @deprecated
-          // ignore: deprecated_member_use_from_same_package
-          animationDuration})
+  // ignore: deprecated_member_use_from_same_package
+  ExpandableController({bool initialExpanded, this.type, @deprecated animationDuration})
       : this._animationDuration = animationDuration,
-        super(initialExpanded ?? false);
+        super(initialExpanded ?? false) {
+    handler = (args) => (expanded)
+        ? () {
+            skipEvent = true;
+            expanded = false;
+          }()
+        : null;
+    expand.resetEvent.subscribe(handler);
+  }
+
+  @override
+  void dispose() {
+    expand.resetEvent.unsubscribe(handler);
+    super.dispose();
+  }
 
   @deprecated
   get animationDuration => this._animationDuration;
@@ -374,8 +386,9 @@ class ExpandableController extends ValueNotifier<bool> {
   /// Sets the expanded state.
   set expanded(bool exp) {
     value = exp;
-    if (type != null) {
+    if (type != null && !skipEvent) {
       Future.microtask(() => expand.sendMessage(exp, type));
+      skipEvent = false;
     }
   }
 
@@ -551,9 +564,7 @@ class ExpandablePanel extends StatelessWidget {
         );
       } else {
         final rowChildren = <Widget>[
-          Expanded(
-            child: header,
-          ),
+          Expanded(child: header),
           // ignore: deprecated_member_use_from_same_package
           wrapWithExpandableButton(
             widget: ExpandableIcon(theme: theme),
@@ -593,12 +604,13 @@ class ExpandablePanel extends StatelessWidget {
         if (!tap) {
           return widget;
         }
+
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: widget,
           onTap: () {
             final controller = ExpandableController.of(context);
-            controller?.toggle();
+            if (controller != null) controller?.toggle();
           },
         );
       }
@@ -672,7 +684,6 @@ class _ExpandableIconState extends State<ExpandableIcon> with SingleTickerProvid
 
   @override
   void initState() {
-    super.initState();
     final theme = ExpandableThemeData.withDefaults(widget._theme, context, rebuildOnChange: false);
     animationController = AnimationController(duration: theme.animationDuration, vsync: this);
     animation = animationController.drive(Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: theme.sizeCurve)));
@@ -681,6 +692,7 @@ class _ExpandableIconState extends State<ExpandableIcon> with SingleTickerProvid
     if (controller.expanded) {
       animationController.value = 1.0;
     }
+    super.initState();
   }
 
   @override
@@ -760,8 +772,14 @@ class ExpandableButton extends StatelessWidget {
     if (theme.useInkWell) {
       return Container(
         height: 50,
-        child: InkWell(
-          onTap: controller.toggle,
+        child:
+
+            /*GestureDetector(
+          onTap: (controller != null) ? controller.toggle : null,
+          child: child,
+        ),*/
+            InkWell(
+          onTap: (controller != null) ? controller.toggle : null,
           child: child,
         ),
       );

@@ -1,11 +1,11 @@
 import 'package:dynamic_widget/dynamic_widget/icons_helper.dart';
-import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:supercharged/supercharged.dart';
 
 import '../../data/models/news_data.dart';
 import '../../helpers/custom_card.dart';
 import '../../helpers/custom_color.dart';
+import '../../packages/expandable_news/expandable.dart';
 
 var iconList = [
   getIconGuessFavorFA(name: "bug"),
@@ -17,21 +17,21 @@ var iconList = [
   Icons.threesixty,
 ];
 
-final themeData = ExpandableThemeData(
-  headerAlignment: ExpandablePanelHeaderAlignment.center,
-  useInkWell: false,
-  tapBodyToCollapse: false,
-  crossFadePoint: 0.8,
-  tapBodyToExpand: false,
-  animationDuration: 300.milliseconds,
-  fadeCurve: Curves.easeIn,
-  sizeCurve: Curves.easeInOutQuart,
-);
-
 class ExpansionNews extends StatelessWidget {
-  ExpansionNews(this.news, this.index);
+  ExpansionNews({Key key, this.news, this.index}) : super(key: key) {}
   final NewsData news;
   final int index;
+
+  final themeData = ExpandableThemeData(
+    headerAlignment: ExpandablePanelHeaderAlignment.center,
+    useInkWell: false,
+    tapBodyToCollapse: false,
+    crossFadePoint: 0.8,
+    tapBodyToExpand: false,
+    animationDuration: 300.milliseconds,
+    fadeCurve: Curves.easeIn,
+    sizeCurve: Curves.easeInOutQuart,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,6 @@ class ExpansionNews extends StatelessWidget {
         padding: const EdgeInsets.all(0),
         child: CustomCard(
           color: Color.fromRGBO(33, 33, 33, 0.9),
-//          color: Colors.deepOrange.withOpacity(0.3),
           elevation: 2,
           child: ListView(
             shrinkWrap: true,

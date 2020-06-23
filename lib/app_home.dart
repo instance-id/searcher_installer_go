@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:sized_context/sized_context.dart';
+import 'data/events/expansion_event.dart';
 import 'package:simple_animations/simple_animations.dart';
 
 import 'data/events/messages_event.dart';
@@ -28,10 +30,18 @@ class _AppHomeState extends State<AppHome> with AnimationMixin {
   final login = sl<RequestLogin>();
   final background = sl<Background>();
   final draggebleAppBar = sl<DraggebleAppBar>();
+  final expController = sl<ExpansionController>();
+  final expListener = sl<ExpansionListener>();
+
   dynamic msgHandler;
   dynamic loginPageHandler;
 
-  List<String> title = ["Searcher : News", "Searcher : Installer", "Searcher : Account", "Searcher : Change Log"];
+  List<String> title = [
+    "Searcher : News",
+    "Searcher : Installer",
+    "Searcher : Account",
+    "Searcher : Change Log",
+  ];
 
   @override
   void dispose() {
@@ -79,6 +89,7 @@ class _AppHomeState extends State<AppHome> with AnimationMixin {
     pages.add(News());
     pages.add(Home());
     pages.add(UpdateHome());
+    pages.add(Container());
   }
 
   void onChanged(int idx) {
@@ -103,16 +114,26 @@ class _AppHomeState extends State<AppHome> with AnimationMixin {
       onChanged: onChanged,
     );
 
-    return Scaffold(
+    return Scaffold(resizeToAvoidBottomInset: false,
         primary: true,
         appBar: (draggebleAppBar),
         drawer: Drawer(child: AboutRoute(context)),
-        body: Container(
-          child: Stack(
+          body: Container(
+          height: context.heightPx,
+          width: context.widthPx,
+          child: Stack(overflow: Overflow.clip,
             children: <Widget>[
               background,
               PageView(
                 onPageChanged: (i) {
+                  if (i >= 3) {
+                    i = 2;
+                    _loginMenu();
+                  } else if (i != 1) {
+                    expListener.reset();
+                    expController.expandTarget(ExpandTarget.NONE);
+                    expController.setNumOpen(0);
+                  }
                   setState(() {
                     pageIx = i;
                     data.updateValue("title", title[pageIx]);

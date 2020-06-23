@@ -41,7 +41,6 @@ class BackgroundState extends State<Background> {
   @override
   Widget build(BuildContext context) {
     settings = Provider.of<SettingsDataProvider>(context).settings;
-
     Animation animation = NavigationBus.animation;
 
     return AnimatedBuilder(

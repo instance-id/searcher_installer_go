@@ -3,7 +3,9 @@ import 'dart:convert' as convert;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+
 import '../../data/models/news_data.dart';
+import '../errors/errors.dart';
 
 class NewsDataProvider with ChangeNotifier {
   var log = Logger();
@@ -14,9 +16,9 @@ class NewsDataProvider with ChangeNotifier {
     getNews();
   }
 
-  List<NewsData> getNews() {
+ void getNews() async {
     if (!_fetchComplete) {
-      fetchnewslist().then((value) {
+      fetchNewsList().then((value) {
         newsData = value;
         _fetchComplete = true;
         notifyListeners();
@@ -24,16 +26,30 @@ class NewsDataProvider with ChangeNotifier {
     }
   }
 
-  Future<List<NewsData>> fetchnewslist() async {
-    var response = await http.get("https://instance.id/api/v1.0/news/news.json");
-    var jsonResponse = convert.jsonDecode(response.body) as List;
-    return jsonResponse.map((news) => NewsData.fromJson(news)).toList();
+  Future<List<NewsData>> fetchNewsList() async {
+    var jsonResponse;
+    try {
+      var response = await http.get("https://instance.id/api/v1.0/news/news.json");
+      jsonResponse = convert.jsonDecode(response.body) as List;
+    } on Exception catch (e) {
+      FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
+      return null;    }
+    return await jsonResponse.map<NewsData>((news) => NewsData.fromJson(news)).toList() ;
   }
 
-  Future<NewsData> fetchnewsitem(String id, String project) async {
-    var response = await http.get("https://instance.id/api/v1.0/news/$project/$id/json.json");
-    var jsonResponse = convert.jsonDecode(response.body);
+  Future<NewsData> fetchNewsItem(String id, String project) async {
+    var jsonResponse;
+    try {
+      var response = await http.get("https://instance.id/api/v1.0/news/$project/$id/json.json");
+      jsonResponse = convert.jsonDecode(response.body);
+    } on Exception catch (e) {
+      FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
+      return null;    }
 
-    return NewsData.fromJson(jsonResponse);
+    return await NewsData.fromJson(jsonResponse);
   }
 }

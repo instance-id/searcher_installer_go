@@ -4,13 +4,11 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:sized_context/sized_context.dart';
 
-import '../../services/service_locator.dart';
-import '../../data/events/expansion_event.dart';
 import '../../animations/anim_FadeInVT.dart';
 import '../../data/models/changelog_data.dart';
 import '../../data/provider/changelog_provider.dart';
 import '../../helpers/custom_card.dart';
-
+import '../../services/service_locator.dart';
 import 'expansion_changelog.dart';
 
 class ChangeLogList extends StatefulWidget {
@@ -20,10 +18,8 @@ class ChangeLogList extends StatefulWidget {
   _ChangeLogListState createState() => _ChangeLogListState();
 }
 
-
 class _ChangeLogListState extends State<ChangeLogList> {
   final log = sl<Logger>();
-  final exp = sl<ExpansionListener>();
   final _scrollController = ScrollController();
 
   @override
@@ -38,8 +34,8 @@ class _ChangeLogListState extends State<ChangeLogList> {
       color: Color.fromRGBO(35, 47, 52, 0.8),
       child: Container(
         alignment: Alignment.center,
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
+        width: context.widthPx,
+        height: context.heightPx,
         child: Column(
           children: <Widget>[
             CustomCard(

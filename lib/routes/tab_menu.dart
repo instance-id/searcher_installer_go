@@ -18,7 +18,6 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
   bool menuHidden = false;
   AnimationController _menuController;
 
-
   AnimationController _animationController;
   Tween<double> _positionTween;
   Animation<double> _positionAnimation;
@@ -34,6 +33,7 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
   IconData activeIcon = Icons.home;
 
   int currentSelected = 1;
+  var paralaxDelay = 200;
 
   void move(int idx, {bool hideMenu = false}) {
     menuHidden = hideMenu;
@@ -114,7 +114,9 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
       setState(() {
         nextIcon = Icons.update;
         currentSelected = 0;
+        Future.delayed(Duration(milliseconds: paralaxDelay), () {
         _bgController.animateTo(0);
+        });
       });
 
       _initAnimationAndStart(_positionAnimation.value, -1);
@@ -126,7 +128,9 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
       setState(() {
         nextIcon = Icons.home;
         currentSelected = 1;
-        _bgController.animateTo(1);
+        Future.delayed(Duration(milliseconds: paralaxDelay), () {
+          _bgController.animateTo(1);
+        });
       });
 
       _initAnimationAndStart(_positionAnimation.value, 0);
@@ -138,7 +142,9 @@ class TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
       setState(() {
         nextIcon = Icons.info;
         currentSelected = 2;
-        _bgController.animateTo(2);
+        Future.delayed(Duration(milliseconds: paralaxDelay), () {
+          _bgController.animateTo(2);
+        });
       });
 
       _initAnimationAndStart(_positionAnimation.value, 1);

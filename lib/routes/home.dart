@@ -3,10 +3,11 @@ import 'package:fluid_layout/fluid_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:null_widget/null_widget.dart';
+import 'package:simple_animations/simple_animations.dart';
+import 'package:sized_context/sized_context.dart';
 
-import '../animations/anim_flex.dart';
 import '../data/events/expansion_event.dart';
-import '../data/provider/changelog_provider.dart';
 import '../routes/widgets/change_log_list.dart';
 import '../routes/widgets/news_main_home.dart';
 import '../services/service_locator.dart';
@@ -14,7 +15,7 @@ import '../services/service_locator.dart';
 const appTitle = "Searcher : Installer";
 bool startCompleted = false;
 
-enum ExpandTarget { NONE, NEWS, CHANGELOG }
+enum ExpandTarget { NONE, NEWS, CLOG }
 
 class Home extends StatefulWidget {
   static const routeName = '/home';
@@ -25,35 +26,25 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with TickerProviderStateMixin {
+class _HomeState extends State<Home> with AnimationMixin {
   final Logger log = new Logger();
-  final exp = sl<ExpansionListener>();
+  final expListener = sl<ExpansionListener>();
   final expController = sl<ExpansionController>();
+  var handler;
 
-  AnimationController _controller;
-  FlexAnimation flexAnimation;
   ExpandTarget expTarget;
-
   bool loadingComplete = false;
-  int numOpened = 0;
 
-  Map<ExpandTarget, dynamic> target = {
-    ExpandTarget.NONE: {"newsWidth": 50, "spacer": 5, "changeLogWidth": 50},
-    ExpandTarget.CHANGELOG: {"newsWidth": 15, "spacer": 1, "changeLogWidth": 85},
-    ExpandTarget.NEWS: {"newsWidth": 85, "spacer": 1, "changeLogWidth": 15}
-  };
+  get numOpened => expController.numOpen;
+
+  set numOpened(num) => expController.setNumOpen(num);
 
   @override
   void initState() {
-    exp.valueChangedEvent + (args) => expandController(exp.value, exp.type);
+    handler = (args) => expandController(expListener.value, expListener.type);
+    expListener.valueChangedEvent.subscribe(handler);
     expTarget = ExpandTarget.NONE;
-    numOpened = 0;
 
-    _controller = new AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-    flexAnimation = FlexAnimation(_controller);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {});
     });
@@ -74,30 +65,35 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     if (numOpened == 0) {
       expController.expandTarget(ExpandTarget.NONE);
     } else if (numOpened > 0) {
-      expController.expandTarget(ExpandTarget.CHANGELOG);
+      expController.expandTarget(ExpandTarget.CLOG);
     } else if (numOpened < 0) {
       expController.expandTarget(ExpandTarget.NEWS);
     }
-  }
-
-  AnimateSize(ChangeLogDataProvider changeLogData) {
-    if (!_controller.isAnimating) (changeLogData.getWidth) ? _controller.forward() : _controller.reverse();
-    changeLogData.setNeedsExpand(false);
+    setState(() {});
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    expListener.valueChangedEvent.unsubscribe(handler);
     super.dispose();
   }
 
+  Map<ExpandTarget, dynamic> target = {
+    ExpandTarget.NONE: {"newsWidth": 50, "spacer": 5, "changeLogWidth": 50},
+    ExpandTarget.CLOG: {"newsWidth": 25, "spacer": 1, "changeLogWidth": 79},
+    ExpandTarget.NEWS: {"newsWidth": 79, "spacer": 1, "changeLogWidth": 25}
+  };
+
   @override
   Widget build(BuildContext context) {
+    var duration = Duration(milliseconds: 150);
+
     return Material(
       type: MaterialType.transparency,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Container(
+        body: AnimatedContainer(
+          duration: duration,
           color: Colors.transparent,
           child: FluidLayout(
             horizontalPadding: FluidValue((_) => 0),
@@ -105,18 +101,35 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               child: Container(
                 margin: EdgeInsets.fromLTRB(0, 22, 0, 30),
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                height: MediaQuery.of(context).size.height - 122,
+                height: context.heightPx - 122,
+                width: context.widthPx,
                 child: EventSubscriber(
-                  event: expController.valueChangedEvent,
-                  handler: (context, args) => Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Flexible(flex: (target[expController.target]["newsWidth"]), child: NewsMainHome()),
-                      Spacer(flex: target[expController.target]["spacer"]),
-                      Expanded(flex: (target[expController.target]["changeLogWidth"]), child: ChangeLogList()),
-                    ],
-                  ),
-                ),
+                    event: expController.valueChangedEvent,
+                    handler: (context, args) =>
+                        Flex(mainAxisSize: MainAxisSize.max,
+                          clipBehavior: Clip.hardEdge,
+                          direction: Axis.horizontal,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            AnimatedContainer(
+                              curve: Curves.fastOutSlowIn,
+                              height: context.heightPx,
+                              width: (((target[expController.target]["newsWidth"]) * 0.1) * (context.widthPx * 0.09)),
+                              duration: duration,
+                              child: NewsMainHome(),
+                            ),
+                            (expController.isNone) ? Spacer(flex: target[expController.target]["spacer"]) : NullWidget(),
+                            AnimatedContainer(
+                              curve: Curves.fastOutSlowIn,
+                              height: context.heightPx,
+                              alignment: Alignment.center,
+                              width: (((target[expController.target]["changeLogWidth"]) * 0.1) * (context.widthPx * 0.09)),
+                              duration: duration,
+                              child: ChangeLogList(),
+                            ),
+                          ],
+                        )),
               ),
             ),
           ),

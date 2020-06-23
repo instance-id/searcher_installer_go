@@ -33,6 +33,7 @@ class ServiceRegistration {
 
   RegisterServices() {
     data.loadFromMap({
+      "maxNews": {"enabled": true, "num": 1},
       "debug": false,
       "title": "Searcher : Installer",
       "address": "https://instance.id",
@@ -43,10 +44,10 @@ class ServiceRegistration {
     }).loadFromMap(api);
 
     sl.registerSingleton<Logger>(Logger(
-        level: kDebugMode ? Level.debug : Level.info,
+        level: !kReleaseMode ? Level.debug : Level.warning,
         printer: PrettyPrinter(
           methodCount: 2,
-          errorMethodCount: 55,
+          errorMethodCount: 1300,
           lineLength: 100,
           colors: io.stdout.supportsAnsiEscapes,
           printEmojis: false,

@@ -12,6 +12,7 @@ class TabAnimationEvent {}
 
 class AppNavEvent {
   AppNavEvent(this.route);
+
   String route;
 }
 

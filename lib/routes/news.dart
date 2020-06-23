@@ -151,7 +151,7 @@ class _NewsState extends State<News> with TickerProviderStateMixin {
                                             duration: 500,
                                             child: Padding(
                                               padding: EdgeInsets.fromLTRB(10, 0, 23, 0),
-                                              child: ExpansionNews(news[index], index),
+                                              child: ExpansionNews(news: news[index], index: index),
                                             ),
                                           );
                                   },

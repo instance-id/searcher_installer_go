@@ -2,9 +2,10 @@ import 'package:firedart/auth/user_gateway.dart';
 import 'package:firedart/firestore/models.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import '../provider/fb_auth_provider.dart';
-import '../../services/service_locator.dart';
+
 import '../../extensions.dart'; // ignore: unused_import
+import '../../services/service_locator.dart';
+import '../provider/fb_auth_provider.dart';
 
 class DashboardData {
   final log = sl<Logger>();
@@ -50,13 +51,12 @@ class DashboardData {
     if (data.getBool("updateData")) {
       data.updateValue("updateData", false);
       fbAuthProvider.getDocument();
-      document ??=  {
-            "first": "",
-            "last": "",
-            "serialNum": "",
-            "contactEmail": user.email,
-          } ;
-
+      document ??= {
+        "first": "",
+        "last": "",
+        "serialNum": "",
+        "contactEmail": user.email,
+      };
 
       _firstCtrl.text = user.fname = document["first"];
       _lastCtrl.text = user.lname = document["last"];
@@ -71,7 +71,6 @@ class DashboardData {
       if (data.getBool("debug")) log.d('Data Loaded : Firebase;');
 
       data.updateValue("verified", verificationCheck(user));
-
     } else {
       _firstCtrl.text = user.fname ?? "";
       _lastCtrl.text = user.lname ?? "";
@@ -88,9 +87,11 @@ class DashboardData {
     return (v) ? "Verified" : "Not Verified";
   }
 
-  clearData()async {
-    user = null;
+  clearData() async {
+    ref.stream.listen((event) {}).cancel();
     ref = null;
+    user = null;
+    document = null;
     firstCtrl.text = "";
     lastCtrl.text = "";
     serialNum.text = "";

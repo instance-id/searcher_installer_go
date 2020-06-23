@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 import '../../data/models/settings_data.dart';
 import '../../data/provider/theme_data.dart';
 import '../../services/service_locator.dart';
+import '../errors/errors.dart';
 
 class SettingsDataProvider with ChangeNotifier {
   var log = sl<Logger>();
@@ -27,9 +28,9 @@ class SettingsDataProvider with ChangeNotifier {
     getChanges();
   }
 
-  List<SettingsData> getChanges() {
+  Future<List<SettingsData>> getChanges() async {
     if (!_fetchComplete) {
-      fetchsettingslist().then((value) {
+      fetchSettingsList().then((value) {
         settings = value;
         _fetchComplete = true;
         notifyListeners();
@@ -40,16 +41,31 @@ class SettingsDataProvider with ChangeNotifier {
     return settings;
   }
 
-  Future<List<SettingsData>> fetchsettingslist() async {
-    var response = await http.get("https://instance.id/api/v1.0/settings/settings.json");
-    var jsonResponse = convert.jsonDecode(response.body) as List;
-    return jsonResponse.map((settings) => SettingsData.fromJson(settings)).toList();
+  Future<List<SettingsData>> fetchSettingsList() async {
+    var jsonResponse;
+    try {
+      var response = await http.get("https://instance.id/api/v1.0/settings/settings.json");
+      jsonResponse = convert.jsonDecode(response.body) as List;
+    } on Exception catch (e) {
+      FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
+      return null;
+    }
+    return await jsonResponse.map<SettingsData>((settings) => SettingsData.fromJson(settings)).toList();
   }
 
-  Future<SettingsData> fetchsettings() async {
-    var response = await http.get("https://instance.id/api/v1.0/settings/settings.json");
-    var jsonResponse = convert.jsonDecode(response.body);
-
-    return SettingsData.fromJson(jsonResponse);
+  Future<SettingsData> fetchSettings() async {
+    var jsonResponse;
+    try {
+      var response = await http.get("https://instance.id/api/v1.0/settings/settings.json");
+      jsonResponse = convert.jsonDecode(response.body);
+    } on Exception catch (e) {
+      FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
+      return null;
+    }
+    return await SettingsData.fromJson(jsonResponse);
   }
 }

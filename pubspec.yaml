@@ -1,6 +1,6 @@
 name: searcher_installer_go
 description: 'Installer/Updater for Searcher: Houdini addon.'
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
 version: 1.0.0+1
 
@@ -11,21 +11,21 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_hooks: ^0.9.0
-  functional_widget_annotation: ^0.5.1
   google_fonts: ^1.1.0
   hive: ^1.4.1+1
   hive_flutter: ^0.3.0+2
   http: ^0.12.1
+  styled_widget: ^0.2.1+2
+  # functional_widget_annotation: ^0.5.1
 
   # -- Data ---------------------------
   dynamic_widget: ^2.0.2
-  expandable: ^4.1.4
   expansion_tile_card: ^1.0.3
   global_configuration: ^1.5.0
-  injectable: ^0.4.0+1
   logger: ^0.9.1
   provider:
-  #  basic_utils: ^2.5.3
+  # basic_utils: ^2.5.3
+  # injectable: ^0.4.0+1
 
   # --- Helper fucnctions -------------
   cross_local_storage: ^1.1.1
@@ -33,29 +33,28 @@ dependencies:
   event: ^1.1.4
   event_bus: ^1.1.1
   eventsubscriber: ^1.2.0
-  file_picker: ^1.11.0+2
-  flutter_markdown: ^0.4.1
+  file_picker: ^1.12.0
+  flutter_markdown: ^0.4.2
   get_it: ^4.0.2
   guard: ^1.0.4
   intl: ^0.16.1
   localstorage: ^3.0.2+5
-  path_provider: ^1.6.10
+  path_provider: ^1.6.11
   sa_v1_migration: ^1.1.2
-  shared_preferences: ^0.5.7+3
   stack_trace:
   supercharged: ^1.6.0
-  url_launcher: ^5.4.10
+  url_launcher: ^5.4.11
   uuid:
   null_widget: ^1.0.0
+  # shared_preferences: ^0.5.7+3
 
   # -- Visual -------------------------
-
-  #  cupertino_icons: ^0.1.3
-  #  expansion_card: ^0.1.0
-  #  icon_shadow: ^1.0.1
+  # cupertino_icons: ^0.1.3
+  # expansion_card: ^0.1.0
+  # icon_shadow: ^1.0.1
 
   # -- UI -----------------------------
-  dynamic_properties: ^1.0.0
+  responsive_framework: ^0.0.7
   fluid_layout: ^0.1.0
   flushbar: ^1.10.4
   flutter_icons: ^1.1.0
@@ -63,19 +62,20 @@ dependencies:
   getflutter: ^1.0.11
   list_tile_more_customizable: ^1.3.0
   quiver:
+  rect_getter: ^0.1.0
   sized_context: ^0.2.1+1
   transformer_page_view: ^0.1.6
   transparent_image: ^1.0.0
-  #  flutter_form_builder: ^3.10.1
+  # flutter_form_builder: ^3.10.1
+  # dynamic_properties: ^1.0.0
 
   # -- Animations ---------------------
-  sa_anicoto: ^1.0.2
   simple_animations: ^2.2.1
-  #  animations: ^1.1.0
+  # animations: ^1.1.0
 
   # --- Imports -----------------------
-  #  faui:
-  #    path: E:/Github/flutter-auth-ui
+  # faui:
+  #   path: E:/Github/flutter-auth-ui
   firedart: #^0.8.1
     path: E:/Github/firedart
   url_launcher_fde:
@@ -86,13 +86,13 @@ dependencies:
 builders:
 
 dev_dependencies:
-  #  flutter_test:
-  #    sdk: flutter
-  functional_widget: ^0.7.3
+  # flutter_test:
+  #   sdk: flutter
   build_runner: ^1.10.0
   dependency_validator: ^1.5.0
-  hive_generator: ^0.7.0+2
-  injectable_generator: ^0.4.1
+  # hive_generator: ^0.7.0+2
+  # functional_widget: ^0.7.3
+  # injectable_generator: ^0.4.1
 
 flutter:
   uses-material-design: true

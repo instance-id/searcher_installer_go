@@ -4,9 +4,10 @@
 
 #include "generated_plugin_registrant.h"
 
-#include <url_launcher_plugin.h>
+#include <url_launcher_fde/url_launcher_plugin.h>
 
-void RegisterPlugins(flutter::PluginRegistry* registry) {
-  UrlLauncherPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("UrlLauncherPlugin"));
+void fl_register_plugins(FlPluginRegistry* registry) {
+  g_autoptr(FlPluginRegistrar) url_launcher_fde_registrar =
+      fl_plugin_registry_get_registrar_for_plugin(registry, "UrlLauncherPlugin");
+  url_launcher_plugin_register_with_registrar(url_launcher_fde_registrar);
 }

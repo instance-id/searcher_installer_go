@@ -3,39 +3,23 @@ import 'dart:convert' as convert;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import '../../services/service_locator.dart';
-import '../../data/models/changelog_data.dart';
 
+import '../../data/models/changelog_data.dart';
+import '../../services/service_locator.dart';
+import '../errors/errors.dart';
 
 class ChangeLogDataProvider with ChangeNotifier {
-
   var log = sl<Logger>();
   List<ChangeLogData> changeLog;
   bool _fetchComplete = false;
-  bool _changeLogExpanded = false;
-  bool _isExpand = false;
 
   init() {
     getChanges();
   }
 
-  void setWidth(bool expand) {
-    _changeLogExpanded = expand;
-//    setNeedsExpand(true);
-    notifyListeners();
-  }
-
-  void setNeedsExpand(bool value) {
-    _isExpand = value;
-    notifyListeners();
-  }
-
-  bool get getWidth => _changeLogExpanded;
-  bool get needsExpanded => _isExpand;
-
-  List<ChangeLogData> getChanges() {
+  void getChanges() async {
     if (!_fetchComplete) {
-      fetchchangelogs().then((value) {
+      fetchChangeLogs().then((value) {
         changeLog = value;
         _fetchComplete = true;
         notifyListeners();
@@ -43,17 +27,33 @@ class ChangeLogDataProvider with ChangeNotifier {
     }
   }
 
-  Future<List<ChangeLogData>> fetchchangelogs() async {
-    var response = await http.get("https://instance.id/api/v1.0/changelog/changelog.json");
-    var jsonResponse = convert.jsonDecode(response.body) as List;
+  Future<List<ChangeLogData>> fetchChangeLogs() async {
+    var jsonResponse;
+    try {
+      var response = await http.get("https://instance.id/api/v1.0/changelog/changelog.json");
+      jsonResponse = convert.jsonDecode(response.body) as List;
+    } on Exception catch (e) {
+      FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
+      return null;
+    }
 
-    return jsonResponse.map((changeLog) => ChangeLogData.fromJson(changeLog)).toList();
+    return await jsonResponse.map<ChangeLogData>((changeLog) => ChangeLogData.fromJson(changeLog)).toList();
   }
 
-  Future<ChangeLogData> fetchchangelog(String id, String project) async {
-    var response = await http.get("https://instance.id/api/v1.0/changelog/$project/$id/json.json");
-    var jsonResponse = convert.jsonDecode(response.body);
+  Future<ChangeLogData> fetchChangeLog(String id, String project) async {
+    var jsonResponse;
+    try {
+      var response = await http.get("https://instance.id/api/v1.0/changelog/$project/$id/json.json");
+      jsonResponse = convert.jsonDecode(response.body);
+    } on Exception catch (e) {
+      FBError.exceptionToUiMessage(
+        FBError(e.toString(), FBFailures.dependency),
+      );
+      return null;
+    }
 
-    return ChangeLogData.fromJson(jsonResponse);
+    return await ChangeLogData.fromJson(jsonResponse);
   }
 }

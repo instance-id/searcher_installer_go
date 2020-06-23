@@ -24,8 +24,8 @@ class FBAuthProvider with ChangeNotifier {
   final authStatus = sl<AuthStatusListener>();
   final dashEvent = sl<ShowDashListener>();
   final dashData = sl<DashboardData>();
-
-  bool _processing = false;
+  final loginTimer = const Duration(milliseconds: 2000);
+  var lt;
 
   dynamic handler;
   FirebaseAuth auth;
@@ -41,12 +41,12 @@ class FBAuthProvider with ChangeNotifier {
   get ref => dashData.ref;
   User get user => dashData.user;
 
+  set ref(DocumentReference value) => dashData.ref = value;
+
   set document(Document value) {
     dashData.document = value;
     notifyListeners();
   }
-
-  set ref(DocumentReference value) => dashData.ref = value;
 
   set user(User value) {
     dashData.user = value;
@@ -60,7 +60,7 @@ class FBAuthProvider with ChangeNotifier {
   }
 
   void init() async {
-    log.d('FBAuthProvider Init');
+    lt = loginTimer.inMilliseconds;
     dashData.fbAuthProvider = this;
     dashEvent.setStatus(false);
     hiveStore = await HiveStore.create();
@@ -70,7 +70,7 @@ class FBAuthProvider with ChangeNotifier {
     auth = FirebaseAuth.instance;
     auth.httpClient = client;
 
-    (auth.isSignedIn) ? silentLoginEvent() : log.i('Firebase instance created. Not logged in.');
+    (auth.isSignedIn) ? silentLoginEvent() : log.d('Firebase instance created. Not logged in.');
 
     auth.signInState.listen((state) => statusChange(state));
   }
@@ -84,7 +84,7 @@ class FBAuthProvider with ChangeNotifier {
   }
 
   void statusChange(bool state) {
-    log.i('Login state: ${isLoggedIn}');
+    log.d('Login state: ${isLoggedIn}');
     (state) ? null /*loginEvent()*/ : logoutEvent();
   }
 
@@ -119,19 +119,16 @@ class FBAuthProvider with ChangeNotifier {
     u = await auth.getUser();
     if (u != null) cacheEmail = u.email;
 
-    (u.emailVerified) ? ((notVerified) ? (authStatus.setStatus(AuthStatus.verified)) : null) : authStatus.setStatus(AuthStatus.notVerified);
-
-    log.d('EMAIL VERIFICATION STATUS: ${u.emailVerified} : ${authStatus.status}');
+    (u.emailVerified)
+        ? ((notVerified) ? (await authStatus.setStatus(AuthStatus.verified)) : null)
+        : await authStatus.setStatus(AuthStatus.notVerified);
     return u;
   }
 
   Future<DocumentReference> getDocument() async {
     var docRef;
     if (ref == null) {
-      log.d('REF NULL: GETTING FOR USER: ${auth.userId}');
       docRef = Firestore.instance.collection(data.getString('collection')).document(auth.userId);
-      log.d('REF NULL: GETTING: ${docRef}');
-
       await docRef.exists
           ? docRef.stream.listen((document) => this.document = document)
           : await docRef.update({
@@ -145,49 +142,8 @@ class FBAuthProvider with ChangeNotifier {
               ),
             );
     }
+
     return docRef;
-  }
-
-  // --------------------------------------------------------------------------------------- Signup
-  // Signup ---------------------------------------------------------------------------------------
-  Future<String> signUp(LoginData loginData) async {
-    _processing = true;
-
-    if (!isLoggedIn) {
-      try {
-        await auth.signUp(loginData.email, loginData.password).then((u) {
-          cacheEmail = u.email;
-          auth.requestEmailVerification();
-          authStatus.setStatus(AuthStatus.notVerified);
-        });
-      } on Exception catch (e) {
-        return FBError.exceptionToUiMessage(
-          FBError(e.toString(), FBFailures.dependency),
-        );
-      }
-    }
-    _processing = false;
-    return null;
-  }
-
-  Future<String> checkEmailVerification() async {
-    var result = null;
-    if (isLoggedIn) {
-      try {
-        user = await getUserInfo();
-      } on Exception catch (e) {
-        return FBError.exceptionToUiMessage(
-          FBError(e.toString(), FBFailures.dependency),
-        );
-      }
-      log.d(user);
-
-      // @formatter:off
-      (authStatus.isNotVerified) ? result = "notVerified" : result = await afterAuthorized();
-    } else {
-      result = "notSignedIn";
-    }
-    return result;
   }
 
   // --------------------------------------------------------------------------------------- SignIn
@@ -210,10 +166,11 @@ class FBAuthProvider with ChangeNotifier {
         'title': "Status:",
         'duration': 3500,
       });
+
       return;
     }
-    log.d('AUTO LOGIN ${user.email}');
 
+    log.d('AUTO LOGIN ${user.email}');
     try {
       ref ??= await getDocument();
       this.document = await ref.get();
@@ -236,20 +193,30 @@ class FBAuthProvider with ChangeNotifier {
   }
 
   Future<String> signIn(LoginData loginData) async {
-    _processing = true;
     var result;
+    var timer = Stopwatch();
+    var t;
+    timer.start();
 
     if (!isLoggedIn) {
-       user ??= await auth.signIn(loginData.email, loginData.password)
-           .then((u) async => u ?? await getUserInfo()
-           .then((v) => user = v));
+      user ??= await auth.signIn(loginData.email, loginData.password)
+          .then((u) async => u ?? await getUserInfo()
+          .then((v) => user = v));
 
-      (authStatus.isNotVerified) ? result = "notVerified" : await afterAuthorized();
-       return Future.delayed(Duration(milliseconds: 2000), () {return result;});
+      (authStatus.isNotVerified)
+          ? result = "notVerified"
+          : await afterAuthorized()
+            .then((value) => t = timer.elapsedMilliseconds);
 
+      (t <= lt)
+          ? Future.delayed(Duration(milliseconds: lt - t), () {
+              return result;
+            })
+          : null;
+      timer.stop();
+      log.d('Minimum: ${lt} Login ET: ${t} : ${lt-t}');
     }
-    _processing = false;
-//    return result;
+    return result;
   }
 
   Future<Null> afterAuthorized() async {
@@ -265,6 +232,49 @@ class FBAuthProvider with ChangeNotifier {
     log.d('doLogin After Auth Return');
   }
 
+  // --------------------------------------------------------------------------------------- Signup
+  // Signup ---------------------------------------------------------------------------------------
+  Future<String> signUp(LoginData loginData) async {
+
+    if (!isLoggedIn) {
+      try {
+        await auth.signUp(loginData.email, loginData.password).then((u) {
+          cacheEmail = u.email;
+          auth.requestEmailVerification();
+          authStatus.setStatus(AuthStatus.notVerified);
+        });
+      } on Exception catch (e) {
+        return FBError.exceptionToUiMessage(
+          FBError(e.toString(), FBFailures.dependency),
+        );
+      }
+    }
+    return null;
+  }
+
+  Future<String> checkEmailVerification() async {
+    var result = null;
+    if (isLoggedIn) {
+      try {
+        user = await getUserInfo();
+      } on Exception catch (e) {
+        return FBError.exceptionToUiMessage(
+          FBError(e.toString(), FBFailures.dependency),
+        );
+      }
+
+      log.d(user);
+
+      (authStatus.isNotVerified)
+          ? result = "notVerified"
+          : result = await afterAuthorized();
+
+    } else {
+      result = "notSignedIn";
+    }
+    return result;
+  }
+
   // -------------------------------------------------------------------------------------- SignOut
   // SignOut --------------------------------------------------------------------------------------
   void signOut() async {
@@ -273,7 +283,7 @@ class FBAuthProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------------- Recovery
   // Recovery -------------------------------------------------------------------------------------
-  void recoverPassword(String email) async {
+  Future<String> recoverPassword(String email) async {
     log.d('PASSWORD RECOVERY INITIATED');
 
     try {
@@ -282,7 +292,6 @@ class FBAuthProvider with ChangeNotifier {
       FBError.exceptionToUiMessage(
         FBError(e.toString(), FBFailures.dependency),
       );
-      return;
     }
 
     msg.sendMessage({
@@ -291,6 +300,7 @@ class FBAuthProvider with ChangeNotifier {
       'title': "Status:",
       'duration': 3500,
     });
+    return null;
   }
 
   Future<Document> getData() async {
