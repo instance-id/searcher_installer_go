@@ -30,13 +30,17 @@ class _HomeState extends State<Home> with AnimationMixin {
   final Logger log = new Logger();
   final expListener = sl<ExpansionListener>();
   final expController = sl<ExpansionController>();
-  var handler;
+  final expand = 79;
+  final shrunk = 25;
+  final normal = 50;
+  final spacer = 05;
 
+  var handler;
+  Map<ExpandTarget, dynamic> target;
   ExpandTarget expTarget;
   bool loadingComplete = false;
 
   get numOpened => expController.numOpen;
-
   set numOpened(num) => expController.setNumOpen(num);
 
   @override
@@ -44,6 +48,12 @@ class _HomeState extends State<Home> with AnimationMixin {
     handler = (args) => expandController(expListener.value, expListener.type);
     expListener.valueChangedEvent.subscribe(handler);
     expTarget = ExpandTarget.NONE;
+
+    target = {
+      ExpandTarget.NONE: {"newsWidth": normal, "spacer": spacer, "changeLogWidth": normal},
+      ExpandTarget.CLOG: {"newsWidth": shrunk, "spacer": spacer, "changeLogWidth": expand},
+      ExpandTarget.NEWS: {"newsWidth": expand, "spacer": spacer, "changeLogWidth": shrunk}
+    };
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {});
@@ -78,25 +88,21 @@ class _HomeState extends State<Home> with AnimationMixin {
     super.dispose();
   }
 
-  Map<ExpandTarget, dynamic> target = {
-    ExpandTarget.NONE: {"newsWidth": 50, "spacer": 5, "changeLogWidth": 50},
-    ExpandTarget.CLOG: {"newsWidth": 25, "spacer": 1, "changeLogWidth": 79},
-    ExpandTarget.NEWS: {"newsWidth": 79, "spacer": 1, "changeLogWidth": 25}
-  };
+
 
   @override
   Widget build(BuildContext context) {
-    var duration = Duration(milliseconds: 150);
+    var duration = Duration(milliseconds: 350);
 
     return Material(
       type: MaterialType.transparency,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: AnimatedContainer(
-          duration: duration,
+        body: Container(
           color: Colors.transparent,
           child: FluidLayout(
-            horizontalPadding: FluidValue((_) => 0),
+            width: FluidValue((_) => context.widthPx),
+            horizontalPadding: FluidValue((_) => 20),
             child: Fluid(
               child: Container(
                 margin: EdgeInsets.fromLTRB(0, 22, 0, 30),
@@ -105,24 +111,22 @@ class _HomeState extends State<Home> with AnimationMixin {
                 width: context.widthPx,
                 child: EventSubscriber(
                     event: expController.valueChangedEvent,
-                    handler: (context, args) =>
-                        Flex(mainAxisSize: MainAxisSize.max,
+                    handler: (context, args) => Flex(
+                          mainAxisSize: MainAxisSize.max,
                           clipBehavior: Clip.hardEdge,
                           direction: Axis.horizontal,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             AnimatedContainer(
-                              curve: Curves.fastOutSlowIn,
-                              height: context.heightPx,
+                              curve: Curves.easeOutQuint,
                               width: (((target[expController.target]["newsWidth"]) * 0.1) * (context.widthPx * 0.09)),
                               duration: duration,
                               child: NewsMainHome(),
                             ),
                             (expController.isNone) ? Spacer(flex: target[expController.target]["spacer"]) : NullWidget(),
                             AnimatedContainer(
-                              curve: Curves.fastOutSlowIn,
-                              height: context.heightPx,
+                              curve: Curves.easeOutQuint,
                               alignment: Alignment.center,
                               width: (((target[expController.target]["changeLogWidth"]) * 0.1) * (context.widthPx * 0.09)),
                               duration: duration,

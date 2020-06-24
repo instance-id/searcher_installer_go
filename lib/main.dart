@@ -73,7 +73,7 @@ class MyApp extends StatelessWidget {
       builder: (context, widget) => ResponsiveWrapper.builder(widget,
           debugLog: true,
           maxWidth: 3840,
-          minWidth: 300,
+          minWidth: 400,
           defaultScale: true,
           breakpoints: [
             ResponsiveBreakpoint.resize(300, name: MOBILE),
