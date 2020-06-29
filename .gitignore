@@ -159,3 +159,5 @@ windows/runner/utils.cpp
 windows/runner/utils.h
 
 *.ttf
+
+*.hive
